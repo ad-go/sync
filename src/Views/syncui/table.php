@@ -16,6 +16,7 @@
 /** @var string $action */
 /** @var string $delAction */
 /** @var string $self */
+use AdGo\Sync\Libraries\Icon;
 $this->extend('AdGo\Sync\Views\syncui\_layout');
 
 $names = array_map(static fn (object $c): string => $c->name, $columns);
@@ -35,6 +36,7 @@ $pages = (int) max(1, ceil($total / max(1, $perPage)));
 <h1><?= esc($table) ?> <small>(<?= lang('Sync.syncUi.rowsOf', [(string) $total]) ?>)</small></h1>
 
 <?php if ($editing): ?>
+<div class="card">
 <h2><?= $editPk === [] ? lang('Sync.syncUi.newRow') : lang('Sync.syncUi.editRow') ?></h2>
 <form method="post" action="<?= esc($action) ?>">
 <?= csrf_field() ?>
@@ -53,13 +55,15 @@ $pages = (int) max(1, ceil($total / max(1, $perPage)));
 </tr>
 <?php endforeach ?>
 </table>
-<button type="submit"><?= $editPk === [] ? lang('Sync.syncUi.insert') : lang('Sync.syncUi.save') ?></button>
-<a class="btn" href="<?= esc($self) ?>" style="background:#667"><?= lang('Sync.syncUi.cancel') ?></a>
+<p><button type="submit"><?= Icon::svg('check') ?> <?= $editPk === [] ? lang('Sync.syncUi.insert') : lang('Sync.syncUi.save') ?></button>
+<a class="btn ghost" href="<?= esc($self) ?>"><?= Icon::svg('x') ?> <?= lang('Sync.syncUi.cancel') ?></a></p>
 </form>
+</div>
 <?php endif ?>
 
 <form method="get" action="<?= esc($self) ?>">
-<table>
+<table id="rowsTable">
+<thead>
 <tr>
 <?php foreach ($names as $n): $isSort = $sort === $n; $nextDir = $isSort && $dir === 'asc' ? 'desc' : 'asc'; ?>
   <th><a href="<?= esc($self . $qs(['sort' => $n, 'dir' => $nextDir, 'page' => 1])) ?>"><?= esc($n) ?><?= $isSort ? ($dir === 'asc' ? ' ▲' : ' ▼') : '' ?></a></th>
@@ -68,34 +72,44 @@ $pages = (int) max(1, ceil($total / max(1, $perPage)));
 </tr>
 <tr>
 <?php foreach ($names as $n): ?>
-  <td><input type="text" name="f[<?= esc($n) ?>]" value="<?= esc($filters[$n] ?? '') ?>"></td>
+  <td><input type="text" name="f[<?= esc($n) ?>]" value="<?= esc($filters[$n] ?? '') ?>" placeholder="<?= esc(lang('Sync.syncUi.filter')) ?>"></td>
 <?php endforeach ?>
-  <td><button type="submit"><?= lang('Sync.syncUi.filter') ?></button></td>
+  <td><button type="submit"><?= Icon::svg('search') ?> <?= lang('Sync.syncUi.filter') ?></button></td>
 </tr>
+</thead>
+<tbody>
 <?php foreach ($rows as $row): ?>
 <tr>
 <?php foreach ($names as $n): ?>
   <td><?= $row[$n] === null ? '<i>NULL</i>' : esc((string) $row[$n]) ?></td>
 <?php endforeach ?>
-  <td>
-    <a href="<?= esc($self . $qs(['edit' => $encodeKey($row)])) ?>"><?= lang('Sync.syncUi.edit') ?></a>
+  <td style="white-space:nowrap">
+    <a class="btn ghost" href="<?= esc($self . $qs(['edit' => $encodeKey($row)])) ?>"><?= Icon::svg('pencil') ?></a>
     <form method="post" action="<?= esc($delAction) ?>" style="display:inline" onsubmit="return confirm('<?= esc(lang('Sync.syncUi.confirmDelete')) ?>')">
     <?= csrf_field() ?>
     <?php foreach (array_intersect_key($row, array_flip($pk)) as $col => $val): ?><input type="hidden" name="pk[<?= esc($col) ?>]" value="<?= esc((string) $val) ?>"><?php endforeach ?>
-    <button type="submit" class="d"><?= lang('Sync.syncUi.delete') ?></button>
+    <button type="submit" class="d"><?= Icon::svg('trash-2') ?></button>
     </form>
   </td>
 </tr>
 <?php endforeach ?>
 <?php if ($rows === []): ?><tr><td colspan="<?= count($names) + 1 ?>"><?= lang('Sync.syncUi.noRows') ?></td></tr><?php endif ?>
+</tbody>
 </table>
 </form>
 
-<p><a class="btn" href="<?= esc($self . $qs(['edit' => 'new'])) ?>"><?= lang('Sync.syncUi.newRow') ?></a></p>
+<p><a class="btn" href="<?= esc($self . $qs(['edit' => 'new'])) ?>"><?= Icon::svg('plus') ?> <?= lang('Sync.syncUi.newRow') ?></a></p>
 
 <p class="pager">
 <?php if ($page > 1): ?><a href="<?= esc($self . $qs(['page' => $page - 1])) ?>">&larr; <?= lang('Sync.syncUi.prev') ?></a><?php endif ?>
 <?= lang('Sync.syncUi.pageOf', [(string) $page, (string) $pages]) ?>
 <?php if ($page < $pages): ?><a href="<?= esc($self . $qs(['page' => $page + 1])) ?>"><?= lang('Sync.syncUi.next') ?> &rarr;</a><?php endif ?>
 </p>
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+<script>
+jQuery(function ($) {
+  $('#rowsTable').DataTable({ paging: false, info: false, ordering: false, language: { search: '' }, scrollX: true });
+});
+</script>
 <?= $this->endSection() ?>

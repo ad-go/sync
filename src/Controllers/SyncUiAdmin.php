@@ -7,6 +7,7 @@ namespace AdGo\Sync\Controllers;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\Response;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -26,6 +27,16 @@ use AdGo\Sync\Libraries\SyncUiBrowser;
 class SyncUiAdmin extends Controller
 {
     private const SESSION_LOCALE_KEY = 'syncUiLocale';
+
+    /** Extension => Content-Type, for the vendored static files under Assets/syncui served by self::asset(). */
+    private const ASSET_MIME = [
+        'js'   => 'text/javascript; charset=UTF-8',
+        'mjs'  => 'text/javascript; charset=UTF-8',
+        'css'  => 'text/css; charset=UTF-8',
+        'svg'  => 'image/svg+xml',
+        'map'  => 'application/json',
+        'wasm' => 'application/wasm',
+    ];
 
     private SyncUiBrowser $browser;
 
@@ -144,13 +155,53 @@ class SyncUiAdmin extends Controller
             }
         }
 
-        return view((string) config('Sync')->syncUiSqlView, $this->chrome('', [
+        return view((string) config('Sync')->syncUiSqlView, $this->chrome('sql', [
             'title'  => Lang::line('syncUi.sqlTitle'),
             'sql'    => $sqlText,
             'result' => $result,
             'error'  => $error,
             'action' => site_url($this->base() . '/sql'),
         ]));
+    }
+
+    /**
+     * A gallery of widgets with no natural home in a table/row editor (WYSIWYG, signature pad, image editor,
+     * PDF preview, camera barcode/QR scan, text-to-speech) — demos only, nothing here is saved.
+     */
+    public function showcase(): string
+    {
+        return view((string) config('Sync')->syncUiShowcaseView, $this->chrome('showcase', [
+            'title' => Lang::line('syncUi.showcase'),
+        ]));
+    }
+
+    /**
+     * Serves a vendored static file from Assets/syncui (see its NOTICE.md) — the package ships its own copies
+     * of jQuery/DataTables/Select2/etc. so the host application never has to publish anything to its own
+     * public/, and the page never fetches a third-party CDN at runtime.
+     *
+     * The route (`assets/(:any)`) passes each slash-separated piece of the match as its own positional
+     * argument rather than one combined string, so the path is rejoined from `$segments`.
+     */
+    public function asset(string ...$segments): ResponseInterface
+    {
+        $path = ltrim(implode('/', $segments), '/');
+        $root = realpath(__DIR__ . '/../Assets/syncui');
+        $full = $root === false ? false : realpath($root . '/' . $path);
+
+        if ($path === '' || $root === false || $full === false || ! str_starts_with($full, $root) || ! is_file($full)) {
+            return $this->response->setStatusCode(404);
+        }
+
+        $ext = strtolower(pathinfo($full, PATHINFO_EXTENSION));
+
+        /** @var Response $response */
+        $response = $this->response;
+
+        return $response
+            ->setHeader('Cache-Control', 'private, max-age=31536000, immutable')
+            ->setContentType(self::ASSET_MIME[$ext] ?? 'application/octet-stream')
+            ->setBody((string) file_get_contents($full));
     }
 
     /** Sets the SyncUI chrome's language for this visitor and sends them back where they came from. */
@@ -197,6 +248,7 @@ class SyncUiAdmin extends Controller
 
         return $extra + [
             'base'          => $this->base(),
+            'asset'         => fn (string $p): string => site_url($this->base() . '/assets/' . $p),
             'activeTable'   => $activeTable,
             'sidebarTables' => $this->browser->tables(),
             'locales'       => (array) $cfg->syncUiLocales,

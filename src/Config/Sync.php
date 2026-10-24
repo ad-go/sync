@@ -254,6 +254,9 @@ class Sync extends BaseConfig
 
     public string $syncUiSqlView = 'AdGo\Sync\Views\syncui\sql';
 
+    /** SyncUI's widget showcase (WYSIWYG, signature pad, image editor, PDF preview, barcode scan, text-to-speech). */
+    public string $syncUiShowcaseView = 'AdGo\Sync\Views\syncui\showcase';
+
     /**
      * Languages the SyncUI chrome (top bar, sidebar, footer) offers in its language switcher: code => native name.
      * The package ships `en` and `de` (`src/Language`); an application that adds its own `Language/<code>/Sync.php`

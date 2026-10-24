@@ -121,4 +121,5 @@ let the application wrap the pages in its own layout.
 (same `adminPermission` guard); `syncUiIndexView`, `syncUiTableView` and `syncUiSqlView` override its views.
 `syncUiLocales` (default `['en' => 'English', 'de' => 'Deutsch']`) lists the languages its own language
 switcher offers; `profileUrl` (default `''`) points its user menu's optional Profile entry at the
-application's own profile page. See [OPERATIONS.md](OPERATIONS.md#syncui-the-database-admin-ui).
+application's own profile page; `syncUiShowcaseView` overrides the widget-showcase page. See
+[OPERATIONS.md](OPERATIONS.md#syncui-the-database-admin-ui).
