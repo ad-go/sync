@@ -46,3 +46,16 @@ $routes->group(trim($syncCfg->conflictsPath, '/'), [
     $routes->get('(:num)', 'ConflictAdmin::show/$1');
     $routes->post('(:num)/resolve', 'ConflictAdmin::resolve/$1');
 });
+
+// Onequi: Adminer-style database browser/editor (Shield session + permission, same guard as the conflict admin).
+$routes->group(trim($syncCfg->onequiPath, '/'), [
+    'namespace' => $ns,
+    'filter'    => ['session', 'permission:' . $syncCfg->adminPermission],
+], static function ($routes): void {
+    $routes->get('/', 'OnequiAdmin::index');
+    $routes->get('sql', 'OnequiAdmin::sql');
+    $routes->post('sql', 'OnequiAdmin::sql');
+    $routes->get('(:segment)', 'OnequiAdmin::table/$1');
+    $routes->post('(:segment)/save', 'OnequiAdmin::save/$1');
+    $routes->post('(:segment)/delete', 'OnequiAdmin::delete/$1');
+});

@@ -62,6 +62,42 @@ return [
         'couldNotResolve' => 'Der Konflikt konnte nicht entschieden werden.',
         'resolved'        => 'Konflikt #{0} entschieden.',
         'notPropagated'   => 'Der andere Knoten war nicht erreichbar; er erhält die Entscheidung bei seinem nächsten Abruf.',
+        // Onequi (Controllers/OnequiAdmin.php)
+        'unknownTable'    => 'Unbekannte Tabelle.',
+        'inserted'        => 'Zeile eingefügt.',
+        'updated'         => 'Zeile gespeichert.',
+        'deleted'         => 'Zeile gelöscht.',
+    ],
+
+    // Onequi, die Adminer-ähnliche Datenbankverwaltung (Views/onequi/*.php, Controllers/OnequiAdmin.php)
+    'onequi' => [
+        'title'         => 'Datenbank',
+        'sqlTitle'      => 'SQL ausführen',
+        'th'            => [
+            'table' => 'Tabelle',
+            'rows'  => 'Zeilen',
+        ],
+        'browse'        => 'Anzeigen',
+        'runSql'        => 'SQL ausführen',
+        'run'           => 'Ausführen',
+        'allTables'     => 'Alle Tabellen',
+        'noTables'      => 'Keine Tabellen.',
+        'noRows'        => 'Keine Zeilen.',
+        'rowsOf'        => '{0} Zeilen',
+        'filter'        => 'Filtern',
+        'edit'          => 'Bearbeiten',
+        'delete'        => 'Löschen',
+        'key'           => 'Schlüssel',
+        'newRow'        => 'Neue Zeile',
+        'editRow'       => 'Zeile bearbeiten',
+        'insert'        => 'Einfügen',
+        'save'          => 'Speichern',
+        'cancel'        => 'Abbrechen',
+        'confirmDelete' => 'Diese Zeile löschen?',
+        'prev'          => 'Zurück',
+        'next'          => 'Weiter',
+        'pageOf'        => 'Seite {0} / {1}',
+        'affected'      => '{0} Zeile(n) betroffen.',
     ],
 
     // Telegram-Meldungen, Schaltflächen und Rückmeldungen (Libraries/TelegramNotifier.php, Controllers/SyncController.php)

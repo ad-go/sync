@@ -140,6 +140,22 @@ so the conflict cannot come back. If the peer is down, an authoritative journal 
 and the peer applies it on its next pull. A node refuses a decision for a row it changed after the conflict
 was detected.
 
+## Onequi: the database admin UI
+
+**Admin UI** at `sync-admin/onequi` (`Config\Sync::$onequiPath`), behind the same Shield `session` +
+`permission:adminPermission` guard as the conflict admin. An Adminer-style browser/editor for the whole
+connection named by `Config\Sync::$dbGroup` — not only the package's own tables:
+
+* table list with row counts;
+* per table: filter (substring, per column), sort, paginate, edit a row, add a row, delete a row;
+* a free-form SQL box — a `SELECT`-like statement shows its result set, anything else shows the affected
+  row count.
+
+It is driver-agnostic (MySQL/MariaDB, PostgreSQL, SQLite) and works with `AdGo\Sync\Libraries\OnequiBrowser`
+directly if an application wants a different UI on top of the same operations. There is no table-level
+allow/deny list: any Shield user with `adminPermission` can edit or run SQL against any table on that
+connection, same trust boundary as the conflict admin UI and the raw database credentials.
+
 ## Schema changes
 
 Adding a column to a synchronised table changes every row's recorded hash. On each node, right after its

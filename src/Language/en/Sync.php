@@ -63,6 +63,42 @@ return [
         'couldNotResolve' => 'Could not resolve.',
         'resolved'        => 'Conflict #{0} resolved.',
         'notPropagated'   => 'The other node could not be reached; it will receive the decision on its next pull.',
+        // Onequi (Controllers/OnequiAdmin.php)
+        'unknownTable'    => 'Unknown table.',
+        'inserted'        => 'Row inserted.',
+        'updated'         => 'Row saved.',
+        'deleted'         => 'Row deleted.',
+    ],
+
+    // Onequi, the Adminer-style database browser/editor (Views/onequi/*.php, Controllers/OnequiAdmin.php)
+    'onequi' => [
+        'title'         => 'Database',
+        'sqlTitle'      => 'Run SQL',
+        'th'            => [
+            'table' => 'Table',
+            'rows'  => 'Rows',
+        ],
+        'browse'        => 'Browse',
+        'runSql'        => 'Run SQL',
+        'run'           => 'Run',
+        'allTables'     => 'All tables',
+        'noTables'      => 'No tables.',
+        'noRows'        => 'No rows.',
+        'rowsOf'        => '{0} rows',
+        'filter'        => 'Filter',
+        'edit'          => 'Edit',
+        'delete'        => 'Delete',
+        'key'           => 'key',
+        'newRow'        => 'New row',
+        'editRow'       => 'Edit row',
+        'insert'        => 'Insert',
+        'save'          => 'Save',
+        'cancel'        => 'Cancel',
+        'confirmDelete' => 'Delete this row?',
+        'prev'          => 'Previous',
+        'next'          => 'Next',
+        'pageOf'        => 'Page {0} / {1}',
+        'affected'      => '{0} row(s) affected.',
     ],
 
     // Telegram alerts, buttons and callback answers (Libraries/TelegramNotifier.php, Controllers/SyncController.php)
