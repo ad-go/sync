@@ -117,6 +117,6 @@ independent: either can be used alone.
 permission) control the conflict UI. `menuView`, `headView`, `conflictsIndexView` and `conflictsShowView`
 let the application wrap the pages in its own layout.
 
-`onequiPath` (default `sync-admin/onequi`) is the same for Onequi, the Adminer-style database browser/editor
-(same `adminPermission` guard); `onequiIndexView`, `onequiTableView` and `onequiSqlView` override its views.
-See [OPERATIONS.md](OPERATIONS.md#onequi-the-database-admin-ui).
+`syncUiPath` (default `sync-admin/syncui`) is the same for SyncUI, the Adminer-style database browser/editor
+(same `adminPermission` guard); `syncUiIndexView`, `syncUiTableView` and `syncUiSqlView` override its views.
+See [OPERATIONS.md](OPERATIONS.md#syncui-the-database-admin-ui).

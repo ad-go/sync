@@ -63,15 +63,15 @@ return [
         'couldNotResolve' => 'Could not resolve.',
         'resolved'        => 'Conflict #{0} resolved.',
         'notPropagated'   => 'The other node could not be reached; it will receive the decision on its next pull.',
-        // Onequi (Controllers/OnequiAdmin.php)
+        // SyncUI (Controllers/SyncUiAdmin.php)
         'unknownTable'    => 'Unknown table.',
         'inserted'        => 'Row inserted.',
         'updated'         => 'Row saved.',
         'deleted'         => 'Row deleted.',
     ],
 
-    // Onequi, the Adminer-style database browser/editor (Views/onequi/*.php, Controllers/OnequiAdmin.php)
-    'onequi' => [
+    // SyncUI, the Adminer-style database browser/editor (Views/syncui/*.php, Controllers/SyncUiAdmin.php)
+    'syncUi' => [
         'title'         => 'Database',
         'sqlTitle'      => 'Run SQL',
         'th'            => [

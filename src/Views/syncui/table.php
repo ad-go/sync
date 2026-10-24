@@ -34,7 +34,7 @@ $pages = (int) max(1, ceil($total / max(1, $perPage)));
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= esc($table) ?> · <?= lang('Sync.onequi.title') ?></title>
+<title><?= esc($table) ?> · <?= lang('Sync.syncUi.title') ?></title>
 <?= $head ?? '' ?>
 <style>
 body{font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:1200px;margin-inline:auto;color:#1c1f26;background:#f6f7f9}
@@ -51,20 +51,20 @@ a.btn{background:#1d5fd1;color:#fff;padding:4px 10px;border-radius:5px;text-deco
 </head>
 <body>
 <?= $menu ?? '' ?>
-<p><a href="<?= esc(site_url($base)) ?>">&larr; <?= lang('Sync.onequi.allTables') ?></a></p>
-<h1><?= esc($table) ?> <small>(<?= lang('Sync.onequi.rowsOf', [(string) $total]) ?>)</small></h1>
+<p><a href="<?= esc(site_url($base)) ?>">&larr; <?= lang('Sync.syncUi.allTables') ?></a></p>
+<h1><?= esc($table) ?> <small>(<?= lang('Sync.syncUi.rowsOf', [(string) $total]) ?>)</small></h1>
 <?php if (session()->getFlashdata('message')): ?><div class="flash"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
 <?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
 
 <?php if ($editing): ?>
-<h2><?= $editPk === [] ? lang('Sync.onequi.newRow') : lang('Sync.onequi.editRow') ?></h2>
+<h2><?= $editPk === [] ? lang('Sync.syncUi.newRow') : lang('Sync.syncUi.editRow') ?></h2>
 <form method="post" action="<?= esc($action) ?>">
 <?= csrf_field() ?>
 <?php foreach ($editPk as $col => $val): ?><input type="hidden" name="pk[<?= esc($col) ?>]" value="<?= esc((string) $val) ?>"><?php endforeach ?>
 <table>
 <?php foreach ($names as $n): ?>
 <tr>
-  <th><?= esc($n) ?><?= in_array($n, $pk, true) ? ' <small>(' . lang('Sync.onequi.key') . ')</small>' : '' ?></th>
+  <th><?= esc($n) ?><?= in_array($n, $pk, true) ? ' <small>(' . lang('Sync.syncUi.key') . ')</small>' : '' ?></th>
   <td>
   <?php if (in_array($n, $pk, true) && $editPk !== []): ?>
     <?= esc((string) ($editRow[$n] ?? '')) ?>
@@ -75,8 +75,8 @@ a.btn{background:#1d5fd1;color:#fff;padding:4px 10px;border-radius:5px;text-deco
 </tr>
 <?php endforeach ?>
 </table>
-<button type="submit"><?= $editPk === [] ? lang('Sync.onequi.insert') : lang('Sync.onequi.save') ?></button>
-<a class="btn" href="<?= esc($self) ?>" style="background:#667"><?= lang('Sync.onequi.cancel') ?></a>
+<button type="submit"><?= $editPk === [] ? lang('Sync.syncUi.insert') : lang('Sync.syncUi.save') ?></button>
+<a class="btn" href="<?= esc($self) ?>" style="background:#667"><?= lang('Sync.syncUi.cancel') ?></a>
 </form>
 <?php endif ?>
 
@@ -92,7 +92,7 @@ a.btn{background:#1d5fd1;color:#fff;padding:4px 10px;border-radius:5px;text-deco
 <?php foreach ($names as $n): ?>
   <td><input type="text" name="f[<?= esc($n) ?>]" value="<?= esc($filters[$n] ?? '') ?>"></td>
 <?php endforeach ?>
-  <td><button type="submit"><?= lang('Sync.onequi.filter') ?></button></td>
+  <td><button type="submit"><?= lang('Sync.syncUi.filter') ?></button></td>
 </tr>
 <?php foreach ($rows as $row): ?>
 <tr>
@@ -100,25 +100,25 @@ a.btn{background:#1d5fd1;color:#fff;padding:4px 10px;border-radius:5px;text-deco
   <td><?= $row[$n] === null ? '<i>NULL</i>' : esc((string) $row[$n]) ?></td>
 <?php endforeach ?>
   <td>
-    <a href="<?= esc($self . $qs(['edit' => $encodeKey($row)])) ?>"><?= lang('Sync.onequi.edit') ?></a>
-    <form method="post" action="<?= esc($delAction) ?>" style="display:inline" onsubmit="return confirm('<?= esc(lang('Sync.onequi.confirmDelete')) ?>')">
+    <a href="<?= esc($self . $qs(['edit' => $encodeKey($row)])) ?>"><?= lang('Sync.syncUi.edit') ?></a>
+    <form method="post" action="<?= esc($delAction) ?>" style="display:inline" onsubmit="return confirm('<?= esc(lang('Sync.syncUi.confirmDelete')) ?>')">
     <?= csrf_field() ?>
     <?php foreach (array_intersect_key($row, array_flip($pk)) as $col => $val): ?><input type="hidden" name="pk[<?= esc($col) ?>]" value="<?= esc((string) $val) ?>"><?php endforeach ?>
-    <button type="submit" class="d"><?= lang('Sync.onequi.delete') ?></button>
+    <button type="submit" class="d"><?= lang('Sync.syncUi.delete') ?></button>
     </form>
   </td>
 </tr>
 <?php endforeach ?>
-<?php if ($rows === []): ?><tr><td colspan="<?= count($names) + 1 ?>"><?= lang('Sync.onequi.noRows') ?></td></tr><?php endif ?>
+<?php if ($rows === []): ?><tr><td colspan="<?= count($names) + 1 ?>"><?= lang('Sync.syncUi.noRows') ?></td></tr><?php endif ?>
 </table>
 </form>
 
-<p><a class="btn" href="<?= esc($self . $qs(['edit' => 'new'])) ?>"><?= lang('Sync.onequi.newRow') ?></a></p>
+<p><a class="btn" href="<?= esc($self . $qs(['edit' => 'new'])) ?>"><?= lang('Sync.syncUi.newRow') ?></a></p>
 
 <p class="pager">
-<?php if ($page > 1): ?><a href="<?= esc($self . $qs(['page' => $page - 1])) ?>">&larr; <?= lang('Sync.onequi.prev') ?></a><?php endif ?>
-<?= lang('Sync.onequi.pageOf', [(string) $page, (string) $pages]) ?>
-<?php if ($page < $pages): ?><a href="<?= esc($self . $qs(['page' => $page + 1])) ?>"><?= lang('Sync.onequi.next') ?> &rarr;</a><?php endif ?>
+<?php if ($page > 1): ?><a href="<?= esc($self . $qs(['page' => $page - 1])) ?>">&larr; <?= lang('Sync.syncUi.prev') ?></a><?php endif ?>
+<?= lang('Sync.syncUi.pageOf', [(string) $page, (string) $pages]) ?>
+<?php if ($page < $pages): ?><a href="<?= esc($self . $qs(['page' => $page + 1])) ?>"><?= lang('Sync.syncUi.next') ?> &rarr;</a><?php endif ?>
 </p>
 </body>
 </html>

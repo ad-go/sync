@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace AdGo\Sync\Tests;
 
-use AdGo\Sync\Libraries\OnequiBrowser;
+use AdGo\Sync\Libraries\SyncUiBrowser;
 use InvalidArgumentException;
 
-final class OnequiBrowserTest extends TwoNodes
+final class SyncUiBrowserTest extends TwoNodes
 {
-    private function browser(): OnequiBrowser
+    private function browser(): SyncUiBrowser
     {
-        return new OnequiBrowser($this->a->db);
+        return new SyncUiBrowser($this->a->db);
     }
 
     public function testTablesListsKnownTablesWithRowCounts(): void

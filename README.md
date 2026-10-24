@@ -11,7 +11,7 @@ changes to existing tables, no SSH or root needed.
   atomic writes; concurrent edits keep both versions.
 * **Topologies.** Two dial-in nodes, a hub with passive nodes behind NAT (outbound-only), and relaying hubs.
 * **Operations.** Conflict admin UI, Telegram and e-mail alerts, a reachability check (`sync:check`), a
-  distributed edit lock for Shield users, and Onequi, an Adminer-style database browser/editor for admins.
+  distributed edit lock for Shield users, and SyncUI, an Adminer-style database browser/editor for admins.
 * **Built on the official packages.** [Shield](https://github.com/codeigniter4/shield),
   [Tasks](https://github.com/codeigniter4/tasks), [Queue](https://github.com/codeigniter4/queue),
   CodeIgniter's Email, Migrations, Language and Services.

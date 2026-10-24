@@ -12,12 +12,12 @@ use Throwable;
 /**
  * Adminer-style read/write access to one connection's tables: list tables, list/filter/sort rows, insert, update,
  * delete, and run an arbitrary statement. Driver-agnostic (MySQL, PostgreSQL, SQLite — anything CI4's query
- * builder supports); used by Controllers/OnequiAdmin.
+ * builder supports); used by Controllers/SyncUiAdmin.
  *
  * Every table/column name is checked against the connection's own metadata before it reaches a query, since the
  * query builder cannot bind an identifier the way it binds a value.
  */
-final class OnequiBrowser
+final class SyncUiBrowser
 {
     public function __construct(private readonly BaseConnection $db)
     {

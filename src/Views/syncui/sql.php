@@ -10,7 +10,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= lang('Sync.onequi.sqlTitle') ?></title>
+<title><?= lang('Sync.syncUi.sqlTitle') ?></title>
 <?= $head ?? '' ?>
 <style>
 body{font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:1100px;margin-inline:auto;color:#1c1f26;background:#f6f7f9}
@@ -23,24 +23,24 @@ button{padding:6px 12px;border:0;border-radius:5px;color:#fff;background:#1d5fd1
 </head>
 <body>
 <?= $menu ?? '' ?>
-<p><a href="<?= esc($back) ?>">&larr; <?= lang('Sync.onequi.allTables') ?></a></p>
-<h1><?= lang('Sync.onequi.sqlTitle') ?></h1>
+<p><a href="<?= esc($back) ?>">&larr; <?= lang('Sync.syncUi.allTables') ?></a></p>
+<h1><?= lang('Sync.syncUi.sqlTitle') ?></h1>
 <?php if ($error !== null): ?><div class="flash err"><?= esc($error) ?></div><?php endif ?>
 <form method="post" action="<?= esc($action) ?>">
 <?= csrf_field() ?>
 <textarea name="sql" rows="6" placeholder="SELECT * FROM ..."><?= esc($sql) ?></textarea>
-<p><button type="submit"><?= lang('Sync.onequi.run') ?></button></p>
+<p><button type="submit"><?= lang('Sync.syncUi.run') ?></button></p>
 </form>
 <?php if ($result !== null): ?>
 <?php if ($result['columns'] === []): ?>
-<p><?= lang('Sync.onequi.affected', [(string) $result['affected']]) ?></p>
+<p><?= lang('Sync.syncUi.affected', [(string) $result['affected']]) ?></p>
 <?php else: ?>
 <table>
 <tr><?php foreach ($result['columns'] as $c): ?><th><?= esc($c) ?></th><?php endforeach ?></tr>
 <?php foreach ($result['rows'] as $row): ?>
 <tr><?php foreach ($result['columns'] as $c): ?><td><?= $row[$c] === null ? '<i>NULL</i>' : esc((string) $row[$c]) ?></td><?php endforeach ?></tr>
 <?php endforeach ?>
-<?php if ($result['rows'] === []): ?><tr><td colspan="<?= count($result['columns']) ?>"><?= lang('Sync.onequi.noRows') ?></td></tr><?php endif ?>
+<?php if ($result['rows'] === []): ?><tr><td colspan="<?= count($result['columns']) ?>"><?= lang('Sync.syncUi.noRows') ?></td></tr><?php endif ?>
 </table>
 <?php endif ?>
 <?php endif ?>

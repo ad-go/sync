@@ -8,7 +8,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= lang('Sync.onequi.title') ?></title>
+<title><?= lang('Sync.syncUi.title') ?></title>
 <?= $head ?? '' ?>
 <style>
 body{font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:900px;margin-inline:auto;color:#1c1f26;background:#f6f7f9}
@@ -21,20 +21,20 @@ a.btn{background:#1d5fd1;color:#fff;padding:4px 10px;border-radius:5px;text-deco
 </head>
 <body>
 <?= $menu ?? '' ?>
-<h1><?= lang('Sync.onequi.title') ?></h1>
+<h1><?= lang('Sync.syncUi.title') ?></h1>
 <?php if (session()->getFlashdata('message')): ?><div class="flash"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
 <?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
-<p><a class="btn" href="<?= esc($sql) ?>"><?= lang('Sync.onequi.runSql') ?></a></p>
+<p><a class="btn" href="<?= esc($sql) ?>"><?= lang('Sync.syncUi.runSql') ?></a></p>
 <table>
-<tr><th><?= lang('Sync.onequi.th.table') ?></th><th><?= lang('Sync.onequi.th.rows') ?></th><th></th></tr>
+<tr><th><?= lang('Sync.syncUi.th.table') ?></th><th><?= lang('Sync.syncUi.th.rows') ?></th><th></th></tr>
 <?php foreach ($tables as $t): ?>
 <tr>
   <td><?= esc($t['name']) ?></td>
   <td class="n"><?= (int) $t['rows'] ?></td>
-  <td><a href="<?= site_url($base . '/' . $t['name']) ?>"><?= lang('Sync.onequi.browse') ?></a></td>
+  <td><a href="<?= site_url($base . '/' . $t['name']) ?>"><?= lang('Sync.syncUi.browse') ?></a></td>
 </tr>
 <?php endforeach ?>
-<?php if ($tables === []): ?><tr><td colspan="3"><?= lang('Sync.onequi.noTables') ?></td></tr><?php endif ?>
+<?php if ($tables === []): ?><tr><td colspan="3"><?= lang('Sync.syncUi.noTables') ?></td></tr><?php endif ?>
 </table>
 </body>
 </html>

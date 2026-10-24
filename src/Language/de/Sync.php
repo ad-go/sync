@@ -62,15 +62,15 @@ return [
         'couldNotResolve' => 'Der Konflikt konnte nicht entschieden werden.',
         'resolved'        => 'Konflikt #{0} entschieden.',
         'notPropagated'   => 'Der andere Knoten war nicht erreichbar; er erhält die Entscheidung bei seinem nächsten Abruf.',
-        // Onequi (Controllers/OnequiAdmin.php)
+        // SyncUI (Controllers/SyncUiAdmin.php)
         'unknownTable'    => 'Unbekannte Tabelle.',
         'inserted'        => 'Zeile eingefügt.',
         'updated'         => 'Zeile gespeichert.',
         'deleted'         => 'Zeile gelöscht.',
     ],
 
-    // Onequi, die Adminer-ähnliche Datenbankverwaltung (Views/onequi/*.php, Controllers/OnequiAdmin.php)
-    'onequi' => [
+    // SyncUI, die Adminer-ähnliche Datenbankverwaltung (Views/syncui/*.php, Controllers/SyncUiAdmin.php)
+    'syncUi' => [
         'title'         => 'Datenbank',
         'sqlTitle'      => 'SQL ausführen',
         'th'            => [

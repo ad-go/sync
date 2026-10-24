@@ -9,20 +9,20 @@ use CodeIgniter\HTTP\RedirectResponse;
 use Throwable;
 use AdGo\Sync\Libraries\Kernel;
 use AdGo\Sync\Libraries\Lang;
-use AdGo\Sync\Libraries\OnequiBrowser;
+use AdGo\Sync\Libraries\SyncUiBrowser;
 
 /**
- * Onequi: an Adminer-style browser/editor for the application's own database (Config\Sync::$dbGroup) — list
+ * SyncUI: an Adminer-style browser/editor for the application's own database (Config\Sync::$dbGroup) — list
  * tables, browse/filter/sort/edit/delete rows, run arbitrary SQL. Routes sit behind Shield's `session` and
  * `permission` filters (see Config/Routes.php), same as ConflictAdmin.
  */
-class OnequiAdmin extends Controller
+class SyncUiAdmin extends Controller
 {
-    private OnequiBrowser $browser;
+    private SyncUiBrowser $browser;
 
     public function __construct()
     {
-        $this->browser = new OnequiBrowser(Kernel::instance()->db);
+        $this->browser = new SyncUiBrowser(Kernel::instance()->db);
     }
 
     /** The application's menu (Config\Sync::$menuView), or nothing. */
@@ -30,7 +30,7 @@ class OnequiAdmin extends Controller
     {
         $view = (string) config('Sync')->menuView;
 
-        return $view === '' ? '' : view($view, ['active' => 'onequi']);
+        return $view === '' ? '' : view($view, ['active' => 'syncUi']);
     }
 
     /** Extra markup for <head> (Config\Sync::$headView), or nothing. */
@@ -43,7 +43,7 @@ class OnequiAdmin extends Controller
 
     public function index(): string
     {
-        return view((string) config('Sync')->onequiIndexView, [
+        return view((string) config('Sync')->syncUiIndexView, [
             'tables' => $this->browser->tables(),
             'base'   => $this->base(),
             'sql'    => site_url($this->base() . '/sql'),
@@ -73,7 +73,7 @@ class OnequiAdmin extends Controller
         $editPk  = $editKey === '' || $editKey === 'new' ? [] : $this->decodeKey($editKey);
         $editRow = $editKey === 'new' ? [] : ($editPk === [] ? null : ($this->browser->find($table, $editPk) ?? []));
 
-        return view((string) config('Sync')->onequiTableView, [
+        return view((string) config('Sync')->syncUiTableView, [
             'table'     => $table,
             'columns'   => $data['columns'],
             'rows'      => $data['rows'],
@@ -152,7 +152,7 @@ class OnequiAdmin extends Controller
             }
         }
 
-        return view((string) config('Sync')->onequiSqlView, [
+        return view((string) config('Sync')->syncUiSqlView, [
             'sql'    => $sqlText,
             'result' => $result,
             'error'  => $error,
@@ -165,7 +165,7 @@ class OnequiAdmin extends Controller
 
     private function base(): string
     {
-        return trim((string) config('Sync')->onequiPath, '/');
+        return trim((string) config('Sync')->syncUiPath, '/');
     }
 
     /** @return array<string, mixed> */

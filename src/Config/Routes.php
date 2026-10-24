@@ -47,15 +47,15 @@ $routes->group(trim($syncCfg->conflictsPath, '/'), [
     $routes->post('(:num)/resolve', 'ConflictAdmin::resolve/$1');
 });
 
-// Onequi: Adminer-style database browser/editor (Shield session + permission, same guard as the conflict admin).
-$routes->group(trim($syncCfg->onequiPath, '/'), [
+// SyncUI: Adminer-style database browser/editor (Shield session + permission, same guard as the conflict admin).
+$routes->group(trim($syncCfg->syncUiPath, '/'), [
     'namespace' => $ns,
     'filter'    => ['session', 'permission:' . $syncCfg->adminPermission],
 ], static function ($routes): void {
-    $routes->get('/', 'OnequiAdmin::index');
-    $routes->get('sql', 'OnequiAdmin::sql');
-    $routes->post('sql', 'OnequiAdmin::sql');
-    $routes->get('(:segment)', 'OnequiAdmin::table/$1');
-    $routes->post('(:segment)/save', 'OnequiAdmin::save/$1');
-    $routes->post('(:segment)/delete', 'OnequiAdmin::delete/$1');
+    $routes->get('/', 'SyncUiAdmin::index');
+    $routes->get('sql', 'SyncUiAdmin::sql');
+    $routes->post('sql', 'SyncUiAdmin::sql');
+    $routes->get('(:segment)', 'SyncUiAdmin::table/$1');
+    $routes->post('(:segment)/save', 'SyncUiAdmin::save/$1');
+    $routes->post('(:segment)/delete', 'SyncUiAdmin::delete/$1');
 });

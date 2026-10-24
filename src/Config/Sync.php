@@ -59,8 +59,8 @@ class Sync extends BaseConfig
     /** URL path of the conflict admin UI. */
     public string $conflictsPath = 'sync-admin/conflicts';
 
-    /** URL path of Onequi, the Adminer-style database browser/editor for Config\Sync::$dbGroup. */
-    public string $onequiPath = 'sync-admin/onequi';
+    /** URL path of SyncUI, the Adminer-style database browser/editor for Config\Sync::$dbGroup. */
+    public string $syncUiPath = 'sync-admin/syncui';
 
     /**
      * Shared HMAC secret (same on both nodes). Set it in .env:
@@ -247,14 +247,14 @@ class Sync extends BaseConfig
 
     public string $conflictsShowView = 'AdGo\Sync\Views\conflicts\show';
 
-    /** Onequi's table list, table/row editor, and arbitrary-SQL views. Same override mechanism as the conflict views. */
-    public string $onequiIndexView = 'AdGo\Sync\Views\onequi\index';
+    /** SyncUI's table list, table/row editor, and arbitrary-SQL views. Same override mechanism as the conflict views. */
+    public string $syncUiIndexView = 'AdGo\Sync\Views\syncui\index';
 
-    public string $onequiTableView = 'AdGo\Sync\Views\onequi\table';
+    public string $syncUiTableView = 'AdGo\Sync\Views\syncui\table';
 
-    public string $onequiSqlView = 'AdGo\Sync\Views\onequi\sql';
+    public string $syncUiSqlView = 'AdGo\Sync\Views\syncui\sql';
 
-    /** Roles (Shield groups) allowed to use the conflict admin UI and Onequi. */
+    /** Roles (Shield groups) allowed to use the conflict admin UI and SyncUI. */
     public string $adminPermission = 'admin.access';
 
     public function __construct()
