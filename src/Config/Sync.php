@@ -254,6 +254,21 @@ class Sync extends BaseConfig
 
     public string $syncUiSqlView = 'AdGo\Sync\Views\syncui\sql';
 
+    /**
+     * Languages the SyncUI chrome (top bar, sidebar, footer) offers in its language switcher: code => native name.
+     * The package ships `en` and `de` (`src/Language`); an application that adds its own `Language/<code>/Sync.php`
+     * lists the extra code here too. A single entry hides the switcher.
+     *
+     * @var array<string, string>
+     */
+    public array $syncUiLocales = ['en' => 'English', 'de' => 'Deutsch'];
+
+    /**
+     * URL of the application's own user-profile page, shown as an entry in SyncUI's user menu next to Logout.
+     * Empty (default) hides the entry: the package has no profile page of its own.
+     */
+    public string $profileUrl = '';
+
     /** Roles (Shield groups) allowed to use the conflict admin UI and SyncUI. */
     public string $adminPermission = 'admin.access';
 

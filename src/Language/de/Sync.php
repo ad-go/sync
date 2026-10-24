@@ -71,8 +71,14 @@ return [
 
     // SyncUI, die Adminer-ähnliche Datenbankverwaltung (Views/syncui/*.php, Controllers/SyncUiAdmin.php)
     'syncUi' => [
+        'brand'         => 'SyncUI',
         'title'         => 'Datenbank',
         'sqlTitle'      => 'SQL ausführen',
+        'toggleSidebar' => 'Tabellenliste ein-/ausblenden',
+        'language'      => 'Sprache',
+        'profile'       => 'Profil',
+        'logout'        => 'Abmelden',
+        'footer'        => 'SyncUI — Teil von ad-go/sync',
         'th'            => [
             'table' => 'Tabelle',
             'rows'  => 'Zeilen',
@@ -80,7 +86,6 @@ return [
         'browse'        => 'Anzeigen',
         'runSql'        => 'SQL ausführen',
         'run'           => 'Ausführen',
-        'allTables'     => 'Alle Tabellen',
         'noTables'      => 'Keine Tabellen.',
         'noRows'        => 'Keine Zeilen.',
         'rowsOf'        => '{0} Zeilen',

@@ -55,6 +55,7 @@ $routes->group(trim($syncCfg->syncUiPath, '/'), [
     $routes->get('/', 'SyncUiAdmin::index');
     $routes->get('sql', 'SyncUiAdmin::sql');
     $routes->post('sql', 'SyncUiAdmin::sql');
+    $routes->get('locale/(:segment)', 'SyncUiAdmin::locale/$1');
     $routes->get('(:segment)', 'SyncUiAdmin::table/$1');
     $routes->post('(:segment)/save', 'SyncUiAdmin::save/$1');
     $routes->post('(:segment)/delete', 'SyncUiAdmin::delete/$1');

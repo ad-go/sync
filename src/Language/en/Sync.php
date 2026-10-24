@@ -72,8 +72,14 @@ return [
 
     // SyncUI, the Adminer-style database browser/editor (Views/syncui/*.php, Controllers/SyncUiAdmin.php)
     'syncUi' => [
+        'brand'         => 'SyncUI',
         'title'         => 'Database',
         'sqlTitle'      => 'Run SQL',
+        'toggleSidebar' => 'Show/hide the table list',
+        'language'      => 'Language',
+        'profile'       => 'Profile',
+        'logout'        => 'Logout',
+        'footer'        => 'SyncUI — part of ad-go/sync',
         'th'            => [
             'table' => 'Table',
             'rows'  => 'Rows',
@@ -81,7 +87,6 @@ return [
         'browse'        => 'Browse',
         'runSql'        => 'Run SQL',
         'run'           => 'Run',
-        'allTables'     => 'All tables',
         'noTables'      => 'No tables.',
         'noRows'        => 'No rows.',
         'rowsOf'        => '{0} rows',

@@ -151,6 +151,14 @@ connection named by `Config\Sync::$dbGroup` — not only the package's own table
 * a free-form SQL box — a `SELECT`-like statement shows its result set, anything else shows the affected
   row count.
 
+Its own chrome (not the host application's layout): a top bar with a sidebar toggle, the brand, a language
+switcher (`Config\Sync::$syncUiLocales`, remembered per visitor in session) and a user menu (username, an
+optional Profile link via `Config\Sync::$profileUrl`, and Logout, resolved from Shield's named `logout`
+route); a left sidebar listing every table (drag its right edge to resize, click the toggle to hide/show —
+both remembered per browser via `localStorage`); and a footer. `Config\Sync::$menuView`/`$headView` still
+inject the host application's own navigation/styles alongside this, as a thin bar under the top bar — the way
+back out of SyncUI into the rest of the admin area.
+
 It is driver-agnostic (MySQL/MariaDB, PostgreSQL, SQLite) and works with `AdGo\Sync\Libraries\SyncUiBrowser`
 directly if an application wants a different UI on top of the same operations. There is no table-level
 allow/deny list: any Shield user with `adminPermission` can edit or run SQL against any table on that

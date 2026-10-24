@@ -119,4 +119,6 @@ let the application wrap the pages in its own layout.
 
 `syncUiPath` (default `sync-admin/syncui`) is the same for SyncUI, the Adminer-style database browser/editor
 (same `adminPermission` guard); `syncUiIndexView`, `syncUiTableView` and `syncUiSqlView` override its views.
-See [OPERATIONS.md](OPERATIONS.md#syncui-the-database-admin-ui).
+`syncUiLocales` (default `['en' => 'English', 'de' => 'Deutsch']`) lists the languages its own language
+switcher offers; `profileUrl` (default `''`) points its user menu's optional Profile entry at the
+application's own profile page. See [OPERATIONS.md](OPERATIONS.md#syncui-the-database-admin-ui).
