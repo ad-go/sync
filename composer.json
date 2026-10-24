@@ -1,0 +1,65 @@
+{
+    "name": "ad-go/sync",
+    "description": "Active-active database synchronisation for two CodeIgniter 4 instances over HTTPS (no JSON, no schema changes to existing tables).",
+    "type": "library",
+    "keywords": [
+        "codeigniter",
+        "codeigniter4",
+        "sync",
+        "synchronization",
+        "replication",
+        "active-active",
+        "shield",
+        "multi-master"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "k",
+            "email": "k@1q.ro"
+        }
+    ],
+    "support": {
+        "docs": "https://github.com/ad-go/sync#readme"
+    },
+    "require": {
+        "php": "^8.2",
+        "codeigniter4/framework": "^4.7",
+        "codeigniter4/shield": "^1.4",
+        "codeigniter4/queue": "^1.0",
+        "codeigniter4/tasks": "^1.0"
+    },
+    "suggest": {
+        "codeigniter4/settings": "Its shared table can be synchronised through a 'where' filter"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5 || ^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AdGo\\Sync\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AdGo\\Sync\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    },
+    "archive": {
+        "exclude": [
+            "/tests",
+            "/phpunit.xml",
+            "/.phpunit.cache",
+            "/.gitattributes",
+            "/.gitignore"
+        ]
+    }
+}

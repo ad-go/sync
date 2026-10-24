@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ad-go/sync formal specification</title>
+<style>
+  :root { --bg:#ffffff; --fg:#1b1f24; --muted:#59636e; --line:#d0d7de; --code:#f6f8fa; --accent:#0b5cad; --warn:#9a6700; --bad:#b42318; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0f1318; --fg:#e6edf3; --muted:#9aa4af; --line:#2d333b; --code:#161b22; --accent:#6cb6ff; --warn:#e3b341; --bad:#ff7b72; } }
+  :root[data-theme="dark"] { --bg:#0f1318; --fg:#e6edf3; --muted:#9aa4af; --line:#2d333b; --code:#161b22; --accent:#6cb6ff; --warn:#e3b341; --bad:#ff7b72; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { font-size: 1.9rem; margin: .2em 0; }
+  h2 { font-size: 1.4rem; margin-top: 2.4em; padding-top: .6em; border-top: 1px solid var(--line); }
+  h3 { font-size: 1.1rem; margin-top: 1.8em; }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: .88em; }
+  code { background: var(--code); padding: .1em .35em; border-radius: 4px; }
+  pre { background: var(--code); border: 1px solid var(--line); border-radius: 6px; padding: 12px; overflow-x: auto; line-height: 1.45; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .93rem; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--code); }
+  .meta { color: var(--muted); }
+  .note { border-left: 4px solid var(--accent); background: var(--code); padding: 8px 14px; margin: 1em 0; border-radius: 0 6px 6px 0; }
+  .warn { border-left-color: var(--warn); }
+  .bad  { border-left-color: var(--bad); }
+  nav ol { columns: 2; padding-left: 1.2em; }
+  @media (max-width: 640px) { nav ol { columns: 1; } }
+  .tag { font-size: .75rem; padding: 1px 6px; border-radius: 10px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>ad-go/sync &mdash; formal specification</h1>
+<p class="meta">Package <code>ad-go/sync</code>, namespace <code>AdGo\Sync</code>. Derived from the source; statements name the file they come from.
+Keywords MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119 and describe what the implementation does, not what a deployment is guaranteed to do.</p>
+
+<nav>
+<ol>
+  <li><a href="#scope">Scope and reading guide</a></li>
+  <li><a href="#model">System model</a></li>
+  <li><a href="#envelope">Transport and message envelope</a></li>
+  <li><a href="#messages">Message formats</a></li>
+  <li><a href="#keys">Keys and derived values</a></li>
+  <li><a href="#processing">Receiver processing rules</a></li>
+  <li><a href="#transcript">Transcript (test vectors)</a></li>
+  <li><a href="#threats">Threat model</a></li>
+  <li><a href="#findings">Findings from this review</a></li>
+  <li><a href="#noguarantee">What the repository does not guarantee</a></li>
+  <li><a href="#repro">Reproducing the vectors</a></li>
+</ol>
+</nav>
+
+<h2 id="scope">1. Scope and reading guide</h2>
+<p>The specification covers the peer-to-peer API of the package (routes group <code>sync-api</code>, <code>src/Config/Routes.php</code>), its
+signing scheme (<code>src/Libraries/Signer.php</code>, <code>src/Filters/SyncHmac.php</code>), the client (<code>src/Libraries/SyncClient.php</code>),
+the identifiers and fingerprints stored or exchanged (<code>src/Libraries/Support.php</code>, <code>src/Libraries/FileSync.php</code>) and the Telegram webhook.
+It does not cover the application tables that are synchronised, the conflict admin UI (Shield session, not part of the peer protocol), or the
+installer.</p>
+<div class="note"><strong>Status.</strong> A self-review written from the source, not an independent security audit. The test suite exercises the library
+through in-process transports; it does not run a real HTTPS round trip between a <code>SyncClient</code> and a <code>SyncController</code>.</div>
+
+<h2 id="model">2. System model</h2>
+<ul>
+  <li><strong>Nodes.</strong> Each node has a name (<code>sync.node</code>) and a database. A node knows its <em>peers</em> by name (<code>sync.peers</code>, or the single <code>peerNode</code>/<code>peerUrl</code> pair).</li>
+  <li><strong>Roles.</strong> A <em>dial-in</em> node has a URL that peers connect to. A <em>passive</em> node (<code>passive = true</code>, behind NAT) is never connected to: it pulls from and pushes to its hub. A <em>relay</em> hub (<code>relay = true</code>) re-journals what it applies so its other peers receive it, tagging the entry with <code>origin</code>.</li>
+  <li><strong>Data.</strong> Rows of configured tables are tracked in a journal (<code>sync_changes</code>) and a registry (<code>sync_row_meta</code>: <code>uuid</code>, <code>rev</code>, <code>peer_rev</code>, <code>row_hash</code>, <code>base_blob</code>). Files under <code>sync.files.dir</code> are tracked in <code>sync_files</code>.</li>
+  <li><strong>Direction.</strong> Every request is an HTTP <code>POST</code> from a node to a peer's URL. The server side is stateless apart from the nonce cache and the database. There is no server-initiated message.</li>
+  <li><strong>Trust.</strong> All nodes of a deployment share one secret, <code>sync.secret</code>. Possession of that secret is the only credential of the protocol (see <a href="#keys">5</a> and <a href="#threats">8</a>).</li>
+</ul>
+
+<h2 id="envelope">3. Transport and message envelope</h2>
+<h3>3.1 Request</h3>
+<table>
+<tr><th>Element</th><th>Definition</th></tr>
+<tr><td>Method</td><td><code>POST</code> only. Any other method is answered <code>405 method</code>.</td></tr>
+<tr><td>URL</td><td><code>&lt;peerUrl&gt;/&lt;routePrefix&gt;/&lt;endpoint&gt;</code>, default prefix <code>sync-api</code>. The client refuses any scheme but <code>https</code> (localhost excepted) unless <code>sync.allowInsecure</code> is set.</td></tr>
+<tr><td>Body</td><td><code>application/x-www-form-urlencoded</code>, produced by <code>http_build_query($params, '', '&amp;')</code> (RFC 1738 encoding, space as <code>+</code>). Structured values (lists of changes, row state) are PHP <code>serialize()</code> strings placed inside one form field.</td></tr>
+<tr><td><code>X-Sync-Node</code></td><td>Sender's node name. <strong>Not covered by the signature</strong> (F-1).</td></tr>
+<tr><td><code>X-Sync-Timestamp</code></td><td>Integer Unix seconds at the sender.</td></tr>
+<tr><td><code>X-Sync-Nonce</code></td><td>Client: 16 random bytes, lower-case hex (32 chars). Server accepts any non-empty string of at most 64 characters.</td></tr>
+<tr><td><code>X-Sync-Signature</code></td><td>Lower-case hex HMAC-SHA256, see 3.2.</td></tr>
+</table>
+
+<h3>3.2 Request signature</h3>
+<pre><code>body_hash = hex( SHA-256( raw_body ) )
+message   = "POST" LF path LF timestamp LF nonce LF body_hash        (LF = 0x0A, no trailing LF)
+signature = hex( HMAC-SHA256( key = sync.secret as raw bytes of the string, message ) )</code></pre>
+<p><code>path</code> is <code>'/' . routePrefix . '/' . endpoint</code> on the client and <code>'/' . trim(uri_string(), '/')</code> on the server; the query string, the host and the scheme are not part of it.
+The method is upper-cased by <code>Signer::sign</code>; the filter passes the constant <code>"POST"</code>. <code>sync.secret</code> is used as the ASCII string it is configured as (the installer writes 64 hexadecimal characters, which are used as 64 bytes of text, not decoded to 32 bytes).</p>
+
+<h3>3.3 Response</h3>
+<table>
+<tr><th>Element</th><th>Definition</th></tr>
+<tr><td>Status</td><td><code>200</code> on success. Rejections are <code>400</code>, <code>401</code>, <code>403</code>, <code>405</code> with a short plain-text body and <strong>no signature</strong>.</td></tr>
+<tr><td>Body</td><td><code>application/octet-stream</code>, the PHP <code>serialize()</code> of an associative array that always contains <code>time</code> (float, the server's <code>microtime(true)</code>). JSON is not used on the peer API.</td></tr>
+<tr><td><code>X-Sync-Signature</code> (200 only)</td><td><code>hex( HMAC-SHA256( sync.secret, "response" LF request_nonce LF hex(SHA-256(response_body)) ) )</code>. It binds the answer to the request nonce, not to the path, status or sender.</td></tr>
+</table>
+<p>The client rejects any non-200 status, compares the response signature with <code>hash_equals</code>, and then calls <code>Support::unpack</code>, which is
+<code>unserialize($blob, ['allowed_classes' => false])</code>: no object is instantiated, and a payload that is not an array is an error.</p>
+
+<h2 id="messages">4. Message formats</h2>
+<p>All parameters are form fields (strings on the wire). "Caller" is the node that sent the request; <em>sender</em> is the value of <code>X-Sync-Node</code> after the filter accepted it.</p>
+
+<h3>4.1 Journal entry (<code>change</code>)</h3>
+<p>The unit exchanged by <code>pull</code> and <code>push</code> (<code>MetaStore::changesSince</code>).</p>
+<table>
+<tr><th>Field</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>seq</code></td><td>int</td><td>Position in the <em>sender's</em> journal; the receiver's cursor for that peer.</td></tr>
+<tr><td><code>table</code></td><td>string</td><td>Configured table name (unknown tables are skipped by the receiver).</td></tr>
+<tr><td><code>uuid</code></td><td>string</td><td>Row identity across nodes (<a href="#keys">5.3</a>).</td></tr>
+<tr><td><code>op</code></td><td>string</td><td><code>I</code>, <code>U</code> or <code>D</code>.</td></tr>
+<tr><td><code>rev</code>, <code>seen</code></td><td>int</td><td>The sender's revision of the row and the peer revision it had seen.</td></tr>
+<tr><td><code>authoritative</code></td><td>bool</td><td>Set for a decided conflict.</td></tr>
+<tr><td><code>changed_at</code></td><td>int</td><td>Microseconds since the epoch at the sender (<code>Support::nowUs</code>).</td></tr>
+<tr><td><code>node</code>, <code>origin</code></td><td>string, string|null</td><td>Node that journaled the entry; originating peer when a relay re-journaled it.</td></tr>
+<tr><td><code>row</code></td><td>array|null</td><td>Column map with foreign keys as uuids; <code>null</code> for <code>D</code>.</td></tr>
+</table>
+
+<h3>4.2 Endpoints</h3>
+<table>
+<tr><th>Endpoint</th><th>Request fields</th><th>Response (200)</th><th>Notes</th></tr>
+<tr><td><code>ping</code></td><td>&mdash;</td><td><code>node, time(float), passive, ip, relay, peers{name:{passive,seen}}</code></td><td><code>ip</code> is the caller's address as the server sees it; <code>peers</code> is filled only on a relay.</td></tr>
+<tr><td><code>probe</code></td><td><code>peer</code> (optional)</td><td><code>ok, rtt_ms, error, skew_s?</code></td><td>Server calls the caller back at <em>its own configured</em> URL for that peer; never a URL from the request.</td></tr>
+<tr><td><code>pull</code></td><td><code>after</code>, <code>limit</code> (1&ndash;1000)</td><td><code>changes[], last_seq</code></td><td>Entries with <code>seq &gt; after</code>, ascending.</td></tr>
+<tr><td><code>push</code></td><td><code>changes</code> = serialize(list of entries)</td><td><code>applied</code> (cursor), <code>stopped</code> (string|null), <code>applied_now</code></td><td>Entries with <code>seq</code> &le; the sender's cursor are skipped, so a resend is harmless. <code>400 bad changes</code> if not an array.</td></tr>
+<tr><td><code>conflict/resolve</code></td><td><code>table, uuid, state</code> (serialized or empty), <code>new_rev, expect_rev, ts, by</code></td><td><code>ok</code>, <code>error</code> (<code>unknown table</code>, <code>stale</code>, <code>bad state</code>)</td><td>Propagates an administrator's decision.</td></tr>
+<tr><td><code>auth-lock/status</code></td><td><code>kind</code> &isin; {<code>auth</code>,<code>cron</code>}</td><td><code>holder, heartbeat_at, acquired_at, ttl, now</code></td><td>Other <code>kind</code> &rarr; <code>400 bad kind</code>.</td></tr>
+<tr><td><code>auth-lock/acquire</code></td><td><code>kind, requester, confirm, meta_mode, meta_scope, meta_by</code></td><td><code>ok, holder, reason?</code></td><td>The holder identity used is the <em>sender</em>; the posted <code>requester</code> is not read by the controller.</td></tr>
+<tr><td><code>auth-lock/heartbeat</code></td><td><code>kind, holder, meta_*</code></td><td><code>ok</code></td><td>Same remark for <code>holder</code>.</td></tr>
+<tr><td><code>auth-lock/release</code></td><td><code>kind, holder</code></td><td><code>ok</code></td><td>Same remark.</td></tr>
+<tr><td><code>auth-lock/sync</code></td><td><code>from, kick</code></td><td><code>applied</code> (how far the server applied the caller's journal)</td><td><code>kick=1</code> makes the server pull the caller after answering, unless the caller is passive.</td></tr>
+<tr><td><code>files/manifest</code></td><td>&mdash;</td><td><code>files[] = {path, sha256, mtime, size}</code></td><td><code>sha256</code> is the literal <code>dir</code> for a directory; symlinks, ignored names and <code>*.conflict-*</code> are omitted.</td></tr>
+<tr><td><code>files/get</code></td><td><code>path</code></td><td><code>found</code>, <code>content</code> (raw bytes)</td><td>Confined as in section 6.</td></tr>
+<tr><td><code>files/put</code></td><td><code>path, kind</code> (<code>file</code>|<code>dir</code>|<code>delete</code>)<code>, expect, sha256, mtime, content</code> (base64)</td><td><code>ok</code>, <code>error</code> (<code>refused</code>, <code>stale</code>, <code>type clash</code>, <code>not empty</code>, <code>cannot delete</code>, <code>bad content</code>)</td><td>Only a sender configured as passive; otherwise <code>403</code>. At most 4 MiB per file. <code>expect</code> is the SHA-256 (or <code>dir</code>) the sender last saw at that path, empty for "absent"; a mismatch is <code>stale</code>.</td></tr>
+<tr><td><code>bootstrap/page</code></td><td><code>table, offset, limit</code> (&le; 1000)</td><td><code>rows[], total</code></td><td>Only tables listed in <code>bootstrapTables</code>; otherwise <code>400</code>.</td></tr>
+<tr><td><code>telegram/decide</code></td><td><code>id, side</code> (<code>l</code>|<code>r</code>)<code>, by</code></td><td><code>ok, kept?, error?</code></td><td>A peer's webhook forwards a button press for a conflict that lives on this node.</td></tr>
+</table>
+
+<h3>4.3 Telegram webhook (not HMAC)</h3>
+<p><code>POST &lt;routePrefix&gt;/telegram</code>, JSON from Telegram. Authenticated by the header <code>X-Telegram-Bot-Api-Secret-Token</code> compared with <code>hash_equals</code> to <code>sync.telegram.webhook_secret</code>
+(an empty configured secret rejects everything), and by <code>callback_query.message.chat.id</code> equal to <code>sync.telegram.chat_id</code>. The decision is carried in
+<code>callback_data</code>, matched against <code>^r:([A-Za-z0-9_.-]+):(\d+):([lr])$</code> = <code>r:&lt;node&gt;:&lt;conflict id&gt;:&lt;l|r&gt;</code>. The user that pressed the button is recorded as <code>telegram:&lt;username|id&gt;</code>; if <code>sync.telegram.allowed_users</code> is set, other users are refused.</p>
+
+<h2 id="keys">5. Keys and derived values</h2>
+<p>There is one key. Everything else is a fingerprint, an identifier or a one-shot random value. There is no key-derivation function, no per-peer key, no key identifier in the messages and no rotation protocol.</p>
+<table>
+<tr><th>#</th><th>Value</th><th>Derivation</th><th>Secret?</th><th>Purpose</th></tr>
+<tr><td>5.1</td><td><code>sync.secret</code></td><td>Configured. <code>Installer::newSecret()</code> = <code>bin2hex(random_bytes(32))</code>, written to <code>.env</code>. The same string on every node.</td><td>Yes</td><td>HMAC key for requests and responses.</td></tr>
+<tr><td>5.2</td><td>Request / response signatures</td><td>HMAC-SHA256 as in 3.2 / 3.3. Domain separation between the two is the literal prefix <code>"response"</code> versus <code>"POST"</code>.</td><td>No</td><td>Authenticity and integrity of body, path, timestamp, nonce.</td></tr>
+<tr><td>5.3</td><td>Row <code>uuid</code></td><td>Rows created after installation: UUID v4 from <code>random_bytes(16)</code>. Rows that exist at installation: UUID v5 (SHA-1) of <code>"q1-sync|" . table . "|" . pk</code> in the RFC 4122 URL namespace <code>6ba7b810-9dad-11d1-80b4-00c04fd430c8</code>, so both nodes derive the same value. The salt keeps its pre-rename text on purpose.</td><td>No (guessable)</td><td>Cross-node row identity.</td></tr>
+<tr><td>5.4</td><td><code>row_hash</code></td><td><code>sha1( serialize( normalize(row) ) )</code>; <code>normalize</code> sorts keys and turns every value into a string (<code>true</code>&rarr;<code>"1"</code>, <code>false</code>&rarr;<code>"0"</code>, <code>null</code> kept).</td><td>No</td><td>Change detection, not security.</td></tr>
+<tr><td>5.5</td><td>Nonce key</td><td><code>sha256(nonce)</code> as primary key of <code>sync_nonce</code>; as fallback when that table is missing, the cache key <code>"sync_nonce_" . sha256(nonce)</code>, value <code>1</code>. Retention <code>2 &times; replayWindow</code> (default 600 s).</td><td>No</td><td>Single-use nonce.</td></tr>
+<tr><td>5.6</td><td><code>sync_files.path_hash</code></td><td><code>sha1(relative path)</code></td><td>No</td><td>Fixed-size index key.</td></tr>
+<tr><td>5.7</td><td>File digest</td><td><code>sha256(file bytes)</code></td><td>No</td><td>Manifest comparison, integrity of a transferred or pushed file (<code>bad content</code> on mismatch).</td></tr>
+<tr><td>5.8</td><td>Telegram webhook secret</td><td>Configured (<code>sync.telegram.webhook_secret</code>), not derived.</td><td>Yes</td><td>Authenticates Telegram to the webhook.</td></tr>
+<tr><td>5.9</td><td>Temporary file suffix</td><td><code>".part-" . bin2hex(random_bytes(4))</code></td><td>No</td><td>Atomic file replacement (write, then rename).</td></tr>
+</table>
+
+<h2 id="processing">6. Receiver processing rules</h2>
+<p>Order in <code>SyncHmac::before</code>; the first failing step ends the request.</p>
+<ol>
+  <li>Method is <code>POST</code>, else <code>405</code>. Body longer than <code>maxBody</code> (default 8 MiB) &rarr; <code>413</code>.</li>
+  <li><code>Signer::verify</code>: secret not empty; <code>|now &minus; timestamp| &le; replayWindow</code> (default 300 s); nonce non-empty and at most 64 characters; <code>hash_equals(expected, signature)</code>. Failure is logged with the caller's IP and answered <code>401 unauthorized</code> without telling which check failed.</li>
+  <li><code>X-Sync-Node</code> must be a configured peer name, else <code>403 unknown node</code>. The name becomes the sender of the request.</li>
+  <li>Nonce claim (<code>NonceStore</code>): already present &rarr; <code>401 replay</code>; otherwise stored. Claimed atomically (<code>INSERT IGNORE</code> on the primary key of <code>sync_nonce</code>); without that table the cache is used if it verifiably stores values. No usable store &rarr; <code>503</code>.</li>
+  <li>The signed request timestamp is recorded as a coarse clock sample of the sender (<code>sync_cursor.clock_*</code>); the client records a precise one from the <code>time</code> of each answer.</li>
+  <li>The controller runs. On <code>200</code> the filter appends the response signature.</li>
+</ol>
+<p>Row application: unknown <code>table</code> &rarr; skipped; <code>origin</code> equal to the local node &rarr; echo, ignored; otherwise the <code>Reconciler</code> decides fast-forward, three-way merge, last-writer-wins or quarantine. A change whose parent row is missing stops the batch (<code>stopped</code>), and the cursor advances only over entries that were handled.</p>
+<p>File path confinement (<code>FileSync::resolve</code>): empty path, a NUL byte, a leading <code>/</code>, a drive prefix (<code>X:</code>) and any <code>..</code> or empty segment are refused. Names that match the ignore patterns or contain <code>.conflict-</code> are refused on <code>put</code> and <code>get</code>; <code>get</code> also refuses links on the path and real paths outside the base.</p>
+<p>Incoming rows are reduced to the columns the local table has and never set the primary key.</p>
+
+<h2 id="transcript">7. Transcript (test vectors)</h2>
+<p>Generated by running the package's own <code>Signer</code> and <code>Support</code> with the <strong>test secret</strong> <code>abab&hellip;ab</code> (64 characters; never use it). Values are reproducible with the script in <a href="#repro">11</a>.</p>
+
+<h3>7.1 A signed <code>pull</code></h3>
+<pre><code>Parameters   after=41, limit=2
+Body         after=41&amp;limit=2
+SHA-256(body) a94e32e69292f68987e339a5c606fb2c8b0928af9167eba2e9b9edb585aca8c1
+
+Signed string (LF-separated)
+  POST
+  /sync-api/pull
+  1790000000
+  00112233445566778899aabbccddeeff
+  a94e32e69292f68987e339a5c606fb2c8b0928af9167eba2e9b9edb585aca8c1
+
+Request
+  POST /sync-api/pull HTTP/1.1
+  Content-Type: application/x-www-form-urlencoded
+  X-Sync-Node: site1
+  X-Sync-Timestamp: 1790000000
+  X-Sync-Nonce: 00112233445566778899aabbccddeeff
+  X-Sync-Signature: e02bdcf01900d925248e50dc0e001adf64efe3b6daf7e5f6d2a45d30f2bab8e2
+
+  after=41&amp;limit=2</code></pre>
+
+<pre><code>Response
+  HTTP/1.1 200 OK
+  Content-Type: application/octet-stream
+  X-Sync-Signature: 5f9b8947fcd61b659c5269752513272a2e20a2a3894825bb5af9973e63e9a576
+
+  a:2:{s:7:"changes";a:1:{i:0;a:11:{s:3:"seq";i:42;s:5:"table";s:5:"items";
+  s:4:"uuid";s:36:"67674901-8f0e-560a-9548-bff73dec97b1";s:2:"op";s:1:"U";s:3:"rev";i:3;
+  s:4:"seen";i:2;s:13:"authoritative";b:0;s:10:"changed_at";i:1789999990123456;
+  s:4:"node";s:5:"site2";s:6:"origin";N;s:3:"row";a:3:{s:2:"id";s:1:"7";
+  s:4:"name";s:6:"Widget";s:3:"qty";s:1:"5";}}}s:8:"last_seq";i:42;}
+  (shown wrapped; on the wire it is one line)
+
+SHA-256(response body) 59dc8034b4f9fa09f39ae230b2200edd3c7a46e1629c6bacd7d0bb1359d112d2
+Response signed string  response LF 00112233445566778899aabbccddeeff LF 59dc8034&hellip;d112d2</code></pre>
+
+<h3>7.2 Derived values in the example</h3>
+<table>
+<tr><th>Value</th><th>Result</th></tr>
+<tr><td>Seed uuid of table <code>items</code>, pk <code>7</code></td><td><code>67674901-8f0e-560a-9548-bff73dec97b1</code></td></tr>
+<tr><td><code>normalize(['id'=&gt;7,'name'=&gt;'Widget','qty'=&gt;5])</code> serialized</td><td><code>a:3:{s:2:"id";s:1:"7";s:4:"name";s:6:"Widget";s:3:"qty";s:1:"5";}</code></td></tr>
+<tr><td><code>row_hash</code> of that row</td><td><code>77074e3554448e27f7143d81a5512b44eb8b3614</code></td></tr>
+<tr><td>Nonce cache key (fallback)</td><td><code>sync_nonce_5947d7c33d783f94b3b4c1a96ebc8991ed28f1b069b71e03376cba8caa98a720</code></td></tr>
+<tr><td><code>path_hash</code> of <code>labels/2026/a.pdf</code></td><td><code>2b7f1ca2e3902df6503015e536802c7e96228415</code></td></tr>
+</table>
+
+<h3>7.3 Verification outcomes</h3>
+<table>
+<tr><th>Case</th><th><code>Signer::verify</code> result</th></tr>
+<tr><td>Unchanged request, receiver clock +10 s</td><td><code>ok</code></td></tr>
+<tr><td>Same request, receiver clock +301 s</td><td>rejected: <em>timestamp outside the replay window</em></td></tr>
+<tr><td>Body changed by one character</td><td>rejected: <em>bad signature</em></td></tr>
+</table>
+
+<h3>7.4 Exchange of a passive node (conceptual order, one cycle)</h3>
+<pre><code>app(passive) -&gt; site2:  pull            after=&lt;cursor&gt;                 -&gt; changes[], last_seq
+app           -&gt; site2:  push            changes=&lt;serialize(list)&gt;      -&gt; applied, stopped
+app           -&gt; site2:  files/manifest                                    -&gt; files[]
+app           -&gt; site2:  files/get       path=...    (hub is newer)         -&gt; found, content
+app           -&gt; site2:  files/put       path, kind, expect, sha256,...     -&gt; ok | error=stale
+site2 -&gt; site1 (dial-in, on its own schedule): pull ... (relay re-journaled app's entries with origin=app)</code></pre>
+<p>Only the first two rows were measured on the live nodes (propagation times come from the operators' measurements and are not recorded in this repository); the others are taken from the code paths and tests.</p>
+
+<h2 id="threats">8. Threat model</h2>
+<h3>8.1 Assets</h3>
+<ul>
+  <li>Integrity of the synchronised rows and files on every node (a forged change is applied as if a peer wrote it).</li>
+  <li>Confidentiality of row contents and files in transit and in the journal tables (<code>payload</code>, <code>base_blob</code> hold full rows, including those of sensitive tables such as users).</li>
+  <li><code>sync.secret</code> and <code>sync.telegram.*</code> in <code>.env</code>.</li>
+  <li>Availability of sync and of the edit lock (<code>auth-lock</code>) that blocks writes on a node.</li>
+</ul>
+<h3>8.2 Adversaries and assumptions</h3>
+<table>
+<tr><th>Adversary</th><th>Capability assumed</th><th>Handled by</th></tr>
+<tr><td>A1 &mdash; Network observer / active attacker without the secret</td><td>Reads, drops, delays, replays or modifies traffic.</td><td>HMAC over method, path, time, nonce, body; time window; nonce cache; signed responses. <strong>Confidentiality relies on TLS</strong>; the client refuses plain <code>http://</code> peers, the server cannot see how a request arrived.</td></tr>
+<tr><td>A2 &mdash; Internet scanner</td><td>Sends arbitrary requests to <code>/sync-api/*</code>.</td><td>All peer routes need a valid signature; failures are uniform <code>401</code> and logged with the IP.</td></tr>
+<tr><td>A3 &mdash; Holder of the secret (a compromised node or a leaked <code>.env</code>)</td><td>Can build any valid request.</td><td><strong>Not mitigated.</strong> One shared secret: it can act as any peer, write any configured table, read any bootstrap table and any file under the files directory.</td></tr>
+<tr><td>A4 &mdash; Malicious or buggy authenticated peer</td><td>Sends well-signed but wrong data.</td><td>Table allow-list (<code>opt-&gt;table</code>), <code>allowed_classes=false</code>, revision/hash comparison, quarantine of conflicts, path confinement for files, 4 MiB file limit, <code>maxBody</code> and <code>maxPushChanges</code>. Semantic validity of row values is the application's concern.</td></tr>
+<tr><td>A5 &mdash; Other member of the Telegram chat</td><td>Presses decision buttons.</td><td>Webhook secret and chat id; optionally <code>sync.telegram.allowed_users</code>.</td></tr>
+<tr><td>A6 &mdash; Local user of the web host</td><td>Reads <code>.env</code>, <code>writable/</code>.</td><td>Out of scope; file permissions are a deployment matter.</td></tr>
+</table>
+<p>Assumptions: peer URLs use HTTPS with certificate verification (the client sets <code>verify = true</code>); clocks of the nodes differ by less than <code>replayWindow</code>; the database is shared by all PHP workers of a node (for the nonce check); the secret is generated with a CSPRNG and kept private.</p>
+
+<h3>8.3 Properties the signing scheme provides</h3>
+<ul>
+  <li>A request cannot be altered in body, path, timestamp or nonce without invalidating the signature (SHA-256 of the body is inside the MAC; comparison uses <code>hash_equals</code>).</li>
+  <li>A captured request cannot be replayed after <code>replayWindow</code> seconds, and not at all while its nonce is stored.</li>
+  <li>A response cannot be accepted for a different request nonce or with a different body.</li>
+  <li>Unserialising peer data cannot instantiate classes.</li>
+  <li>The server never connects to a URL supplied in a request (<code>probe</code> uses the configured URL).</li>
+</ul>
+
+<h2 id="findings">9. Known weaknesses</h2>
+<p>Estimated by the reviewer for a deployment that follows the documentation. F-1, F-4, F-5 and F-10 change the wire format or stored data and are open; L-1 to L-5 are limits of existing mitigations.</p>
+<table>
+<tr><th>ID</th><th>Weakness</th><th>Where</th><th>Severity</th></tr>
+<tr><td>F-1</td><td><code>X-Sync-Node</code> is not part of the signed string. The sender identity (cursor attribution, lock holder, passive check for <code>files/put</code>) comes from an unauthenticated header; any secret holder can name any peer. The lock endpoints ignore the posted <code>requester</code>/<code>holder</code> and use this header.</td><td><code>Signer.php</code>, <code>SyncHmac.php</code>, <code>SyncController.php</code></td><td>Medium (needs TLS break or secret)</td></tr>
+<tr><td>F-4</td><td>One shared secret for all nodes, no key id, no rotation; changing it needs a simultaneous change on every node.</td><td>design</td><td>Medium</td></tr>
+<tr><td>F-5</td><td>The response signature does not cover status, path or sender; with F-1 the client cannot tell which node answered beyond the URL it called.</td><td><code>Signer::signResponse</code></td><td>Low</td></tr>
+<tr><td>F-10</td><td>SHA-1 is used for <code>row_hash</code>, <code>path_hash</code> and v5 uuids. None is a security boundary, but an attacker who controls row content could craft <code>row_hash</code> collisions and hide a change from the scanner.</td><td><code>Support.php</code>, <code>FileSync.php</code></td><td>Low</td></tr>
+<tr><td>L-1</td><td>The nonce cache fallback (node without the <code>sync_nonce</code> table) is check-then-save, not atomic.</td><td><code>NonceStore.php</code></td><td>Low</td></tr>
+<tr><td>L-2</td><td>The HTTPS requirement is enforced by the client only; <code>selfUrl</code> is not validated.</td><td><code>SyncClient.php</code>, <code>Options.php</code></td><td>Low</td></tr>
+<tr><td>L-3</td><td><code>files/get</code> has a gap between the path check and the read (a link created in between).</td><td><code>FileSync::read</code></td><td>Low (needs local write access)</td></tr>
+<tr><td>L-4</td><td>Without <code>allowed_users</code> every member of the Telegram chat can press the decision buttons.</td><td><code>SyncController::telegram</code></td><td>Low&ndash;Medium</td></tr>
+<tr><td>L-5</td><td>Row values are checked for column names, not for type or constraints; those are left to the database.</td><td><code>RowGateway::fromWire</code></td><td>Low</td></tr>
+</table>
+
+<h2 id="noguarantee">10. What the repository does not guarantee</h2>
+<h3>10.1 Security</h3>
+<ul>
+  <li><strong>No confidentiality at the application layer.</strong> Bodies are signed, not encrypted. Protection in transit depends on HTTPS; the client refuses plain HTTP peers, the server cannot enforce it.</li>
+  <li><strong>No per-node identity or non-repudiation.</strong> A shared MAC key cannot show which node produced a message; any node can produce messages in the name of another.</li>
+  <li><strong>No protection once the secret leaks.</strong> No forward secrecy, no revocation, no rotation protocol, no detection of its use from another place.</li>
+  <li><strong>No end-to-end authenticity of a row</strong> across a relay: the hub re-journals what it applied under its own revision; a compromised hub can alter or fabricate rows for its other peers.</li>
+  <li><strong>No protection of data at rest.</strong> The journal and registry tables keep full row images (including users and password hashes if those tables are synchronised); backups of them carry the same data.</li>
+  <li><strong>No rate limiting, lockout or abuse detection</strong> on the peer API beyond logging a warning on a bad signature and the size limits.</li>
+  <li>The credentials of mail (SMTP) and Telegram are stored in clear in <code>.env</code>; alert mail is sent as the configured SMTP transport allows and is not end-to-end encrypted.</li>
+</ul>
+<h3>10.2 Correctness and availability</h3>
+<ul>
+  <li><strong>Convergence is conditional.</strong> Version counters are exact for two parties and approximate for three or more; the docs require <code>writers</code> declarations for tables that travel through a relay between three or more nodes.</li>
+  <li><strong>Last-writer-wins depends on clocks.</strong> <code>changed_at</code> is the sender's wall clock. Differences below <code>clockTolerance</code> (2 s) are decided by the tiebreak order and a peer whose measured offset exceeds <code>clockMax</code> (5 s) is not trusted (quarantine, tiebreak for files); between the two, skew can still make an older edit win. The offset is measured per node with its own error, so close to <code>clockMax</code> the two nodes may decide differently; the escalated conflict then needs a human.</li>
+  <li><strong>Delivery is at-least-once and idempotent</strong>, not exactly-once. Ordering is per sender journal; there is no global order and no cross-table transaction across nodes. A child whose parent has not arrived stops the batch.</li>
+  <li><strong>Retention.</strong> <code>sync:prune</code> deletes only journal entries that the peer reports as applied, and nothing if the peer cannot be asked; a peer that stays offline longer than the retention must be re-bootstrapped (<code>docs/OPERATIONS.md</code>).</li>
+  <li><strong>Conflicts may be quarantined</strong> and need a human decision; until then the two nodes differ.</li>
+  <li><strong>The edit lock is a lease</strong>, not a distributed mutual exclusion proof; it ends when the lease expires or the holder is unreachable (<code>reason</code> says so).</li>
+  <li><strong>File sync</strong> compares by SHA-256 and mtime; two edits are resolved by newer mtime and the loser is kept as <code>.conflict-&lt;node&gt;-&lt;ts&gt;</code>. Pushes are limited to 4 MiB, symlinks are not synchronised, directories are removed only when empty, and the hub is only as available as its schedule (a pull every 5 minutes in the reference deployment).</li>
+  <li><strong>Not a backup.</strong> A destructive change is replicated like any other.</li>
+  <li><strong>Telegram and mail are best effort.</strong> A failed delivery is logged; the sync does not depend on it.</li>
+</ul>
+<h3>10.3 Verification</h3>
+<ul>
+  <li>The automated tests use in-process transports and SQLite3 fixtures (<code>tests/TwoNodes.php</code>); they do not cover a real HTTPS exchange, the Telegram and SMTP services, a hostile peer, or load. The <code>413</code>/<code>503</code> filter paths and <code>allowed_users</code> have no test beyond option parsing.</li>
+  <li>This document has no third-party sign-off.</li>
+  <li>The version, behaviour and configuration of the host application, the web server, PHP and the TLS terminator are outside the repository.</li>
+</ul>
+
+<h2 id="repro">11. Reproducing the vectors</h2>
+<pre><code>&lt;?php
+require 'vendor/autoload.php';
+use AdGo\Sync\Libraries\{Signer, Support};
+
+$secret = str_repeat('ab', 32);
+$ts     = 1790000000;
+$nonce  = '00112233445566778899aabbccddeeff';
+$path   = '/sync-api/pull';
+$body   = http_build_query(['after' =&gt; 41, 'limit' =&gt; 2], '', '&amp;');
+
+echo Signer::sign($secret, 'POST', $path, $ts, $nonce, $body), "\n";
+echo Support::seedUuid('items', 7), "\n";
+echo Support::hashRow(['id' =&gt; 7, 'name' =&gt; 'Widget', 'qty' =&gt; 5]), "\n";
+echo sha1('labels/2026/a.pdf'), "\n";
+$sig = Signer::sign($secret, 'POST', $path, $ts, $nonce, $body);
+echo json_encode(Signer::verify($secret, 'POST', $path, $ts, $nonce, $body, $sig, 300, $ts + 301)), "\n";</code></pre>
+<p class="meta">Run from the package root (PHP 8.4). Expected first line: <code>e02bdcf01900d925248e50dc0e001adf64efe3b6daf7e5f6d2a45d30f2bab8e2</code>; the last line prints the <em>timestamp outside the replay window</em> rejection.</p>
+
+</main>
+</body>
+</html>
