@@ -21,10 +21,33 @@ tr.diff td{background:#fff1c7}.del{color:#a00;font-style:italic}
 button{padding:6px 12px;border:0;border-radius:5px;color:#fff;background:#1d5fd1;cursor:pointer;margin-right:6px}button.s{background:#667}button.d{background:#b42318}
 input[type=text]{width:100%;box-sizing:border-box}
 @media (prefers-color-scheme:dark){body{background:#14161a;color:#e6e8ec}table{background:#1e2128}th,td{border-color:#343944}tr.diff td{background:#4a3b12}input{background:#14161a;color:#e6e8ec}}
+<?php /* Sidebar wrapper for `$menu` — identical block to src/Views/conflicts/index.php, see its comment. */ ?>
+html body{max-width:none;margin:0;padding:0}
+.cfshell{display:flex;min-height:100vh}
+.cfshell>.sidebar{width:220px;min-width:150px;max-width:400px;overflow:auto;background:#fff;flex:0 0 auto}
+.cfshell>.sb-resize{flex:0 0 6px;cursor:col-resize;background:transparent}
+.cfshell>.appmain{flex:1;min-width:0;padding:16px;overflow:auto}
+.cfshell .sidebar nav.menu{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:2px;padding:12px 10px;border:0;box-shadow:none;background:transparent}
+.cfshell .sidebar nav.menu a{padding:6px 8px;border-radius:6px;border-bottom:0}
+.cfshell .sidebar nav.menu a:hover,.cfshell .sidebar nav.menu a[aria-current=page]{background:#eef2fb;border-bottom-color:transparent}
+.cfshell .sidebar nav.menu .sp{display:none}
+@media (prefers-color-scheme:dark){
+  .cfshell>.sidebar{background:#1e2128}
+  .cfshell .sidebar nav.menu a:hover,.cfshell .sidebar nav.menu a[aria-current=page]{background:#28303e}
+}
+@media (max-width:760px){
+  .cfshell{flex-direction:column}
+  .cfshell>.sidebar{width:100%;max-width:none}
+  .cfshell .sidebar nav.menu{flex-direction:row;flex-wrap:wrap}
+  .cfshell>.sb-resize{display:none}
+}
 </style>
 </head>
 <body>
-<?= $menu ?? '' ?>
+<div class="cfshell">
+<aside class="sidebar" id="cfSidebar"><?= $menu ?? '' ?></aside>
+<div class="sb-resize" id="cfSbResize"></div>
+<main class="appmain">
 <p><a href="<?= esc($back) ?>">&larr; <?= lang('Sync.conflicts.allConflicts') ?></a></p>
 <h1><?= lang('Sync.conflicts.conflict', [(string) (int) $c['id']]) ?> <small>(<?= esc($status) ?>)</small></h1>
 <p><?= lang('Sync.conflicts.tableRow', ['<b>' . esc($c['table_name']) . '</b>', '<code>' . esc($c['uuid']) . '</code>']) ?>
@@ -59,5 +82,8 @@ input[type=text]{width:100%;box-sizing:border-box}
 <button name="action" value="ignore" class="d"><?= lang('Sync.conflicts.ignore') ?></button>
 <?php endif ?>
 </form>
+</main>
+</div>
+<?= view('AdGo\Sync\Views\conflicts\_shell_js') ?>
 </body>
 </html>

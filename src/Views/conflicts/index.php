@@ -22,10 +22,35 @@ table{border-collapse:collapse;width:100%;background:#fff}th,td{padding:6px 8px;
 a.btn{background:#1d5fd1;color:#fff;padding:4px 10px;border-radius:5px;text-decoration:none}
 .tag{font-size:12px;padding:1px 6px;border-radius:4px;background:#eee}.danger{background:#fbd0d0}
 @media (prefers-color-scheme:dark){body{background:#14161a;color:#e6e8ec}table{background:#1e2128}th,td{border-color:#343944}.tag{background:#343944}.danger{background:#6b2b2b}.banner{background:#4a3b12}.flash{background:#1d3b27}.err{background:#4a2020}}
+<?php /* Sidebar wrapper for `$menu` (see src/Views/conflicts/show.php for the identical block) — scoped under
+   `.cfshell` (never a bare selector) so it wins over `_theme.php`'s rules, which `_menu.php` injects inline,
+   after this <style>, at equal specificity otherwise. The dividing line is an invisible 6px drag handle. */ ?>
+html body{max-width:none;margin:0;padding:0}
+.cfshell{display:flex;min-height:100vh}
+.cfshell>.sidebar{width:220px;min-width:150px;max-width:400px;overflow:auto;background:#fff;flex:0 0 auto}
+.cfshell>.sb-resize{flex:0 0 6px;cursor:col-resize;background:transparent}
+.cfshell>.appmain{flex:1;min-width:0;padding:16px;overflow:auto}
+.cfshell .sidebar nav.menu{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:2px;padding:12px 10px;border:0;box-shadow:none;background:transparent}
+.cfshell .sidebar nav.menu a{padding:6px 8px;border-radius:6px;border-bottom:0}
+.cfshell .sidebar nav.menu a:hover,.cfshell .sidebar nav.menu a[aria-current=page]{background:#eef2fb;border-bottom-color:transparent}
+.cfshell .sidebar nav.menu .sp{display:none}
+@media (prefers-color-scheme:dark){
+  .cfshell>.sidebar{background:#1e2128}
+  .cfshell .sidebar nav.menu a:hover,.cfshell .sidebar nav.menu a[aria-current=page]{background:#28303e}
+}
+@media (max-width:760px){
+  .cfshell{flex-direction:column}
+  .cfshell>.sidebar{width:100%;max-width:none}
+  .cfshell .sidebar nav.menu{flex-direction:row;flex-wrap:wrap}
+  .cfshell>.sb-resize{display:none}
+}
 </style>
 </head>
 <body>
-<?= $menu ?? '' ?>
+<div class="cfshell">
+<aside class="sidebar" id="cfSidebar"><?= $menu ?? '' ?></aside>
+<div class="sb-resize" id="cfSbResize"></div>
+<main class="appmain">
 <h1><?= lang('Sync.conflicts.title') ?> <small>(<?= lang('Sync.conflicts.node', [esc($node)]) ?>)</small></h1>
 <?php if (session()->getFlashdata('message')): ?><div class="flash"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
 <?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
@@ -58,5 +83,8 @@ a.btn{background:#1d5fd1;color:#fff;padding:4px 10px;border-radius:5px;text-deco
 </tr>
 <?php endforeach ?>
 </table>
+</main>
+</div>
+<?= view('AdGo\Sync\Views\conflicts\_shell_js') ?>
 </body>
 </html>
