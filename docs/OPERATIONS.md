@@ -142,10 +142,9 @@ was detected.
 
 ## Database admin UI
 
-For an Adminer-style database browser/editor (table list, filter/sort/paginate/edit rows, a free-form SQL
-box, a widget showcase), see the separate [`ad-go/syncui`](https://github.com/ad-go/syncui) package — it has
-no dependency on `ad-go/sync` and browses whatever `Config\SyncUi::$dbGroup` names, not only this package's
-own tables.
+For database admin (table list, filter/sort/paginate/edit rows, a free-form SQL box, a widget showcase), see
+the separate [`ad-go/syncui`](https://github.com/ad-go/syncui) package — it has no dependency on `ad-go/sync`
+and browses whatever `Config\SyncUi::$dbGroup` names, not only this package's own tables.
 
 ## Schema changes
 

@@ -11,7 +11,7 @@ changes to existing tables, no SSH or root needed.
   atomic writes; concurrent edits keep both versions.
 * **Topologies.** Two dial-in nodes, a hub with passive nodes behind NAT (outbound-only), and relaying hubs.
 * **Operations.** Conflict admin UI, Telegram and e-mail alerts, a reachability check (`sync:check`), and a
-  distributed edit lock for Shield users. For an Adminer-style database browser/editor, see the separate
+  distributed edit lock for Shield users. For database admin, see the separate
   [`ad-go/syncui`](https://github.com/ad-go/syncui) package (no dependency on this one).
 * **Built on the official packages.** [Shield](https://github.com/codeigniter4/shield),
   [Tasks](https://github.com/codeigniter4/tasks), [Queue](https://github.com/codeigniter4/queue),

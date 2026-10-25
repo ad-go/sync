@@ -117,5 +117,5 @@ independent: either can be used alone.
 permission) control the conflict UI. `menuView`, `headView`, `conflictsIndexView` and `conflictsShowView`
 let the application wrap the pages in its own layout.
 
-For an Adminer-style database browser/editor, see the separate [`ad-go/syncui`](https://github.com/ad-go/syncui)
-package (its own `Config\SyncUi`, no dependency on this one).
+For database admin, see the separate [`ad-go/syncui`](https://github.com/ad-go/syncui) package (its own
+`Config\SyncUi`, no dependency on this one).
