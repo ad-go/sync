@@ -38,6 +38,7 @@ html body{max-width:none;margin:0;padding:0;display:flex;flex-direction:column;m
 .cftopbar .cftb-dd .cftb-ddmenu a:hover{background:#eef2fb}
 .cftopbar .cftb-signout{color:#1c1f26;font-weight:600;font-size:13px;text-decoration:none;padding:4px 9px;border:1px solid #dde;border-radius:6px}
 .cftopbar .cftb-signout:hover{background:#eef2fb}
+.cftopbar .cftb-flag{width:16px;height:12px;vertical-align:middle;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.15);object-fit:cover}
 .tb-resize{flex:0 0 6px;cursor:row-resize;background:transparent}
 .cfshell{flex:1;display:flex;min-height:0}
 .cfshell>.sidebar{width:220px;min-width:150px;max-width:400px;overflow:auto;background:#fff;flex:0 0 auto}

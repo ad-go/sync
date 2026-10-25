@@ -16,11 +16,25 @@ try {
     $logoutUrl = site_url('logout');
 }
 
-// Emoji flags, graphic but nothing to load/vendor; self-contained (the package cannot depend on a host helper).
-$flag = static fn (string $code): string => [
-    'en' => '🇬🇧', 'ro' => '🇷🇴', 'de' => '🇩🇪', 'fr' => '🇫🇷', 'es' => '🇪🇸', 'it' => '🇮🇹',
-    'pt' => '🇵🇹', 'nl' => '🇳🇱', 'pl' => '🇵🇱', 'ru' => '🇷🇺', 'tr' => '🇹🇷', 'ar' => '🇸🇦', 'zh' => '🇨🇳', 'ja' => '🇯🇵',
-][$code] ?? '🌐';
+/*
+ * Small flag <img> for a locale, from public/flags/<cc>.svg — the same vendored files the host app's own
+ * site_locale_flag() serves (see its NOTICE.md); emoji flags were tried first but several Windows/Chrome
+ * combinations show the two-letter code instead of a flag glyph. This DOES couple the package to a path
+ * convention the host happens to follow here; a host without public/flags/ just shows no flag (not a broken
+ * image — is_file() is checked first), same graceful fallback as the host's own helper.
+ */
+$flag = static function (string $code): string {
+    $cc = [
+        'en' => 'gb', 'ro' => 'ro', 'de' => 'de', 'fr' => 'fr', 'es' => 'es', 'it' => 'it',
+        'pt' => 'pt', 'nl' => 'nl', 'pl' => 'pl', 'ru' => 'ru', 'tr' => 'tr', 'ar' => 'sa', 'zh' => 'cn', 'ja' => 'jp',
+    ][$code] ?? null;
+
+    if ($cc === null || ! is_file(FCPATH . "flags/{$cc}.svg")) {
+        return '';
+    }
+
+    return '<img class="cftb-flag" src="' . esc(base_url("flags/{$cc}.svg")) . '" alt="" width="16" height="12">';
+};
 ?>
 <header class="cftopbar" id="cfTopbar">
   <a class="cftb-brand" href="<?= site_url('/') ?>">Sync</a>
