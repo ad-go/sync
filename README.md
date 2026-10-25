@@ -10,8 +10,9 @@ changes to existing tables, no SSH or root needed.
 * **File sync.** A directory (with sub-directories) is mirrored with a manifest, SHA-256 verification and
   atomic writes; concurrent edits keep both versions.
 * **Topologies.** Two dial-in nodes, a hub with passive nodes behind NAT (outbound-only), and relaying hubs.
-* **Operations.** Conflict admin UI, Telegram and e-mail alerts, a reachability check (`sync:check`), a
-  distributed edit lock for Shield users, and SyncUI, an Adminer-style database browser/editor for admins.
+* **Operations.** Conflict admin UI, Telegram and e-mail alerts, a reachability check (`sync:check`), and a
+  distributed edit lock for Shield users. For an Adminer-style database browser/editor, see the separate
+  [`ad-go/syncui`](https://github.com/ad-go/syncui) package (no dependency on this one).
 * **Built on the official packages.** [Shield](https://github.com/codeigniter4/shield),
   [Tasks](https://github.com/codeigniter4/tasks), [Queue](https://github.com/codeigniter4/queue),
   CodeIgniter's Email, Migrations, Language and Services.

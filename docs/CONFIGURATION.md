@@ -117,9 +117,5 @@ independent: either can be used alone.
 permission) control the conflict UI. `menuView`, `headView`, `conflictsIndexView` and `conflictsShowView`
 let the application wrap the pages in its own layout.
 
-`syncUiPath` (default `sync-admin/syncui`) is the same for SyncUI, the Adminer-style database browser/editor
-(same `adminPermission` guard); `syncUiIndexView`, `syncUiTableView` and `syncUiSqlView` override its views.
-`syncUiLocales` (default `['en' => 'English', 'de' => 'Deutsch']`) lists the languages its own language
-switcher offers; `profileUrl` (default `''`) points its user menu's optional Profile entry at the
-application's own profile page; `syncUiShowcaseView` overrides the widget-showcase page. See
-[OPERATIONS.md](OPERATIONS.md#syncui-the-database-admin-ui).
+For an Adminer-style database browser/editor, see the separate [`ad-go/syncui`](https://github.com/ad-go/syncui)
+package (its own `Config\SyncUi`, no dependency on this one).

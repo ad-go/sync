@@ -140,49 +140,12 @@ so the conflict cannot come back. If the peer is down, an authoritative journal 
 and the peer applies it on its next pull. A node refuses a decision for a row it changed after the conflict
 was detected.
 
-## SyncUI: the database admin UI
+## Database admin UI
 
-**Admin UI** at `sync-admin/syncui` (`Config\Sync::$syncUiPath`), behind the same Shield `session` +
-`permission:adminPermission` guard as the conflict admin. An Adminer-style browser/editor for the whole
-connection named by `Config\Sync::$dbGroup` — not only the package's own tables:
-
-* table list with row counts;
-* per table: filter (substring, per column), sort, paginate, edit a row, add a row, delete a row;
-* a free-form SQL box — a `SELECT`-like statement shows its result set, anything else shows the affected
-  row count.
-
-Its own chrome (not the host application's layout, and CSS-scoped under one `.syncui-shell` class so it
-cannot collide with styles the host's own `$menu`/`$head` inject onto the same page): a top bar with a
-sidebar toggle, the brand, a searchable "jump to table" dropdown, a language switcher
-(`Config\Sync::$syncUiLocales`, remembered per visitor in session) and a user menu (username, an optional
-Profile link via `Config\Sync::$profileUrl`, and Logout, resolved from Shield's named `logout` route); a
-left sidebar listing every table (drag its right edge to resize, click the toggle to hide/show — both
-remembered per browser via `localStorage`; it becomes an off-canvas drawer under 900px wide); and a footer.
-`Config\Sync::$menuView`/`$headView` still inject the host application's own navigation/styles alongside
-this, as a thin bar under the top bar — the way back out of SyncUI into the rest of the admin area.
-
-It is driver-agnostic (MySQL/MariaDB, PostgreSQL, SQLite) and works with `AdGo\Sync\Libraries\SyncUiBrowser`
-directly if an application wants a different UI on top of the same operations. There is no table-level
-allow/deny list: any Shield user with `adminPermission` can edit or run SQL against any table on that
-connection, same trust boundary as the conflict admin UI and the raw database credentials.
-
-### Vendored front-end libraries
-
-SyncUI ships its own copies of jQuery, DataTables, Select2, Toastify.js, and the Lucide icon set under
-`src/Assets/syncui` (versions and licenses in that folder's `NOTICE.md`), served by `SyncUiAdmin::asset()`
-(route `sync-admin/syncui/assets/(:any)`, cached a year, `immutable`) — no CDN call at runtime, no build
-step, no publishing to the host's `public/`. DataTables adds instant client-side search over the current
-page of browsed/queried rows (sorting/paging stay server-side); Select2 powers the "jump to table" dropdown;
-Toastify replaces static flash banners with toasts. A page registering its own `(:any)` route with multiple
-slash-separated segments gets each segment as a separate positional controller argument, not one combined
-string — `asset()` takes `string ...$segments` and rejoins them for this reason.
-
-A **Widget showcase** page (`sync-admin/syncui/showcase`, linked from the sidebar) demonstrates input/
-visualisation widgets with no natural home in a row editor — a WYSIWYG editor (Quill), a mouse/touch
-signature pad (Signature Pad), an image editor (Cropper.js v2's web components, plus brightness/contrast),
-a PDF previewer (PDF.js), a camera barcode/QR scanner (html5-qrcode), and text-to-speech (the browser's own
-Web Speech API — nothing vendored for that one). Nothing on that page is saved; it only exists to show the
-widgets work, wired to nothing in particular.
+For an Adminer-style database browser/editor (table list, filter/sort/paginate/edit rows, a free-form SQL
+box, a widget showcase), see the separate [`ad-go/syncui`](https://github.com/ad-go/syncui) package — it has
+no dependency on `ad-go/sync` and browses whatever `Config\SyncUi::$dbGroup` names, not only this package's
+own tables.
 
 ## Schema changes
 

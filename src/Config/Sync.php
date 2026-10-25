@@ -59,9 +59,6 @@ class Sync extends BaseConfig
     /** URL path of the conflict admin UI. */
     public string $conflictsPath = 'sync-admin/conflicts';
 
-    /** URL path of SyncUI, the Adminer-style database browser/editor for Config\Sync::$dbGroup. */
-    public string $syncUiPath = 'sync-admin/syncui';
-
     /**
      * Shared HMAC secret (same on both nodes). Set it in .env:
      *   sync.secret = <long random string>
@@ -247,32 +244,7 @@ class Sync extends BaseConfig
 
     public string $conflictsShowView = 'AdGo\Sync\Views\conflicts\show';
 
-    /** SyncUI's table list, table/row editor, and arbitrary-SQL views. Same override mechanism as the conflict views. */
-    public string $syncUiIndexView = 'AdGo\Sync\Views\syncui\index';
-
-    public string $syncUiTableView = 'AdGo\Sync\Views\syncui\table';
-
-    public string $syncUiSqlView = 'AdGo\Sync\Views\syncui\sql';
-
-    /** SyncUI's widget showcase (WYSIWYG, signature pad, image editor, PDF preview, barcode scan, text-to-speech). */
-    public string $syncUiShowcaseView = 'AdGo\Sync\Views\syncui\showcase';
-
-    /**
-     * Languages the SyncUI chrome (top bar, sidebar, footer) offers in its language switcher: code => native name.
-     * The package ships `en` and `de` (`src/Language`); an application that adds its own `Language/<code>/Sync.php`
-     * lists the extra code here too. A single entry hides the switcher.
-     *
-     * @var array<string, string>
-     */
-    public array $syncUiLocales = ['en' => 'English', 'de' => 'Deutsch'];
-
-    /**
-     * URL of the application's own user-profile page, shown as an entry in SyncUI's user menu next to Logout.
-     * Empty (default) hides the entry: the package has no profile page of its own.
-     */
-    public string $profileUrl = '';
-
-    /** Roles (Shield groups) allowed to use the conflict admin UI and SyncUI. */
+    /** Roles (Shield groups) allowed to use the conflict admin UI. */
     public string $adminPermission = 'admin.access';
 
     public function __construct()
