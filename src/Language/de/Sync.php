@@ -6,6 +6,14 @@ declare(strict_types=1);
  * Deutsche Texte des Sync-Pakets. Gleiche Schlüsselstruktur wie Language/en/Sync.php.
  */
 return [
+    // Admin-Seitenumschalter (Views/_adminNav.php)
+    'nav' => [
+        'conflicts' => 'Konflikte',
+        'status'    => 'Status',
+        'settings'  => 'Einstellungen',
+        'users'     => 'Benutzer',
+    ],
+
     // Konflikt-Verwaltung (Views/conflicts/index.php und show.php)
     'conflicts' => [
         'title'           => 'Sync-Konflikte',

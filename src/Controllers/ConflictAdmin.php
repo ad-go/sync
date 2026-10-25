@@ -17,27 +17,13 @@ use AdGo\Sync\Libraries\Support;
  */
 class ConflictAdmin extends Controller
 {
+    use AdminChrome;
+
     private Kernel $kernel;
 
     public function __construct()
     {
         $this->kernel = Kernel::instance();
-    }
-
-    /** The application's menu (Config\Sync::$menuView), or nothing. */
-    private function menu(): string
-    {
-        $view = (string) config('Sync')->menuView;
-
-        return $view === '' ? '' : view($view, ['active' => 'conflicts']);
-    }
-
-    /** Extra markup for <head> (Config\Sync::$headView), or nothing. */
-    private function head(): string
-    {
-        $view = (string) config('Sync')->headView;
-
-        return $view === '' ? '' : view($view);
     }
 
     public function index(): string
@@ -50,7 +36,7 @@ class ConflictAdmin extends Controller
             'pending'  => $db->table('sync_conflicts')->where('status', 'pending')->orderBy('detected_at', 'DESC')->get()->getResultArray(),
             'recent'   => $db->table('sync_conflicts')->where('status !=', 'pending')->orderBy('detected_at', 'DESC')->limit(50)->get()->getResultArray(),
             'lockHeld' => $this->kernel->locks()->holder('auth'),
-            'menu'     => $this->menu(),
+            'menu'     => $this->menu('conflicts'),
             'head'     => $this->head(),
         ]);
     }
@@ -61,7 +47,7 @@ class ConflictAdmin extends Controller
         $c = $this->conflict($id);
 
         if ($c === null) {
-            return redirect()->to(site_url($this->base()))->with('error', Lang::line('flash.unknownConflict'));
+            return $this->err(Lang::line('flash.unknownConflict'));
         }
 
         $local  = Support::unpack($c['local_blob']);
@@ -79,7 +65,7 @@ class ConflictAdmin extends Controller
             'divergent' => $c['fields'] === '*' ? $fields : array_filter(explode(',', (string) $c['fields'])),
             'action'    => site_url($this->base() . '/' . $id . '/resolve'),
             'back'      => site_url($this->base()),
-            'menu'      => $this->menu(),
+            'menu'      => $this->menu('conflicts'),
             'head'      => $this->head(),
         ]);
     }
@@ -89,7 +75,7 @@ class ConflictAdmin extends Controller
         $c = $this->conflict($id);
 
         if ($c === null) {
-            return redirect()->to(site_url($this->base()))->with('error', Lang::line('flash.unknownConflict'));
+            return $this->err(Lang::line('flash.unknownConflict'));
         }
 
         $action = (string) $this->request->getPost('action');
@@ -126,7 +112,7 @@ class ConflictAdmin extends Controller
 
         $msg = Lang::line('flash.resolved', [$id]) . (($res['propagated'] ?? true) ? '' : ' ' . Lang::line('flash.notPropagated'));
 
-        return redirect()->to(site_url($this->base()))->with('message', $msg);
+        return $this->ok($msg);
     }
 
     /** @return array<string, mixed>|null */

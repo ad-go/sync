@@ -7,6 +7,14 @@ declare(strict_types=1);
  * Placeholders {0}, {1}, ... are filled with the arguments of lang() / AdGo\Sync\Libraries\Lang::line().
  */
 return [
+    // Admin page switcher (Views/_adminNav.php)
+    'nav' => [
+        'conflicts' => 'Conflicts',
+        'status'    => 'Status',
+        'settings'  => 'Settings',
+        'users'     => 'Users',
+    ],
+
     // Conflict admin UI (Views/conflicts/index.php and show.php)
     'conflicts' => [
         'title'           => 'Sync conflicts',

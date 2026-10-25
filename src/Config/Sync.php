@@ -59,6 +59,15 @@ class Sync extends BaseConfig
     /** URL path of the conflict admin UI. */
     public string $conflictsPath = 'sync-admin/conflicts';
 
+    /** URL path of the status admin page. */
+    public string $statusPath = 'sync-admin/status';
+
+    /** URL path of the settings admin page. */
+    public string $settingsPath = 'sync-admin/settings';
+
+    /** URL path of the users admin pages. */
+    public string $usersPath = 'sync-admin/users';
+
     /**
      * Shared HMAC secret (same on both nodes). Set it in .env:
      *   sync.secret = <long random string>
@@ -244,8 +253,50 @@ class Sync extends BaseConfig
 
     public string $conflictsShowView = 'AdGo\Sync\Views\conflicts\show';
 
-    /** Roles (Shield groups) allowed to use the conflict admin UI. */
+    /** The status, settings and users views. An application can point these at its own views (same variables) to match its layout. */
+    public string $statusIndexView = 'AdGo\Sync\Views\status\index';
+
+    public string $settingsIndexView = 'AdGo\Sync\Views\settings\index';
+
+    public string $usersIndexView = 'AdGo\Sync\Views\users\index';
+
+    public string $usersEditView = 'AdGo\Sync\Views\users\edit';
+
+    /** Roles (Shield groups) allowed to use the conflict/status/settings/users admin UI. */
     public string $adminPermission = 'admin.access';
+
+    /** Roles (Shield groups) allowed to use the settings and users admin pages (a tighter subset of adminPermission, e.g. superadmin only). */
+    public string $superPermission = 'admin.access';
+
+    /**
+     * Font choices offered on the Settings page: label => CSS `font-family` value. Stored (by key) in
+     * `Config\Sync::$fontFamily` / setting('Sync.fontFamily').
+     *
+     * @var array<string, string>
+     */
+    public const FONTS = [
+        'system' => 'system-ui,-apple-system,Segoe UI,Roboto,sans-serif',
+        'serif'  => 'Georgia,Cambria,Times New Roman,serif',
+        'mono'   => 'ui-monospace,Consolas,Menlo,monospace',
+    ];
+
+    /** Site name shown in the admin chrome, browser titles and 2FA QR codes/e-mails. Editable from the Settings page. */
+    public string $siteName = 'Sync';
+
+    /** Site logo, relative to the public root (e.g. uploads/site-logo.png). Editable from the Settings page. */
+    public string $logo = '';
+
+    /** Accent colour (#rrggbb) of the admin chrome, or '' for the built-in default. Editable from the Settings page. */
+    public string $accentColor = '';
+
+    /** Key into FONTS, or '' for the built-in default. Editable from the Settings page. */
+    public string $fontFamily = '';
+
+    /** Base font size in pixels (12-20), or 0 for the built-in default. Editable from the Settings page. */
+    public int $fontSize = 0;
+
+    /** Largest uploaded logo accepted, in MiB. */
+    public int $maxImageMb = 2;
 
     public function __construct()
     {

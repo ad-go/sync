@@ -1,8 +1,8 @@
 <?php
 /**
  * Drags `#cfSidebar`'s width via the invisible `#cfSbResize` handle and `#cfTopbar`'s height via `#cfTbResize`
- * (see the `.cfshell`/`.cftopbar` CSS in index.php / show.php) and remembers both per browser. No jQuery: the
- * conflicts admin page does not vendor it.
+ * (see `_adminChrome.php`) and remembers both per browser, shared by every admin page (conflicts, status,
+ * settings, users). No jQuery: the package does not vendor it.
  */
 ?>
 <script>

@@ -46,3 +46,38 @@ $routes->group(trim($syncCfg->conflictsPath, '/'), [
     $routes->get('(:num)', 'ConflictAdmin::show/$1');
     $routes->post('(:num)/resolve', 'ConflictAdmin::resolve/$1');
 });
+
+// Status admin page (Shield session + permission).
+$routes->group(trim($syncCfg->statusPath, '/'), [
+    'namespace' => $ns,
+    'filter'    => ['session', 'permission:' . $syncCfg->adminPermission],
+], static function ($routes): void {
+    $routes->get('/', 'StatusAdmin::index');
+    $routes->post('sync-now', 'StatusAdmin::syncNow');
+    $routes->post('lock', 'StatusAdmin::lock');
+});
+
+// Settings admin page (Shield session + the tighter superPermission).
+$routes->group(trim($syncCfg->settingsPath, '/'), [
+    'namespace' => $ns,
+    'filter'    => ['session', 'permission:' . $syncCfg->superPermission],
+], static function ($routes): void {
+    $routes->get('/', 'SettingsAdmin::index');
+    $routes->post('branding', 'SettingsAdmin::saveBranding');
+    $routes->post('logo/remove', 'SettingsAdmin::removeLogo');
+    $routes->post('identity', 'SettingsAdmin::identity');
+    $routes->post('env', 'SettingsAdmin::saveEnv');
+});
+
+// Users admin pages (Shield session + the tighter superPermission).
+$routes->group(trim($syncCfg->usersPath, '/'), [
+    'namespace' => $ns,
+    'filter'    => ['session', 'permission:' . $syncCfg->superPermission],
+], static function ($routes): void {
+    $routes->get('/', 'UsersAdmin::index');
+    $routes->post('/', 'UsersAdmin::create');
+    $routes->get('(:num)/edit', 'UsersAdmin::edit/$1');
+    $routes->post('(:num)', 'UsersAdmin::save/$1');
+    $routes->post('(:num)/delete', 'UsersAdmin::delete/$1');
+    $routes->get('(:num)/2fa', 'UsersAdmin::twofa/$1');
+});

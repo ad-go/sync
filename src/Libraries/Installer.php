@@ -328,6 +328,36 @@ final class Installer
         return 'patched';
     }
 
+    // --------------------------------------------------------------- Config\Auth (TOTP action for superadmins)
+
+    private const AUTH_PATTERN = "/'login'(\\s*)=>(\\s*)null,/";
+    private const AUTH_REPLACE = "'login'$1=>$2\\AdGo\\Sync\\Authentication\\Actions\\Totp2FA::class,";
+
+    /** @return string 'patched' | 'present' | 'missing' | 'manual' */
+    public function ensureAuthAction(string $file): string
+    {
+        if (! is_file($file)) {
+            return 'missing'; // app/Config/Auth.php is published by `php spark shield:setup`, not by this package
+        }
+
+        $code = (string) file_get_contents($file);
+
+        if (str_contains($code, 'Totp2FA::class')) {
+            return 'present';
+        }
+
+        $patched = preg_replace(self::AUTH_PATTERN, self::AUTH_REPLACE, $code, 1, $n);
+
+        if ($n !== 1 || $patched === null) {
+            return 'manual';
+        }
+
+        copy($file, $file . '.bak');
+        file_put_contents($file, $patched);
+
+        return 'patched';
+    }
+
     // ----------------------------------------------------------------- cron
 
     /**

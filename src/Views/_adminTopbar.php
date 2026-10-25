@@ -1,13 +1,17 @@
 <?php
 /**
- * Top bar of the conflicts admin page's `.cfshell` (counterpart of the host app's own `_topbar.php`, but
- * self-contained: the package cannot depend on a host-specific helper/view). Brand, language switch, "node ·
- * user", sign out; `$menu`'s own copies of these are hidden in the sidebar via CSS (`.cfshell .sidebar
- * nav.menu .brand,...{display:none}`), not removed from `$menu` itself.
+ * Top bar of the package's own admin pages' `.cfshell` (conflicts, status, settings, users; counterpart of a
+ * host app's own `_topbar.php`, but self-contained: the package cannot depend on a host-specific helper/view).
+ * Brand (name + logo, from AdGo\Sync\Libraries\Branding), language switch, "node · user", sign out; `$menu`'s
+ * own copies of these are hidden in the sidebar via CSS (`.cfshell .sidebar nav.menu .brand,...{display:none}`),
+ * not removed from `$menu` itself.
  *
  * @var ?string $node
  */
+use AdGo\Sync\Libraries\Branding;
+
 $node ??= (string) config('Sync')->node;
+$logo  = Branding::logoUrl();
 $user  = auth()->user();
 
 try {
@@ -37,7 +41,7 @@ $flag = static function (string $code): string {
 };
 ?>
 <header class="cftopbar" id="cfTopbar">
-  <a class="cftb-brand" href="<?= site_url('/') ?>">Sync</a>
+  <a class="cftb-brand" href="<?= site_url('/') ?>"><?php if ($logo !== ''): ?><img src="<?= esc($logo) ?>" alt="" class="cftb-logo"><?php endif ?><?= esc(Branding::siteName()) ?></a>
   <span class="cftb-sp"></span>
   <?php $langs = array_diff(config('App')->supportedLocales, [service('request')->getLocale()]); ?>
   <?php if ($langs !== []): ?>

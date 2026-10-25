@@ -40,6 +40,7 @@ class SyncInstall extends BaseCommand
         $options = Options::fromConfig(config('Sync'));
         $this->config($installer, $options);
         $this->tasks($installer);
+        $this->authAction($installer);
 
         if (! $this->hasFlag('no-seed')) {
             Kernel::use(null);
@@ -130,6 +131,18 @@ class SyncInstall extends BaseCommand
             'patched' => CLI::write('app/Config/Tasks.php: SyncTasks::register() added (backup: Tasks.php.bak)', 'green'),
             'present' => CLI::write('app/Config/Tasks.php already registers the sync tasks'),
             default   => CLI::write('add \AdGo\Sync\Tasks\SyncTasks::register($schedule); to init() in app/Config/Tasks.php', 'yellow'),
+        };
+    }
+
+    private function authAction(Installer $installer): void
+    {
+        $result = $installer->ensureAuthAction(APPPATH . 'Config/Auth.php');
+
+        match ($result) {
+            'patched' => CLI::write('app/Config/Auth.php: TOTP 2FA registered for superadmins (backup: Auth.php.bak)', 'green'),
+            'present' => CLI::write('app/Config/Auth.php already registers the TOTP 2FA action'),
+            'missing' => CLI::write('app/Config/Auth.php not found yet; run `php spark shield:setup` first, then `php spark sync:install --no-migrate`', 'yellow'),
+            default   => CLI::write("could not patch app/Config/Auth.php automatically; set \$actions['login'] = \\AdGo\\Sync\\Authentication\\Actions\\Totp2FA::class; by hand", 'yellow'),
         };
     }
 
