@@ -15,6 +15,12 @@ try {
 } catch (\Throwable) {
     $logoutUrl = site_url('logout');
 }
+
+// Emoji flags, graphic but nothing to load/vendor; self-contained (the package cannot depend on a host helper).
+$flag = static fn (string $code): string => [
+    'en' => '🇬🇧', 'ro' => '🇷🇴', 'de' => '🇩🇪', 'fr' => '🇫🇷', 'es' => '🇪🇸', 'it' => '🇮🇹',
+    'pt' => '🇵🇹', 'nl' => '🇳🇱', 'pl' => '🇵🇱', 'ru' => '🇷🇺', 'tr' => '🇹🇷', 'ar' => '🇸🇦', 'zh' => '🇨🇳', 'ja' => '🇯🇵',
+][$code] ?? '🌐';
 ?>
 <header class="cftopbar" id="cfTopbar">
   <a class="cftb-brand" href="<?= site_url('/') ?>">Sync</a>
@@ -22,9 +28,9 @@ try {
   <?php $langs = array_diff(config('App')->supportedLocales, [service('request')->getLocale()]); ?>
   <?php if ($langs !== []): ?>
   <details class="cftb-dd">
-    <summary><?= esc(strtoupper(service('request')->getLocale())) ?></summary>
+    <summary><?= $flag(service('request')->getLocale()) ?> <?= esc(strtoupper(service('request')->getLocale())) ?></summary>
     <div class="cftb-ddmenu">
-      <?php foreach ($langs as $code): ?><a href="<?= site_url('lang/' . $code) ?>"><?= esc(strtoupper($code)) ?></a><?php endforeach ?>
+      <?php foreach ($langs as $code): ?><a href="<?= site_url('lang/' . $code) ?>"><?= $flag($code) ?> <?= esc(strtoupper($code)) ?></a><?php endforeach ?>
     </div>
   </details>
   <?php endif ?>
