@@ -50,7 +50,13 @@ html{margin:0;height:100%}
 .syncui-shell .topbar .right{display:flex;align-items:center;gap:4px;flex:0 0 auto}
 .syncui-shell .iconbtn{background:none;color:inherit;border:1px solid var(--border);border-radius:var(--radius);padding:6px 9px;cursor:pointer;font:inherit;display:inline-flex;align-items:center;gap:6px;font-size:16px}
 .syncui-shell .iconbtn:hover{background:var(--border)}
-.syncui-shell .hostmenu{flex:0 0 auto}
+.syncui-shell aside.sidebar .hostmenu{border-bottom:1px solid var(--border)}
+.syncui-shell aside.sidebar .hostmenu nav.menu{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:2px;padding:10px 8px;margin:0;border-bottom:0}
+.syncui-shell aside.sidebar .hostmenu nav.menu a{padding:6px 8px;border-radius:6px;border-bottom:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.syncui-shell aside.sidebar .hostmenu nav.menu a:hover{background:var(--border)}
+.syncui-shell aside.sidebar .hostmenu nav.menu a[aria-current=page]{background:var(--border)}
+.syncui-shell aside.sidebar .hostmenu nav.menu .brand{padding:3px 8px 8px;font-size:13px}
+.syncui-shell aside.sidebar .hostmenu nav.menu .sp,.syncui-shell aside.sidebar .hostmenu nav.menu .who{display:none}
 .syncui-shell details.dropdown{position:relative}
 .syncui-shell details.dropdown>summary{list-style:none;cursor:pointer;padding:6px 9px;border-radius:var(--radius);user-select:none;display:flex;align-items:center;gap:6px;font-size:16px}
 .syncui-shell details.dropdown>summary::-webkit-details-marker{display:none}
@@ -138,10 +144,10 @@ html{margin:0;height:100%}
     </details>
   </div>
 </header>
-<?php if ($menu !== ''): ?><div class="hostmenu"><?= $menu ?></div><?php endif ?>
 <div class="shellbody">
   <div id="sidebarBackdrop"></div>
   <aside class="sidebar" id="syncUiSidebar">
+    <?php if ($menu !== ''): ?><div class="hostmenu"><?= $menu ?></div><?php endif ?>
     <nav>
       <?php foreach ($sidebarTables as $t): ?>
       <a href="<?= esc(site_url($base . '/' . $t['name'])) ?>" class="<?= $t['name'] === $activeTable ? 'active' : '' ?>"><?= Icon::svg('table-2') ?> <?= esc($t['name']) ?><span class="cnt"><?= (int) $t['rows'] ?></span></a>
