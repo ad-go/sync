@@ -148,7 +148,7 @@ class SyncClient implements PushClient, FilePushClient
                     'X-Sync-Node'      => $this->opt->node,
                     'X-Sync-Timestamp' => (string) $ts,
                     'X-Sync-Nonce'     => $nonce,
-                    'X-Sync-Signature' => Signer::sign($this->opt->secret, 'POST', $path, $ts, $nonce, $body),
+                    'X-Sync-Signature' => Signer::sign($this->opt->secret, 'POST', $path, $this->opt->node, $ts, $nonce, $body),
                 ],
             ]);
 

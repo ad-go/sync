@@ -261,7 +261,7 @@ request:  POST /sync-api/<endpoint>      body = form-urlencoded
           X-Sync-Node       = node name
           X-Sync-Timestamp  = t
           X-Sync-Nonce      = 16 random bytes (hex)
-          X-Sync-Signature  = HMAC-SHA256(secret, METHOD \n path \n t \n nonce \n sha256(body))
+          X-Sync-Signature  = HMAC-SHA256(secret, METHOD \n path \n node \n t \n nonce \n sha256(body))
 response: serialized body
           X-Sync-Signature  = HMAC-SHA256(secret, "response" \n nonce \n sha256(body))
 ```
@@ -269,7 +269,7 @@ response: serialized body
 - The `syncHmac` filter accepts only `POST` and bodies up to `sync.maxBody`. It checks the secret, |now − t| ≤ `replayWindow` (300 s), a non-empty nonce of at most 64 characters and compares with `hash_equals`.
 - **Single-use nonce:** claimed atomically in `sync_nonce` for `2 × replayWindow`; a repeat gets 401. Without that table the cache is used; with no usable store the API answers 503.
 - The response is bound to the request nonce.
-- `X-Sync-Node` must be a configured partner (else 403); it becomes `sender()` and selects the cursor on the hub.
+- `X-Sync-Node` is part of the signed string (a signed request cannot be relabelled as another node) and must be a configured partner (else 403); it becomes `sender()` and selects the cursor on the hub.
 - The client requires HTTPS with certificate verification (`allowInsecure` overrides, localhost exempt).
 - Content is read with `unserialize(allowed_classes: false)`; incoming rows keep only the local table's columns and never set the primary key.
 

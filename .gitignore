@@ -5,3 +5,13 @@ composer.lock
 /.env
 *.zip
 .idea/
+
+# local-only material, never to be committed
+/credentials.json
+/secrets/
+/backups/
+/tools/
+/session/
+/docs-ro/
+/CLAUDE.md
+/.claude/

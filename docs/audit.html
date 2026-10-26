@@ -79,7 +79,7 @@ through in-process transports; it does not run a real HTTPS round trip between a
 <tr><td>Method</td><td><code>POST</code> only. Any other method is answered <code>405 method</code>.</td></tr>
 <tr><td>URL</td><td><code>&lt;peerUrl&gt;/&lt;routePrefix&gt;/&lt;endpoint&gt;</code>, default prefix <code>sync-api</code>. The client refuses any scheme but <code>https</code> (localhost excepted) unless <code>sync.allowInsecure</code> is set.</td></tr>
 <tr><td>Body</td><td><code>application/x-www-form-urlencoded</code>, produced by <code>http_build_query($params, '', '&amp;')</code> (RFC 1738 encoding, space as <code>+</code>). Structured values (lists of changes, row state) are PHP <code>serialize()</code> strings placed inside one form field.</td></tr>
-<tr><td><code>X-Sync-Node</code></td><td>Sender's node name. <strong>Not covered by the signature</strong> (F-1).</td></tr>
+<tr><td><code>X-Sync-Node</code></td><td>Sender's node name: non-empty, at most 64 characters, no LF. Covered by the signature, see 3.2.</td></tr>
 <tr><td><code>X-Sync-Timestamp</code></td><td>Integer Unix seconds at the sender.</td></tr>
 <tr><td><code>X-Sync-Nonce</code></td><td>Client: 16 random bytes, lower-case hex (32 chars). Server accepts any non-empty string of at most 64 characters.</td></tr>
 <tr><td><code>X-Sync-Signature</code></td><td>Lower-case hex HMAC-SHA256, see 3.2.</td></tr>
@@ -87,9 +87,9 @@ through in-process transports; it does not run a real HTTPS round trip between a
 
 <h3>3.2 Request signature</h3>
 <pre><code>body_hash = hex( SHA-256( raw_body ) )
-message   = "POST" LF path LF timestamp LF nonce LF body_hash        (LF = 0x0A, no trailing LF)
+message   = "POST" LF path LF node LF timestamp LF nonce LF body_hash   (LF = 0x0A, no trailing LF)
 signature = hex( HMAC-SHA256( key = sync.secret as raw bytes of the string, message ) )</code></pre>
-<p><code>path</code> is <code>'/' . routePrefix . '/' . endpoint</code> on the client and <code>'/' . trim(uri_string(), '/')</code> on the server; the query string, the host and the scheme are not part of it.
+<p><code>path</code> is <code>'/' . routePrefix . '/' . endpoint</code> on the client and <code>'/' . trim(uri_string(), '/')</code> on the server; the query string, the host and the scheme are not part of it. <code>node</code> is the value of <code>X-Sync-Node</code>, so the sender identity is authenticated by the same MAC as the rest of the request.
 The method is upper-cased by <code>Signer::sign</code>; the filter passes the constant <code>"POST"</code>. <code>sync.secret</code> is used as the ASCII string it is configured as (the installer writes 64 hexadecimal characters, which are used as 64 bytes of text, not decoded to 32 bytes).</p>
 
 <h3>3.3 Response</h3>
@@ -164,7 +164,7 @@ The method is upper-cased by <code>Signer::sign</code>; the filter passes the co
 <p>Order in <code>SyncHmac::before</code>; the first failing step ends the request.</p>
 <ol>
   <li>Method is <code>POST</code>, else <code>405</code>. Body longer than <code>maxBody</code> (default 8 MiB) &rarr; <code>413</code>.</li>
-  <li><code>Signer::verify</code>: secret not empty; <code>|now &minus; timestamp| &le; replayWindow</code> (default 300 s); nonce non-empty and at most 64 characters; <code>hash_equals(expected, signature)</code>. Failure is logged with the caller's IP and answered <code>401 unauthorized</code> without telling which check failed.</li>
+  <li><code>Signer::verify</code>: secret not empty; <code>|now &minus; timestamp| &le; replayWindow</code> (default 300 s); nonce non-empty and at most 64 characters; node non-empty, at most 64 characters, no LF; <code>hash_equals(expected, signature)</code>. Failure is logged with the caller's IP and answered <code>401 unauthorized</code> without telling which check failed.</li>
   <li><code>X-Sync-Node</code> must be a configured peer name, else <code>403 unknown node</code>. The name becomes the sender of the request.</li>
   <li>Nonce claim (<code>NonceStore</code>): already present &rarr; <code>401 replay</code>; otherwise stored. Claimed atomically (<code>INSERT IGNORE</code> on the primary key of <code>sync_nonce</code>); without that table the cache is used if it verifiably stores values. No usable store &rarr; <code>503</code>.</li>
   <li>The signed request timestamp is recorded as a coarse clock sample of the sender (<code>sync_cursor.clock_*</code>); the client records a precise one from the <code>time</code> of each answer.</li>
@@ -185,6 +185,7 @@ SHA-256(body) a94e32e69292f68987e339a5c606fb2c8b0928af9167eba2e9b9edb585aca8c1
 Signed string (LF-separated)
   POST
   /sync-api/pull
+  site1
   1790000000
   00112233445566778899aabbccddeeff
   a94e32e69292f68987e339a5c606fb2c8b0928af9167eba2e9b9edb585aca8c1
@@ -195,7 +196,7 @@ Request
   X-Sync-Node: site1
   X-Sync-Timestamp: 1790000000
   X-Sync-Nonce: 00112233445566778899aabbccddeeff
-  X-Sync-Signature: e02bdcf01900d925248e50dc0e001adf64efe3b6daf7e5f6d2a45d30f2bab8e2
+  X-Sync-Signature: b0ba0538f33337756979493da98f5f10d96b365bc74a2853131f2c4c167addc9
 
   after=41&amp;limit=2</code></pre>
 
@@ -230,6 +231,7 @@ Response signed string  response LF 00112233445566778899aabbccddeeff LF 59dc8034
 <tr><td>Unchanged request, receiver clock +10 s</td><td><code>ok</code></td></tr>
 <tr><td>Same request, receiver clock +301 s</td><td>rejected: <em>timestamp outside the replay window</em></td></tr>
 <tr><td>Body changed by one character</td><td>rejected: <em>bad signature</em></td></tr>
+<tr><td><code>X-Sync-Node</code> changed to <code>site2</code></td><td>rejected: <em>bad signature</em></td></tr>
 </table>
 
 <h3>7.4 Exchange of a passive node (conceptual order, one cycle)</h3>
@@ -271,12 +273,12 @@ site2 -&gt; site1 (dial-in, on its own schedule): pull ... (relay re-journaled a
 </ul>
 
 <h2 id="findings">9. Known weaknesses</h2>
-<p>Estimated by the reviewer for a deployment that follows the documentation. F-1, F-4, F-5 and F-10 change the wire format or stored data and are open; L-1 to L-5 are limits of existing mitigations.</p>
+<p>Estimated by the reviewer for a deployment that follows the documentation. F-4, F-5 and F-10 change the wire format or stored data and are open; L-1 to L-5 are limits of existing mitigations.</p>
 <table>
 <tr><th>ID</th><th>Weakness</th><th>Where</th><th>Severity</th></tr>
-<tr><td>F-1</td><td><code>X-Sync-Node</code> is not part of the signed string. The sender identity (cursor attribution, lock holder, passive check for <code>files/put</code>) comes from an unauthenticated header; any secret holder can name any peer. The lock endpoints ignore the posted <code>requester</code>/<code>holder</code> and use this header.</td><td><code>Signer.php</code>, <code>SyncHmac.php</code>, <code>SyncController.php</code></td><td>Medium (needs TLS break or secret)</td></tr>
+<tr><td>F-1</td><td><strong>Fixed.</strong> <code>X-Sync-Node</code> was not part of the signed string, so any secret holder could present a request as any peer (cursor attribution, lock holder, passive check for <code>files/put</code>). The node name is now signed (3.2) and validated before the MAC check. Breaking change on the wire: every node must run the new code, a mixed deployment answers <code>401</code> in both directions. With one shared secret (F-4) this still does not identify a node cryptographically; it only stops a signed request from being relabelled.</td><td><code>Signer.php</code>, <code>SyncHmac.php</code></td><td>&mdash;</td></tr>
 <tr><td>F-4</td><td>One shared secret for all nodes, no key id, no rotation; changing it needs a simultaneous change on every node.</td><td>design</td><td>Medium</td></tr>
-<tr><td>F-5</td><td>The response signature does not cover status, path or sender; with F-1 the client cannot tell which node answered beyond the URL it called.</td><td><code>Signer::signResponse</code></td><td>Low</td></tr>
+<tr><td>F-5</td><td>The response signature does not cover status, path or sender; the client cannot tell which node answered beyond the URL it called.</td><td><code>Signer::signResponse</code></td><td>Low</td></tr>
 <tr><td>F-10</td><td>SHA-1 is used for <code>row_hash</code>, <code>path_hash</code> and v5 uuids. None is a security boundary, but an attacker who controls row content could craft <code>row_hash</code> collisions and hide a change from the scanner.</td><td><code>Support.php</code>, <code>FileSync.php</code></td><td>Low</td></tr>
 <tr><td>L-1</td><td>The nonce cache fallback (node without the <code>sync_nonce</code> table) is check-then-save, not atomic.</td><td><code>NonceStore.php</code></td><td>Low</td></tr>
 <tr><td>L-2</td><td>The HTTPS requirement is enforced by the client only; <code>selfUrl</code> is not validated.</td><td><code>SyncClient.php</code>, <code>Options.php</code></td><td>Low</td></tr>
@@ -326,13 +328,15 @@ $nonce  = '00112233445566778899aabbccddeeff';
 $path   = '/sync-api/pull';
 $body   = http_build_query(['after' =&gt; 41, 'limit' =&gt; 2], '', '&amp;');
 
-echo Signer::sign($secret, 'POST', $path, $ts, $nonce, $body), "\n";
+$node   = 'site1';
+
+echo Signer::sign($secret, 'POST', $path, $node, $ts, $nonce, $body), "\n";
 echo Support::seedUuid('items', 7), "\n";
 echo Support::hashRow(['id' =&gt; 7, 'name' =&gt; 'Widget', 'qty' =&gt; 5]), "\n";
 echo sha1('labels/2026/a.pdf'), "\n";
-$sig = Signer::sign($secret, 'POST', $path, $ts, $nonce, $body);
-echo json_encode(Signer::verify($secret, 'POST', $path, $ts, $nonce, $body, $sig, 300, $ts + 301)), "\n";</code></pre>
-<p class="meta">Run from the package root (PHP 8.4). Expected first line: <code>e02bdcf01900d925248e50dc0e001adf64efe3b6daf7e5f6d2a45d30f2bab8e2</code>; the last line prints the <em>timestamp outside the replay window</em> rejection.</p>
+$sig = Signer::sign($secret, 'POST', $path, $node, $ts, $nonce, $body);
+echo json_encode(Signer::verify($secret, 'POST', $path, $node, $ts, $nonce, $body, $sig, 300, $ts + 301)), "\n";</code></pre>
+<p class="meta">Run from the package root (PHP 8.4). Expected first line: <code>b0ba0538f33337756979493da98f5f10d96b365bc74a2853131f2c4c167addc9</code>; the last line prints the <em>timestamp outside the replay window</em> rejection.</p>
 
 </main>
 </body>

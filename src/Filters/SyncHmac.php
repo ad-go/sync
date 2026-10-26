@@ -15,7 +15,7 @@ use Throwable;
 
 /**
  * Authenticates peer-to-peer API calls: HMAC signature over method, path,
- * timestamp, nonce and body hash; bounded timestamp window; single-use nonce (atomic, see NonceStore);
+ * sender node, timestamp, nonce and body hash; bounded timestamp window; single-use nonce (atomic, see NonceStore);
  * bounded request size.
  * Also signs the response so the client can authenticate the answer.
  */
@@ -39,7 +39,7 @@ class SyncHmac implements FilterInterface
         $node  = $request->getHeaderLine('X-Sync-Node');
         $path  = '/' . trim(uri_string(), '/');
 
-        $check = Signer::verify($opt->secret, 'POST', $path, $ts, $nonce, (string) $request->getBody(), $sig, $opt->replayWindow);
+        $check = Signer::verify($opt->secret, 'POST', $path, $node, $ts, $nonce, (string) $request->getBody(), $sig, $opt->replayWindow);
 
         if (! $check['ok']) {
             log_message('warning', 'sync: rejected request from ' . $request->getIPAddress() . ': ' . ($check['reason'] ?? ''));

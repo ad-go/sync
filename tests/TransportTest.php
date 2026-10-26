@@ -46,16 +46,18 @@ final class TransportTest extends TwoNodes
 {
     public function testSignatureRoundTripAndTamperDetection(): void
     {
-        $sig = Signer::sign('s3cret', 'POST', '/sync-api/pull', 1000, 'n1', 'after=0');
-        $ok  = fn (string $secret, string $path, int $ts, string $nonce, string $body, string $s, int $now = 1000) => Signer::verify($secret, 'POST', $path, $ts, $nonce, $body, $s, 300, $now)['ok'];
+        $sig = Signer::sign('s3cret', 'POST', '/sync-api/pull', 'site1', 1000, 'n1', 'after=0');
+        $ok  = fn (string $secret, string $path, int $ts, string $nonce, string $body, string $s, int $now = 1000, string $node = 'site1') => Signer::verify($secret, 'POST', $path, $node, $ts, $nonce, $body, $s, 300, $now)['ok'];
 
         $this->assertTrue($ok('s3cret', '/sync-api/pull', 1000, 'n1', 'after=0', $sig));
         $this->assertFalse($ok('s3cret', '/sync-api/pull', 1000, 'n1', 'after=1', $sig), 'body tampered');
         $this->assertFalse($ok('s3cret', '/sync-api/other', 1000, 'n1', 'after=0', $sig), 'path tampered');
         $this->assertFalse($ok('s3cret', '/sync-api/pull', 1000, 'n2', 'after=0', $sig), 'nonce tampered');
+        $this->assertFalse($ok('s3cret', '/sync-api/pull', 1000, 'n1', 'after=0', $sig, 1000, 'site2'), 'sender node tampered (F-1)');
+        $this->assertFalse($ok('s3cret', '/sync-api/pull', 1000, 'n1', 'after=0', $sig, 1000, ''), 'sender node missing');
         $this->assertFalse($ok('wrong', '/sync-api/pull', 1000, 'n1', 'after=0', $sig), 'wrong secret');
         $this->assertFalse($ok('s3cret', '/sync-api/pull', 1000, 'n1', 'after=0', $sig, 5000), 'replayed outside the window');
-        $this->assertFalse(Signer::verify('', 'POST', '/x', 1, 'n', '', 'x', 300, 1)['ok'], 'no secret configured');
+        $this->assertFalse(Signer::verify('', 'POST', '/x', 'n', 1, 'n', '', 'x', 300, 1)['ok'], 'no secret configured');
     }
 
     public function testResponseSignatureIsBoundToTheRequestNonce(): void
