@@ -16,7 +16,8 @@ use OTPHP\TOTP;
 
 /**
  * TOTP (authenticator app) second factor for superadmin users. Identities live in Shield's own
- * `auth_identities` table (type `totp_2fa` for the secret, `totp_recovery` for the recovery codes). Recovery
+ * `auth_identities` table: type `totp_2fa` keeps the encrypted secret in `secret`, type `totp_recovery` keeps the
+ * encrypted recovery list in `extra` (TEXT; `secret` is VARCHAR(255) and only holds a random handle there). Recovery
  * codes are encrypted, not hashed, on purpose: unlike a password, they must be re-displayable later (the
  * "View 2FA" modal on the Users page), so a one-way hash would not work here.
  *
@@ -52,12 +53,17 @@ class TwoFactor
         }
 
         $secret = TOTP::create(secretSize: 20)->getSecret();
+        $blob   = $this->encrypt($secret);
+
+        if (strlen($blob) > 255) {
+            throw new EncryptionException('Encrypted 2FA secret does not fit auth_identities.secret (255).'); // never with a 20-byte secret
+        }
 
         $this->identities->insert([
             'user_id' => $user->id,
             'type'    => self::TYPE_SECRET,
             'name'    => 'totp',
-            'secret'  => $this->encrypt($secret),
+            'secret'  => $blob,
             'extra'   => 'unconfirmed',
         ]);
 
@@ -144,7 +150,10 @@ class TwoFactor
             'user_id' => $user->id,
             'type'    => self::TYPE_RECOVERY,
             'name'    => 'totp-recovery',
-            'secret'  => $this->encrypt(json_encode(array_map(static fn (string $c): array => ['code' => $c, 'used' => false], $codes))),
+            // `secret` is VARCHAR(255) and part of a unique key: it only carries a random handle here. The encrypted
+            // list (about 600 characters) lives in `extra` (TEXT); MySQL would silently truncate it in `secret`.
+            'secret'  => 'recovery:' . bin2hex(random_bytes(16)),
+            'extra'   => $this->encrypt(json_encode(array_map(static fn (string $c): array => ['code' => $c, 'used' => false], $codes))),
         ]);
 
         return $codes;
@@ -155,11 +164,7 @@ class TwoFactor
     {
         $row = $this->identities->getIdentityByType($user, self::TYPE_RECOVERY);
 
-        if ($row === null) {
-            return [];
-        }
-
-        return json_decode($this->read($row), true) ?? [];
+        return $row === null ? [] : $this->readRecovery($row);
     }
 
     public function verifyRecoveryCode(User $user, string $code): bool
@@ -171,7 +176,7 @@ class TwoFactor
             return false;
         }
 
-        $codes = json_decode($this->read($row), true) ?? [];
+        $codes = $this->readRecovery($row);
         $found = false;
 
         foreach ($codes as &$entry) {
@@ -186,10 +191,44 @@ class TwoFactor
         unset($entry);
 
         if ($found) {
-            $this->identities->update($row->id, ['secret' => $this->encrypt(json_encode($codes))]);
+            $this->identities->update($row->id, ['extra' => $this->encrypt(json_encode($codes))]);
         }
 
         return $found;
+    }
+
+    /**
+     * The recovery list of a `totp_recovery` row. Rows written by earlier versions kept the blob in `secret`, where
+     * MySQL truncated it to 255 characters: such a row (or any other that no key can open) is unusable and is removed
+     * so that the next setup page issues a fresh list, instead of failing every login with an exception.
+     *
+     * @param object{id: int, secret: string, extra: ?string} $row
+     *
+     * @return list<array{code:string,used:bool}>
+     */
+    private function readRecovery(object $row): array
+    {
+        $legacy = ! str_starts_with((string) $row->secret, 'recovery:');
+
+        try {
+            $plain = $this->decryptBlob((string) ($legacy ? $row->secret : $row->extra), $migrated);
+        } catch (EncryptionException $e) {
+            log_message('warning', "sync: 2FA recovery codes of user {$row->user_id} are unreadable ({$e->getMessage()}); removed, a new list will be issued");
+            $this->identities->delete($row->id);
+
+            return [];
+        }
+
+        if ($legacy || $migrated) {
+            $this->identities->update($row->id, [
+                'secret' => $legacy ? 'recovery:' . bin2hex(random_bytes(16)) : $row->secret,
+                'extra'  => $this->encrypt($plain),
+            ]);
+        }
+
+        $codes = json_decode($plain, true);
+
+        return is_array($codes) ? $codes : [];
     }
 
     private function encrypt(string $plain): string
@@ -206,9 +245,27 @@ class TwoFactor
      */
     private function read(object $row): string
     {
-        $blob = base64_decode((string) $row->secret, true);
+        $plain = $this->decryptBlob((string) $row->secret, $migrated);
 
-        if ($blob === false) {
+        if ($migrated) {
+            $this->identities->update($row->id, ['secret' => $this->encrypt($plain)]);
+        }
+
+        return $plain;
+    }
+
+    /**
+     * Opens a stored blob with the shared key, or — for one written by an earlier version — with the application's
+     * own key, in which case `$migrated` is set so the caller re-encrypts it with the shared key.
+     *
+     * @throws EncryptionException when neither key opens it
+     */
+    private function decryptBlob(string $encoded, ?bool &$migrated): string
+    {
+        $migrated = false;
+        $blob     = base64_decode($encoded, true);
+
+        if ($blob === false || $blob === '') {
             throw new EncryptionException('Corrupt 2FA identity.');
         }
 
@@ -222,7 +279,7 @@ class TwoFactor
             }
         }
 
-        $this->identities->update($row->id, ['secret' => $this->encrypt($plain)]);
+        $migrated = true;
 
         return $plain;
     }
