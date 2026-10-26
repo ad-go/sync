@@ -128,7 +128,9 @@ class TwoFactor
         $options->outputBase64    = false;
         $options->addQuietzone    = true;
 
-        return (new QRCode($options))->render($uri);
+        // Add width="100%" so the SVG fills its containing block; without explicit dimensions the browser
+        // collapses inline SVG to 0×0 when the parent has no intrinsic height.
+        return str_replace('<svg ', '<svg width="100%" ', (new QRCode($options))->render($uri));
     }
 
     /**
