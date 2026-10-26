@@ -15,3 +15,7 @@ composer.lock
 /docs-ro/
 /CLAUDE.md
 /.claude/
+/apps/
+/infra/
+/licensed/
+/related/
