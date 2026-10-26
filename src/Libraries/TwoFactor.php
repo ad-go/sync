@@ -7,24 +7,35 @@ namespace AdGo\Sync\Libraries;
 use chillerlan\QRCode\Output\QRMarkupSVG;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
+use CodeIgniter\Encryption\EncrypterInterface as Encrypter;
+use CodeIgniter\Encryption\Exceptions\EncryptionException;
 use CodeIgniter\Shield\Entities\User;
+use Config\Encryption as EncryptionConfig;
 use CodeIgniter\Shield\Models\UserIdentityModel;
 use OTPHP\TOTP;
 
 /**
  * TOTP (authenticator app) second factor for superadmin users. Identities live in Shield's own
- * `auth_identities` table (type `totp_2fa` for the secret, `totp_recovery` for the recovery codes); the
- * `secret` column of both is encrypted with the application's own `encryption.key` (the same key that already
- * protects Shield's HMAC access tokens). Recovery codes are encrypted, not hashed, on purpose: unlike a
- * password, they must be re-displayable later (the "View 2FA" modal on the Users page), so a one-way hash
- * would not work here.
+ * `auth_identities` table (type `totp_2fa` for the secret, `totp_recovery` for the recovery codes). Recovery
+ * codes are encrypted, not hashed, on purpose: unlike a password, they must be re-displayable later (the
+ * "View 2FA" modal on the Users page), so a one-way hash would not work here.
+ *
+ * The `secret` column of both is encrypted with a key derived from `sync.secret`, NOT with the application's
+ * `encryption.key`: `auth_identities` is synchronised between the nodes, and each node has its own
+ * `encryption.key`, so a blob written on one node would be unreadable on the others (login there would fail
+ * with an EncryptionException). `sync.secret` is by design identical on every node. Blobs written by earlier
+ * versions with the application key are still read (fallback) and re-encrypted with the shared key on first use.
  */
 class TwoFactor
 {
     public const TYPE_SECRET   = 'totp_2fa';
     public const TYPE_RECOVERY = 'totp_recovery';
 
+    /** Domain separation: the derived key is used for nothing else. */
+    private const KEY_INFO = 'ad-go/sync totp identities';
+
     private UserIdentityModel $identities;
+    private ?Encrypter $shared = null;
 
     public function __construct()
     {
@@ -37,7 +48,7 @@ class TwoFactor
         $row = $this->identities->getIdentityByType($user, self::TYPE_SECRET);
 
         if ($row !== null) {
-            return $this->decrypt($row->secret);
+            return $this->read($row);
         }
 
         $secret = TOTP::create(secretSize: 20)->getSecret();
@@ -83,7 +94,7 @@ class TwoFactor
             return false;
         }
 
-        $totp = TOTP::createFromSecret($this->decrypt($row->secret));
+        $totp = TOTP::createFromSecret($this->read($row));
 
         if (! $totp->verify(trim($code), null, 1)) {
             return false;
@@ -148,7 +159,7 @@ class TwoFactor
             return [];
         }
 
-        return json_decode($this->decrypt($row->secret), true) ?? [];
+        return json_decode($this->read($row), true) ?? [];
     }
 
     public function verifyRecoveryCode(User $user, string $code): bool
@@ -160,7 +171,7 @@ class TwoFactor
             return false;
         }
 
-        $codes = json_decode($this->decrypt($row->secret), true) ?? [];
+        $codes = json_decode($this->read($row), true) ?? [];
         $found = false;
 
         foreach ($codes as &$entry) {
@@ -183,11 +194,56 @@ class TwoFactor
 
     private function encrypt(string $plain): string
     {
-        return base64_encode(service('encrypter')->encrypt($plain));
+        return base64_encode($this->encrypter()->encrypt($plain));
     }
 
-    private function decrypt(string $encoded): string
+    /**
+     * Decrypts an identity's `secret`. A blob that only the application's own `encryption.key` can open was
+     * written by an earlier version on this node: it is re-encrypted with the shared key so the peers can read
+     * it too once it has synchronised.
+     *
+     * @param object{id: int, secret: string} $row
+     */
+    private function read(object $row): string
     {
-        return service('encrypter')->decrypt(base64_decode($encoded));
+        $blob = base64_decode((string) $row->secret, true);
+
+        if ($blob === false) {
+            throw new EncryptionException('Corrupt 2FA identity.');
+        }
+
+        try {
+            return $this->encrypter()->decrypt($blob);
+        } catch (EncryptionException $shared) {
+            try {
+                $plain = service('encrypter')->decrypt($blob);
+            } catch (EncryptionException) {
+                throw $shared;
+            }
+        }
+
+        $this->identities->update($row->id, ['secret' => $this->encrypt($plain)]);
+
+        return $plain;
+    }
+
+    /** OpenSSL encrypter keyed from `sync.secret` (HKDF-style derivation, 32 bytes), the same on every node. */
+    private function encrypter(): Encrypter
+    {
+        if ($this->shared === null) {
+            $secret = Kernel::instance()->opt->secret;
+
+            if ($secret === '') {
+                throw new EncryptionException('sync.secret is not configured; 2FA identities cannot be protected.');
+            }
+
+            $config         = clone config(EncryptionConfig::class);
+            $config->driver = 'OpenSSL';
+            $config->key    = hash_hkdf('sha256', $secret, 32, self::KEY_INFO);
+
+            $this->shared = service('encrypter', $config, false);
+        }
+
+        return $this->shared;
     }
 }
