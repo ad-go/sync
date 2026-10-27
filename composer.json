@@ -55,11 +55,23 @@
     },
     "archive": {
         "exclude": [
+            "/apps",
+            "/backups",
+            "/docs-ro",
+            "/infra",
+            "/licensed",
+            "/related",
+            "/secrets",
+            "/session",
             "/tests",
+            "/vendor",
+            "/credentials.json",
+            "/CLAUDE.md",
             "/phpunit.xml",
             "/.phpunit.cache",
             "/.gitattributes",
-            "/.gitignore"
+            "/.gitignore",
+            "/.claude"
         ]
     }
 }

@@ -15,6 +15,9 @@ $items = [
     'settings'  => ['label' => lang('Sync.nav.settings'), 'path' => $cfg->settingsPath, 'show' => $super],
     'users'     => ['label' => lang('Sync.nav.users'), 'path' => $cfg->usersPath, 'show' => $super],
 ];
+if (class_exists(\AdGo\SyncUi\Config\SyncUi::class)) {
+    $items['syncui'] = ['label' => 'DB Admin', 'path' => config('SyncUi')->path, 'show' => $super];
+}
 ?>
 <nav class="cfnav">
 <?php foreach ($items as $key => $it): ?>
