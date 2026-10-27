@@ -11,25 +11,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sync status · <?= esc($node) ?></title>
-<?= $head ?? '' ?>
-<style>
-body{font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:900px;margin-inline:auto;color:#1c1f26;background:#f6f7f9}
-table{border-collapse:collapse;width:100%;background:#fff;margin-bottom:16px}th,td{padding:6px 8px;border-bottom:1px solid #dde;text-align:left;vertical-align:top}
-.flash{padding:8px 12px;border-radius:6px;margin-bottom:12px;background:#e7f4ea}.err{background:#fde8e8}
-button{padding:6px 12px;border:0;border-radius:5px;color:#fff;background:#1d5fd1;cursor:pointer;margin-right:6px}button.s{background:#667}
-.tag{font-size:12px;padding:1px 6px;border-radius:4px;background:#eee}
-@media (prefers-color-scheme:dark){body{background:#14161a;color:#e6e8ec}table{background:#1e2128}th,td{border-color:#343944}.tag{background:#343944}.flash{background:#1d3b27}.err{background:#4a2020}}
-<?= view('AdGo\Sync\Views\_adminChrome') ?>
-</style>
+<?= view('AdGo\Sync\Views\_theme') ?>
 </head>
 <body>
-<?= view('AdGo\Sync\Views\_adminTopbar', ['node' => $node]) ?>
-<div class="tb-resize" id="cfTbResize"></div>
-<div class="cfshell">
-<aside class="sidebar" id="cfSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'status']) ?><?= $menu ?? '' ?></aside>
-<div class="sb-resize" id="cfSbResize"></div>
+<?= view('AdGo\Sync\Views\_topbar') ?>
+<div class="appshell">
+<aside id="appSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'status']) ?><?= $menu ?? '' ?></aside>
+<div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
-<h1>Sync status <small>(node <?= esc($node) ?>)</small></h1>
+<h1>Sync status <small style="font-size:14px;font-weight:400;color:var(--mute)">(node <?= esc($node) ?>)</small></h1>
 <?php if (session()->getFlashdata('message')): ?><div class="flash"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
 <?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
 
@@ -60,6 +50,6 @@ held by <b><?= esc($authLock['holder']) ?></b> (<?= esc($authLock['mode']) ?><?=
 </form>
 </main>
 </div>
-<?= view('AdGo\Sync\Views\_adminShellJs') ?>
+<script>!function(){var s=document.getElementById('appSidebar'),r=document.getElementById('sbResize');if(!s||!r)return;try{var w=localStorage.getItem('appshell-sw');if(w)s.style.width=w;}catch(e){}var d=!1,x,W;r.addEventListener('mousedown',function(e){d=!0;x=e.clientX;W=s.offsetWidth;document.body.style.cssText+='cursor:col-resize;user-select:none'});document.addEventListener('mousemove',function(e){if(!d)return;var n=Math.max(150,Math.min(400,W+e.clientX-x));s.style.width=n+'px'});document.addEventListener('mouseup',function(){if(!d)return;d=!1;document.body.style.cursor='';document.body.style.userSelect='';try{localStorage.setItem('appshell-sw',s.style.width);}catch(e){}});}();</script>
 </body>
 </html>

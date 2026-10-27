@@ -7,35 +7,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Edit user · <?= esc(\AdGo\Sync\Libraries\Branding::siteName()) ?></title>
-<?= $head ?? '' ?>
+<?= view('AdGo\Sync\Views\_theme') ?>
 <style>
-body{font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:900px;margin-inline:auto;color:#1c1f26;background:#f6f7f9}
-a{color:#1d5fd1}form.edit{background:#fff;padding:14px;border:1px solid #dde;border-radius:8px;max-width:560px}
-label{display:block;margin:8px 0}input[type=text],input[type=email],input[type=password]{border:1px solid #dde;border-radius:5px;padding:5px 7px;font:inherit;width:100%;box-sizing:border-box}
-button{background:#1d5fd1;color:#fff;border:0;border-radius:5px;padding:6px 12px;font:inherit;cursor:pointer}
-.flash{padding:8px 12px;border-radius:6px;margin-bottom:12px;background:#fde8e8}.note{color:#667;font-size:12px}
-button.s{background:transparent;color:#1d5fd1;border:1px solid #1d5fd1}
+form.edit{background:var(--card);padding:14px;border:1px solid var(--line);border-radius:var(--r);max-width:560px}
+label{display:block;margin:8px 0}
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90;align-items:center;justify-content:center}
 .modal-backdrop.open{display:flex}
-.modal{background:#fff;color:#1c1f26;border-radius:10px;padding:20px;max-width:420px;width:92vw;max-height:85vh;overflow:auto;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.modal{background:var(--card);color:var(--fg);border-radius:var(--r);padding:20px;max-width:420px;width:92vw;max-height:85vh;overflow:auto;box-shadow:var(--shadow)}
 .modal h3{margin-top:0}.modal .qrwrap{max-width:200px;margin:12px auto}.modal .qrwrap svg{width:100%;height:auto}
-.modal code.key{word-break:break-all;display:block;background:#f6f7f9;padding:6px 8px;border-radius:6px;margin:6px 0}
+.modal code.key{word-break:break-all;display:block;background:var(--tint);padding:6px 8px;border-radius:6px;margin:6px 0}
 .modal .codes{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-family:ui-monospace,Consolas,monospace;font-size:13px;margin-top:8px}
-.modal .codes .used{text-decoration:line-through;color:#999}
-.modal .close{float:right;background:none;border:0;font-size:18px;cursor:pointer;color:#1c1f26}
-@media (prefers-color-scheme:dark){body{background:#14161a;color:#e6e8ec}form.edit{background:#1e2128;border-color:#343944}input{background:#14161a;color:#e6e8ec;border-color:#343944}.flash{background:#4a2020}.modal,.modal code.key{background:#1e2128;color:#e6e8ec}}
-<?= view('AdGo\Sync\Views\_adminChrome') ?>
+.modal .codes .used{text-decoration:line-through;color:var(--mute)}
+.modal .close{float:right;background:none;border:0;font-size:18px;cursor:pointer;color:var(--fg)}
 </style>
 </head>
 <body>
-<?= view('AdGo\Sync\Views\_adminTopbar', ['node' => $node ?? null]) ?>
-<div class="tb-resize" id="cfTbResize"></div>
-<div class="cfshell">
-<aside class="sidebar" id="cfSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'users']) ?><?= $menu ?? '' ?></aside>
-<div class="sb-resize" id="cfSbResize"></div>
+<?= view('AdGo\Sync\Views\_topbar') ?>
+<div class="appshell">
+<aside id="appSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'users']) ?><?= $menu ?? '' ?></aside>
+<div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1>Edit user #<?= (int) $user->id ?></h1>
-<?php if (session()->getFlashdata('error')): ?><div class="flash"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
+<?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
 <p class="note">Opening this page took the edit lease on <b><?= esc($node ?? config('Sync')->node) ?></b>; the other node shows this user as read-only until you save or leave it idle.</p>
 <?php if (in_array('superadmin', $user->getGroups() ?? [], true)): ?>
 <p><button type="button" class="s" id="view2fa">View 2FA</button></p>
@@ -63,7 +56,7 @@ button.s{background:transparent;color:#1d5fd1;border:1px solid #1d5fd1}
 </div>
 </main>
 </div>
-<?= view('AdGo\Sync\Views\_adminShellJs') ?>
+<script>!function(){var s=document.getElementById('appSidebar'),r=document.getElementById('sbResize');if(!s||!r)return;try{var w=localStorage.getItem('appshell-sw');if(w)s.style.width=w;}catch(e){}var d=!1,x,W;r.addEventListener('mousedown',function(e){d=!0;x=e.clientX;W=s.offsetWidth;document.body.style.cssText+='cursor:col-resize;user-select:none'});document.addEventListener('mousemove',function(e){if(!d)return;var n=Math.max(150,Math.min(400,W+e.clientX-x));s.style.width=n+'px'});document.addEventListener('mouseup',function(){if(!d)return;d=!1;document.body.style.cursor='';document.body.style.userSelect='';try{localStorage.setItem('appshell-sw',s.style.width);}catch(e){}});}();</script>
 <?php if (in_array('superadmin', $user->getGroups() ?? [], true)): ?>
 <script>
 (function () {

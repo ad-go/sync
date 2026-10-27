@@ -13,29 +13,15 @@ $label = static function (string $group, string $value): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= lang('Sync.conflicts.title') ?> · <?= esc($node) ?></title>
-<?= $head ?? '' ?>
-<style>
-body{font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:1000px;margin-inline:auto;color:#1c1f26;background:#f6f7f9}
-table{border-collapse:collapse;width:100%;background:#fff}th,td{padding:6px 8px;border-bottom:1px solid #dde;text-align:left;vertical-align:top}
-.flash{padding:8px 12px;border-radius:6px;margin-bottom:12px;background:#e7f4ea}.err{background:#fde8e8}
-.banner{padding:8px 12px;border-radius:6px;background:#fff4d6;margin-bottom:12px}
-a.btn{background:#1d5fd1;color:#fff;padding:4px 10px;border-radius:5px;text-decoration:none}
-.tag{font-size:12px;padding:1px 6px;border-radius:4px;background:#eee}.danger{background:#fbd0d0}
-@media (prefers-color-scheme:dark){body{background:#14161a;color:#e6e8ec}table{background:#1e2128}th,td{border-color:#343944}.tag{background:#343944}.danger{background:#6b2b2b}.banner{background:#4a3b12}.flash{background:#1d3b27}.err{background:#4a2020}}
-<?php /* Sidebar wrapper for `$menu` (see src/Views/conflicts/show.php for the identical block) — scoped under
-   `.cfshell` (never a bare selector) so it wins over `_theme.php`'s rules, which `_menu.php` injects inline,
-   after this <style>, at equal specificity otherwise. The dividing line is an invisible 6px drag handle. */ ?>
-<?= view('AdGo\Sync\Views\_adminChrome') ?>
-</style>
+<?= view('AdGo\Sync\Views\_theme') ?>
 </head>
 <body>
-<?= view('AdGo\Sync\Views\_adminTopbar', ['node' => $node]) ?>
-<div class="tb-resize" id="cfTbResize"></div>
-<div class="cfshell">
-<aside class="sidebar" id="cfSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'conflicts']) ?><?= $menu ?? '' ?></aside>
-<div class="sb-resize" id="cfSbResize"></div>
+<?= view('AdGo\Sync\Views\_topbar') ?>
+<div class="appshell">
+<aside id="appSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'conflicts']) ?><?= $menu ?? '' ?></aside>
+<div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
-<h1><?= lang('Sync.conflicts.title') ?> <small>(<?= lang('Sync.conflicts.node', [esc($node)]) ?>)</small></h1>
+<h1><?= lang('Sync.conflicts.title') ?> <small style="font-size:14px;font-weight:400;color:var(--mute)">(<?= lang('Sync.conflicts.node', [esc($node)]) ?>)</small></h1>
 <?php if (session()->getFlashdata('message')): ?><div class="flash"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
 <?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
 <?php if ($lockHeld !== null && $lockHeld !== $node): ?><div class="banner"><?= lang('Sync.conflicts.editingActiveOn', ['<b>' . esc($lockHeld) . '</b>']) ?></div><?php endif ?>
@@ -69,6 +55,6 @@ a.btn{background:#1d5fd1;color:#fff;padding:4px 10px;border-radius:5px;text-deco
 </table>
 </main>
 </div>
-<?= view('AdGo\Sync\Views\_adminShellJs') ?>
+<script>!function(){var s=document.getElementById('appSidebar'),r=document.getElementById('sbResize');if(!s||!r)return;try{var w=localStorage.getItem('appshell-sw');if(w)s.style.width=w;}catch(e){}var d=!1,x,W;r.addEventListener('mousedown',function(e){d=!0;x=e.clientX;W=s.offsetWidth;document.body.style.cssText+='cursor:col-resize;user-select:none'});document.addEventListener('mousemove',function(e){if(!d)return;var n=Math.max(150,Math.min(400,W+e.clientX-x));s.style.width=n+'px'});document.addEventListener('mouseup',function(){if(!d)return;d=!1;document.body.style.cursor='';document.body.style.userSelect='';try{localStorage.setItem('appshell-sw',s.style.width);}catch(e){}});}();</script>
 </body>
 </html>

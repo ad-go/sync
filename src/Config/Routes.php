@@ -15,6 +15,19 @@ $syncCfg = config('Sync');
 $prefix  = trim($syncCfg->routePrefix, '/');
 $ns      = 'AdGo\Sync\Controllers';
 
+// Static flag SVGs — needed only when the PHP built-in dev server handles requests (production: Apache/Nginx serves them).
+$routes->get('flags/(:segment)', static function (string $cc) {
+    $cc   = preg_replace('/[^a-z]/', '', strtolower($cc));
+    $file = FCPATH . 'flags/' . $cc . '.svg';
+    if ($cc === '' || !is_file($file)) {
+        header('HTTP/1.1 404 Not Found');
+        exit;
+    }
+    header('Content-Type: image/svg+xml');
+    header('Cache-Control: public, max-age=86400');
+    readfile($file);
+});
+
 // Peer-to-peer API: HMAC-signed POSTs only.
 $routes->group($prefix, ['namespace' => $ns, 'filter' => 'syncHmac'], static function ($routes): void {
     $routes->post('ping', 'SyncController::ping');

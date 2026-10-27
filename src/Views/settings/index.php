@@ -15,28 +15,20 @@ foreach ($fields as $key => $f) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Settings · <?= esc($siteName) ?></title>
-<?= $head ?? '' ?>
+<?= view('AdGo\Sync\Views\_theme') ?>
 <style>
-body{font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:900px;margin-inline:auto;color:#1c1f26;background:#f6f7f9}
-a{color:#1d5fd1}fieldset{background:#fff;padding:14px;border:1px solid #dde;border-radius:8px;margin-bottom:16px}
-legend{font-weight:700}label{display:block;margin:8px 0}
-input[type=text],input[type=email],input[type=password],input[type=number],input[type=url],select{border:1px solid #dde;border-radius:5px;padding:5px 7px;font:inherit;width:100%;max-width:420px;box-sizing:border-box}
-button{background:#1d5fd1;color:#fff;border:0;border-radius:5px;padding:6px 12px;font:inherit;cursor:pointer;margin-top:6px}
-button.s{background:#667}
-.flash{padding:8px 12px;border-radius:6px;margin-bottom:12px;background:#e7f4ea}.err{background:#fde8e8}
-.hint{color:#667;font-size:12px;margin:2px 0 0}
+fieldset{background:var(--card);padding:14px;border:1px solid var(--line);border-radius:var(--r);margin-bottom:16px}
+legend{font-weight:700}
+label{display:block;margin:8px 0}
 .logo-preview{max-height:40px;display:block;margin-bottom:8px}
-.fp{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#667}
-@media (prefers-color-scheme:dark){body{background:#14161a;color:#e6e8ec}fieldset{background:#1e2128;border-color:#343944}input,select{background:#14161a;color:#e6e8ec;border-color:#343944}.flash{background:#1d3b27}.err{background:#4a2020}}
-<?= view('AdGo\Sync\Views\_adminChrome') ?>
+.fp{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--mute)}
 </style>
 </head>
 <body>
-<?= view('AdGo\Sync\Views\_adminTopbar', ['node' => $node]) ?>
-<div class="tb-resize" id="cfTbResize"></div>
-<div class="cfshell">
-<aside class="sidebar" id="cfSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'settings']) ?><?= $menu ?? '' ?></aside>
-<div class="sb-resize" id="cfSbResize"></div>
+<?= view('AdGo\Sync\Views\_topbar') ?>
+<div class="appshell">
+<aside id="appSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'settings']) ?><?= $menu ?? '' ?></aside>
+<div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1>Settings</h1>
 <?php if (session()->getFlashdata('message')): ?><div class="flash"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
@@ -105,6 +97,6 @@ button.s{background:#667}
 <?php endforeach ?>
 </main>
 </div>
-<?= view('AdGo\Sync\Views\_adminShellJs') ?>
+<script>!function(){var s=document.getElementById('appSidebar'),r=document.getElementById('sbResize');if(!s||!r)return;try{var w=localStorage.getItem('appshell-sw');if(w)s.style.width=w;}catch(e){}var d=!1,x,W;r.addEventListener('mousedown',function(e){d=!0;x=e.clientX;W=s.offsetWidth;document.body.style.cssText+='cursor:col-resize;user-select:none'});document.addEventListener('mousemove',function(e){if(!d)return;var n=Math.max(150,Math.min(400,W+e.clientX-x));s.style.width=n+'px'});document.addEventListener('mouseup',function(){if(!d)return;d=!1;document.body.style.cursor='';document.body.style.userSelect='';try{localStorage.setItem('appshell-sw',s.style.width);}catch(e){}});}();</script>
 </body>
 </html>

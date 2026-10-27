@@ -13,27 +13,21 @@ $status    = lang($statusKey) === $statusKey ? (string) $c['status'] : lang($sta
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= lang('Sync.conflicts.conflict', [(string) (int) $c['id']]) ?></title>
-<?= $head ?? '' ?>
+<?= view('AdGo\Sync\Views\_theme') ?>
 <style>
-body{font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:1100px;margin-inline:auto;color:#1c1f26;background:#f6f7f9}
-table{border-collapse:collapse;width:100%;background:#fff;margin-bottom:16px}th,td{padding:6px 8px;border-bottom:1px solid #dde;text-align:left;vertical-align:top;word-break:break-word}
-tr.diff td{background:#fff1c7}.del{color:#a00;font-style:italic}
-button{padding:6px 12px;border:0;border-radius:5px;color:#fff;background:#1d5fd1;cursor:pointer;margin-right:6px}button.s{background:#667}button.d{background:#b42318}
+tr.diff td{background:var(--warn-bg)}
+.del{color:var(--err-fg);font-style:italic}
 input[type=text]{width:100%;box-sizing:border-box}
-@media (prefers-color-scheme:dark){body{background:#14161a;color:#e6e8ec}table{background:#1e2128}th,td{border-color:#343944}tr.diff td{background:#4a3b12}input{background:#14161a;color:#e6e8ec}}
-<?php /* Sidebar wrapper for `$menu` — identical block to src/Views/conflicts/index.php, see its comment. */ ?>
-<?= view('AdGo\Sync\Views\_adminChrome') ?>
 </style>
 </head>
 <body>
-<?= view('AdGo\Sync\Views\_adminTopbar') ?>
-<div class="tb-resize" id="cfTbResize"></div>
-<div class="cfshell">
-<aside class="sidebar" id="cfSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'conflicts']) ?><?= $menu ?? '' ?></aside>
-<div class="sb-resize" id="cfSbResize"></div>
+<?= view('AdGo\Sync\Views\_topbar') ?>
+<div class="appshell">
+<aside id="appSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'conflicts']) ?><?= $menu ?? '' ?></aside>
+<div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <p><a href="<?= esc($back) ?>">&larr; <?= lang('Sync.conflicts.allConflicts') ?></a></p>
-<h1><?= lang('Sync.conflicts.conflict', [(string) (int) $c['id']]) ?> <small>(<?= esc($status) ?>)</small></h1>
+<h1><?= lang('Sync.conflicts.conflict', [(string) (int) $c['id']]) ?> <small style="font-size:14px;font-weight:400;color:var(--mute)">(<?= esc($status) ?>)</small></h1>
 <p><?= lang('Sync.conflicts.tableRow', ['<b>' . esc($c['table_name']) . '</b>', '<code>' . esc($c['uuid']) . '</code>']) ?>
 <?= $local === null ? '<span class="del">' . lang('Sync.conflicts.deletedOn', [esc($c['local_node'])]) . '</span>' : '' ?>
 <?= $remote === null ? '<span class="del">' . lang('Sync.conflicts.deletedOn', [esc($c['remote_node'])]) . '</span>' : '' ?></p>
@@ -68,6 +62,6 @@ input[type=text]{width:100%;box-sizing:border-box}
 </form>
 </main>
 </div>
-<?= view('AdGo\Sync\Views\_adminShellJs') ?>
+<script>!function(){var s=document.getElementById('appSidebar'),r=document.getElementById('sbResize');if(!s||!r)return;try{var w=localStorage.getItem('appshell-sw');if(w)s.style.width=w;}catch(e){}var d=!1,x,W;r.addEventListener('mousedown',function(e){d=!0;x=e.clientX;W=s.offsetWidth;document.body.style.cssText+='cursor:col-resize;user-select:none'});document.addEventListener('mousemove',function(e){if(!d)return;var n=Math.max(150,Math.min(400,W+e.clientX-x));s.style.width=n+'px'});document.addEventListener('mouseup',function(){if(!d)return;d=!1;document.body.style.cursor='';document.body.style.userSelect='';try{localStorage.setItem('appshell-sw',s.style.width);}catch(e){}});}();</script>
 </body>
 </html>
