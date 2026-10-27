@@ -87,6 +87,41 @@ with the usual single cron entry `* * * * * php /path/to/spark tasks:run`.
 
 Exempt the API from CSRF (`'csrf' => ['except' => ['sync-api/*']]`) and serve it over HTTPS only.
 
+## Admin UI
+
+The package ships a complete administration interface (no extra install step):
+
+| URL (relative to `$syncCfg->*Path`) | Page |
+|---|---|
+| `sync-admin/conflicts` | Conflict list and resolution form |
+| `sync-admin/status` | Node status, journal cursor, cron/auth lock state, manual sync trigger |
+| `sync-admin/settings` | Site name, logo, accent colour, font; `.env` editor (sync keys, NTP); node identity |
+| `sync-admin/users` | Shield users: create, edit, promote to superadmin, view/regenerate TOTP codes |
+
+Paths are configured in `Config\Sync` (`conflictsPath`, `statusPath`, `settingsPath`, `usersPath`).
+Access requires `Config\Sync::$superPermission` (default `admin.access`); Settings and Users require it always.
+
+### Page chrome (template)
+
+`_theme.php` and `_topbar.php` in `src/Views/` are the package's own page chrome (CSS variables,
+dark mode, sidebar shell, topbar with brand/language/user). Host applications may include them directly:
+
+```php
+// in <head>
+<?= view('AdGo\Sync\Views\_theme') ?>
+
+// in <body>
+<?= view('AdGo\Sync\Views\_topbar') ?>
+<div class="appshell">
+  <aside id="appSidebar">…</aside>
+  <div class="sb-resize" id="sbResize"></div>
+  <main class="appmain">…</main>
+</div>
+```
+
+Branding (site name, logo, accent colour, font) is read from the `Sync.*` settings stored by the
+`codeigniter4/settings` package and set at `sync-admin/settings`.
+
 ## Documentation
 
 | Document | Contents |

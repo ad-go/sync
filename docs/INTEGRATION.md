@@ -85,3 +85,29 @@ Messages come from `Language/en/Sync.php` and `Language/de/Sync.php`. Copy a fil
 `app/Language/<locale>/Sync.php` to override or add a language. Alerts use the locale current when the
 message is built: the request's locale on the web, `Config\App::$defaultLocale` in CLI, workers and tasks.
 Give all nodes the same default locale, since they post to one chat.
+
+## Page chrome
+
+`src/Views/_theme.php` and `src/Views/_topbar.php` are the package's built-in page chrome.  Host
+applications may use them directly instead of writing their own (see *Admin UI* in the README).
+
+`_theme.php` emits a full `<style>` block with CSS variables (accent colour, font, dark mode), the
+`.appshell` layout (topbar + sidebar + main area), and an anti-FOUC `<script>` that reads
+`localStorage('theme')`.  Place it in `<head>`.
+
+`_topbar.php` emits a sticky `<div class="apptopbar">` with the burger button (mobile), the site
+brand (logo or name), a language flag dropdown, a dark-mode switch and a user menu.  Place it at the
+top of `<body>`, before the `.appshell` wrapper.
+
+Branding values are read from the `Sync.*` settings (stored by `codeigniter4/settings`) through
+`\AdGo\Sync\Libraries\Branding`:
+
+| Setting key | Default | Effect |
+|---|---|---|
+| `Sync.siteName` | `'Sync'` | Shown in the topbar brand and `<title>` |
+| `Sync.logo` | empty | URL of the logo image; replaces the site name in the brand |
+| `Sync.accentColor` | `'#1d5fd1'` | Base accent colour (links, buttons, active states) |
+| `Sync.fontFamily` | `'system'` | One of system / serif / mono / classic / rounded / humanist / elegant / condensed |
+| `Sync.fontSize` | `16` | Base font size in px (12–20) |
+
+All five are written through the Settings form at `sync-admin/settings`.
