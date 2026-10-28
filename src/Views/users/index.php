@@ -9,6 +9,7 @@ use AdGo\Sync\Libraries\Branding;
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Users · <?= esc(Branding::siteName()) ?></title>
 <?= view('AdGo\Sync\Views\ui\_theme') ?>
+<?= $head ?? '' ?>
 <link rel="stylesheet" href="<?= esc($dteUrl) ?>datatables.min.css">
 <style>
 /*

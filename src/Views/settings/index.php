@@ -16,6 +16,7 @@ foreach ($fields as $key => $f) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Settings · <?= esc($siteName) ?></title>
 <?= view('AdGo\Sync\Views\ui\_theme') ?>
+<?= $head ?? '' ?>
 <style>
 fieldset{background:var(--card);padding:14px;border:1px solid var(--line);border-radius:var(--r);margin-bottom:16px}
 legend{font-weight:700}

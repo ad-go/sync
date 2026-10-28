@@ -14,6 +14,7 @@ $status    = lang($statusKey) === $statusKey ? (string) $c['status'] : lang($sta
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= lang('Sync.conflicts.conflict', [(string) (int) $c['id']]) ?></title>
 <?= view('AdGo\Sync\Views\ui\_theme') ?>
+<?= $head ?? '' ?>
 <style>
 tr.diff td{background:var(--warn-bg)}
 .del{color:var(--err-fg);font-style:italic}

@@ -8,6 +8,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Edit user · <?= esc(\AdGo\Sync\Libraries\Branding::siteName()) ?></title>
 <?= view('AdGo\Sync\Views\ui\_theme') ?>
+<?= $head ?? '' ?>
 <style>
 form.edit{background:var(--card);padding:14px;border:1px solid var(--line);border-radius:var(--r);max-width:560px}
 label{display:block;margin:8px 0}
@@ -39,13 +40,23 @@ label{display:block;margin:8px 0}
   <button>Save</button>
 </form>
 
-<div class="modal-backdrop" id="twofaBackdrop">
-  <div class="modal">
-    <button type="button" class="close" id="twofaClose" aria-label="Close">&times;</button>
+<div class="twofa-backdrop" id="twofaBackdrop">
+  <div class="sync-modal">
+    <button type="button" class="close-btn" id="twofaClose" aria-label="Close">&times;</button>
     <h3>Authenticator (2FA)</h3>
     <div id="twofaBody">Loading&hellip;</div>
   </div>
 </div>
+<style>
+.twofa-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90;align-items:center;justify-content:center}
+.twofa-backdrop.open{display:flex}
+.sync-modal{background:var(--card);color:var(--fg);border-radius:var(--r);padding:20px;max-width:420px;width:92vw;max-height:85vh;overflow:auto;box-shadow:var(--shadow)}
+.sync-modal h3{margin-top:0}.sync-modal .qrwrap{max-width:200px;margin:12px auto}.sync-modal .qrwrap svg{width:100%;height:auto}
+.sync-modal code.key{word-break:break-all;display:block;background:var(--tint);padding:6px 8px;border-radius:6px;margin:6px 0}
+.sync-modal .codes{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-family:ui-monospace,Consolas,monospace;font-size:13px;margin-top:8px}
+.sync-modal .codes .used{text-decoration:line-through;color:var(--mute)}
+.close-btn{float:right;background:none!important;border:0!important;font-size:18px;cursor:pointer;color:var(--fg);padding:0}
+</style>
 </main>
 </div>
 <?php if (in_array('superadmin', $user->getGroups() ?? [], true)): ?>

@@ -20,6 +20,7 @@ $label = static function (string $group, string $value): string {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= lang('Sync.conflicts.title') ?> · <?= esc($node) ?></title>
 <?= view('AdGo\Sync\Views\ui\_theme') ?>
+<?= $head ?? '' ?>
 </head>
 <body>
 <?= view('AdGo\Sync\Views\ui\_topbar') ?>
