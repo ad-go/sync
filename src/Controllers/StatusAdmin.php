@@ -41,9 +41,10 @@ class StatusAdmin extends Controller
             'journal'   => (int) $db->table('sync_changes')->countAllResults(),
             'authLock'  => $k->locks()->describe('auth'),
             'cronLock'  => $k->locks()->describe('cron'),
-            'menu'      => $this->menu('status'),
-            'head'      => $this->head(),
-            'base'      => $this->base(),
+            'menu'          => $this->menu('status'),
+            'head'          => $this->head(),
+            'base'          => $this->base(),
+            'conflictsBase' => trim((string) config('Sync')->conflictsPath, '/'),
         ]);
     }
 

@@ -22,11 +22,13 @@ class UsersAdmin extends Controller
 {
     use AdminChrome;
 
+    private Kernel $kernel;
     private UserModel $users;
 
     public function __construct()
     {
-        $this->users = model(UserModel::class);
+        $this->kernel = Kernel::instance();
+        $this->users  = model(UserModel::class);
     }
 
     public function index(): string
@@ -52,7 +54,7 @@ class UsersAdmin extends Controller
         }
 
         $by = (string) (auth()->user()->username ?? auth()->id());
-        Kernel::instance()->locks()->begin('auth', 'users:' . $id, $by);
+        $this->kernel->locks()->begin('auth', 'users:' . $id, $by);
 
         return view((string) config('Sync')->usersEditView, [
             'user'   => $user,
@@ -122,7 +124,7 @@ class UsersAdmin extends Controller
         }
 
         // edit() took the edit lease on open; release it now, as the "read-only until you save" banner promises.
-        Kernel::instance()->locks()->handover('auth');
+        $this->kernel->locks()->handover('auth');
 
         return $this->ok('User saved.');
     }
@@ -143,7 +145,7 @@ class UsersAdmin extends Controller
             return $this->err('Cannot delete the last superadmin.');
         }
 
-        $db = Kernel::instance()->db;
+        $db = $this->kernel->db;
         $db->transStart();
         $db->table('auth_identities')->where('user_id', $user->id)->delete();
         $db->table('auth_groups_users')->where('user_id', $user->id)->delete();
@@ -249,7 +251,7 @@ class UsersAdmin extends Controller
         }
 
         if ($email !== $currentEmail
-            && Kernel::instance()->db->table('auth_identities')->where(['type' => 'email_password', 'secret' => $email])->countAllResults() > 0) {
+            && $this->kernel->db->table('auth_identities')->where(['type' => 'email_password', 'secret' => $email])->countAllResults() > 0) {
             return [$empty, 'That e-mail is already taken.'];
         }
 
@@ -264,7 +266,7 @@ class UsersAdmin extends Controller
 
     private function countSuperadmins(): int
     {
-        return (int) Kernel::instance()->db->table('auth_groups_users')->where('group', 'superadmin')->countAllResults();
+        return (int) $this->kernel->db->table('auth_groups_users')->where('group', 'superadmin')->countAllResults();
     }
 
     private function base(): string

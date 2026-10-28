@@ -97,6 +97,5 @@ label{display:block;margin:8px 0}
 <?php endforeach ?>
 </main>
 </div>
-<script>!function(){var s=document.getElementById('appSidebar'),r=document.getElementById('sbResize');if(!s||!r)return;try{var w=localStorage.getItem('appshell-sw');if(w)s.style.width=w;}catch(e){}var d=!1,x,W;r.addEventListener('mousedown',function(e){d=!0;x=e.clientX;W=s.offsetWidth;document.body.style.cssText+='cursor:col-resize;user-select:none'});document.addEventListener('mousemove',function(e){if(!d)return;var n=Math.max(150,Math.min(400,W+e.clientX-x));s.style.width=n+'px'});document.addEventListener('mouseup',function(){if(!d)return;d=!1;document.body.style.cursor='';document.body.style.userSelect='';try{localStorage.setItem('appshell-sw',s.style.width);}catch(e){}});}();</script>
 </body>
 </html>

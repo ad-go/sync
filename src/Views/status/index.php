@@ -3,7 +3,7 @@
 /** @var int $cursor */ /** @var int $conflicts */ /** @var int $journal */
 /** @var ?array{holder:string,mode:string,scope:string,by:string,since:int,expires_in:int} $authLock */
 /** @var ?array{holder:string,mode:string,scope:string,by:string,since:int,expires_in:int} $cronLock */
-/** @var string $base */
+/** @var string $base */ /** @var string $conflictsBase */
 ?>
 <!doctype html>
 <html lang="<?= esc(service('request')->getLocale()) ?>">
@@ -28,7 +28,7 @@
 <tr><th>Peer</th><td><?= esc($peerNode) ?> &mdash; <?= esc($peerUrl) ?></td></tr>
 <tr><th>Journal cursor (peer's last applied change)</th><td><?= (int) $cursor ?></td></tr>
 <tr><th>Journal entries (this node)</th><td><?= (int) $journal ?></td></tr>
-<tr><th>Pending conflicts</th><td><?= (int) $conflicts ?> <?php if ($conflicts > 0): ?><a href="<?= site_url(trim(config('Sync')->conflictsPath, '/')) ?>">review</a><?php endif ?></td></tr>
+<tr><th>Pending conflicts</th><td><?= (int) $conflicts ?> <?php if ($conflicts > 0): ?><a href="<?= site_url($conflictsBase) ?>">review</a><?php endif ?></td></tr>
 <tr><th>Auth/users lock</th><td>
 <?php if ($authLock === null): ?>free<?php else: ?>
 held by <b><?= esc($authLock['holder']) ?></b> (<?= esc($authLock['mode']) ?><?= $authLock['by'] !== '' ? ', ' . esc($authLock['by']) : '' ?>), expires in <?= (int) $authLock['expires_in'] ?>s
@@ -50,6 +50,5 @@ held by <b><?= esc($authLock['holder']) ?></b> (<?= esc($authLock['mode']) ?><?=
 </form>
 </main>
 </div>
-<script>!function(){var s=document.getElementById('appSidebar'),r=document.getElementById('sbResize');if(!s||!r)return;try{var w=localStorage.getItem('appshell-sw');if(w)s.style.width=w;}catch(e){}var d=!1,x,W;r.addEventListener('mousedown',function(e){d=!0;x=e.clientX;W=s.offsetWidth;document.body.style.cssText+='cursor:col-resize;user-select:none'});document.addEventListener('mousemove',function(e){if(!d)return;var n=Math.max(150,Math.min(400,W+e.clientX-x));s.style.width=n+'px'});document.addEventListener('mouseup',function(){if(!d)return;d=!1;document.body.style.cursor='';document.body.style.userSelect='';try{localStorage.setItem('appshell-sw',s.style.width);}catch(e){}});}();</script>
 </body>
 </html>

@@ -101,6 +101,15 @@ $logoUrl    = Branding::logoUrl();
     if(burger)burger.addEventListener('click',function(){sb&&sb.classList.contains('open')?close():open();});
     bd.addEventListener('click',close);
     if(sb)sb.querySelectorAll('a').forEach(function(a){a.addEventListener('click',close);});
+    /* sidebar column-resize handle */
+    var r2=document.getElementById('sbResize');
+    if(sb&&r2){
+      try{var w=localStorage.getItem('appshell-sw');if(w)sb.style.width=w;}catch(e){}
+      var d2=false,x2,W2;
+      r2.addEventListener('mousedown',function(e){d2=true;x2=e.clientX;W2=sb.offsetWidth;document.body.style.cssText+='cursor:col-resize;user-select:none';});
+      document.addEventListener('mousemove',function(e){if(!d2)return;var n=Math.max(150,Math.min(400,W2+e.clientX-x2));sb.style.width=n+'px';});
+      document.addEventListener('mouseup',function(){if(!d2)return;d2=false;document.body.style.cursor='';document.body.style.userSelect='';try{localStorage.setItem('appshell-sw',sb.style.width);}catch(e){};});
+    }
   });
 }();
 </script>

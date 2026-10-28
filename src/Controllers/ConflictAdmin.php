@@ -36,6 +36,7 @@ class ConflictAdmin extends Controller
             'pending'  => $db->table('sync_conflicts')->where('status', 'pending')->orderBy('detected_at', 'DESC')->get()->getResultArray(),
             'recent'   => $db->table('sync_conflicts')->where('status !=', 'pending')->orderBy('detected_at', 'DESC')->limit(50)->get()->getResultArray(),
             'lockHeld' => $this->kernel->locks()->holder('auth'),
+            'base'     => $this->base(),
             'menu'     => $this->menu('conflicts'),
             'head'     => $this->head(),
         ]);

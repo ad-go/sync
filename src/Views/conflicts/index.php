@@ -1,4 +1,4 @@
-<?php /** @var string $node */ /** @var list<array<string,mixed>> $pending */ /** @var list<array<string,mixed>> $recent */ /** @var ?string $lockHeld */
+<?php /** @var string $node */ /** @var list<array<string,mixed>> $pending */ /** @var list<array<string,mixed>> $recent */ /** @var ?string $lockHeld */ /** @var string $base */
 // Column values (status / severity / resolved_as) are translated when a text exists, otherwise shown as stored.
 $label = static function (string $group, string $value): string {
     $key = 'Sync.conflicts.' . $group . '.' . lcfirst(str_replace('-', '', ucwords($value, '-')));
@@ -36,7 +36,7 @@ $label = static function (string $group, string $value): string {
   <td><code><?= esc($c['uuid']) ?></code></td>
   <td><?= esc($c['fields'] === '*' ? lang('Sync.conflicts.deleteVsEdit') : $c['fields']) ?></td>
   <td><?= esc(gmdate('Y-m-d H:i:s', intdiv((int) $c['detected_at'], 1000000))) ?>Z</td>
-  <td><a class="btn" href="<?= site_url(trim(config('Sync')->conflictsPath, '/') . '/' . (int) $c['id']) ?>"><?= lang('Sync.conflicts.review') ?></a></td>
+  <td><a class="btn" href="<?= site_url($base . '/' . (int) $c['id']) ?>"><?= lang('Sync.conflicts.review') ?></a></td>
 </tr>
 <?php endforeach ?>
 <?php if ($pending === []): ?><tr><td colspan="6"><?= lang('Sync.conflicts.nothingPending') ?></td></tr><?php endif ?>
@@ -55,6 +55,5 @@ $label = static function (string $group, string $value): string {
 </table>
 </main>
 </div>
-<script>!function(){var s=document.getElementById('appSidebar'),r=document.getElementById('sbResize');if(!s||!r)return;try{var w=localStorage.getItem('appshell-sw');if(w)s.style.width=w;}catch(e){}var d=!1,x,W;r.addEventListener('mousedown',function(e){d=!0;x=e.clientX;W=s.offsetWidth;document.body.style.cssText+='cursor:col-resize;user-select:none'});document.addEventListener('mousemove',function(e){if(!d)return;var n=Math.max(150,Math.min(400,W+e.clientX-x));s.style.width=n+'px'});document.addEventListener('mouseup',function(){if(!d)return;d=!1;document.body.style.cursor='';document.body.style.userSelect='';try{localStorage.setItem('appshell-sw',s.style.width);}catch(e){}});}();</script>
 </body>
 </html>
