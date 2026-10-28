@@ -36,7 +36,9 @@ class Reconciler
     public const REJECTED    = 'rejected';
 
     /** @var callable|null fn(array $conflictRow): void  called for newly escalated conflicts */
-    private $onEscalated;
+    private $onEscalated = null;
+
+    private ?ClockMonitor $clock = null;
 
     public function __construct(
         private readonly BaseConnection $db,
@@ -531,7 +533,7 @@ class Reconciler
      */
     private function clockUntrusted(string $node): bool
     {
-        $untrusted = (new ClockMonitor($this->db, $this->opt))->unreliable($node);
+        $untrusted = ($this->clock ??= new ClockMonitor($this->db, $this->opt))->unreliable($node);
 
         if ($untrusted) {
             try {

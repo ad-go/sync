@@ -130,6 +130,7 @@ class FileSync
         $local   = $this->index($this->manifest($indexed));
         $remote  = $this->index($this->peer->filesManifest());
         $known   = array_map(static fn (array $r) => $r['sha256'], $indexed);
+        $clock   = new ClockMonitor($this->db, $this->opt);
 
         foreach ($this->inOrder(array_unique(array_merge(array_keys($local), array_keys($remote))), $local, $remote, $known) as $path) {
             if ($this->ignored($path) || $this->resolve($path) === null) {
@@ -173,7 +174,7 @@ class FileSync
 
             // mtime decides only when it is clearly different and the peer's clock can be trusted; otherwise the
             // tiebreak order does, which both nodes evaluate alike (the loser is kept as a .conflict- copy either way)
-            $byTime     = $rm !== $lm && abs($rm - $lm) >= $this->opt->clockTolerance && ! (new ClockMonitor($this->db, $this->opt))->unreliable($this->opt->peerNode, null, true);
+            $byTime     = $rm !== $lm && abs($rm - $lm) >= $this->opt->clockTolerance && ! $clock->unreliable($this->opt->peerNode, null, true);
             $remoteWins = $byTime ? $rm > $lm : $this->opt->rank($this->opt->peerNode) < $this->opt->rank($this->opt->node);
 
             if ($remoteWins) {
@@ -437,9 +438,9 @@ class FileSync
         $hash = sha1($path);
         $data = ['sha256' => $sha, 'mtime' => $mtime, 'size' => $size, 'seen_at' => Support::nowUs(), 'path' => $path];
 
-        if ($this->db->table('sync_files')->where('path_hash', $hash)->countAllResults() > 0) {
-            $this->db->table('sync_files')->where('path_hash', $hash)->update($data);
-        } else {
+        $this->db->table('sync_files')->where('path_hash', $hash)->update($data);
+
+        if ($this->db->affectedRows() === 0 && $this->db->table('sync_files')->where('path_hash', $hash)->countAllResults() === 0) {
             $this->db->table('sync_files')->insert($data + ['path_hash' => $hash]);
         }
     }
