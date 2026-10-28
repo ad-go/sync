@@ -28,7 +28,7 @@ try {
     $logoutUrl = site_url('logout');
 }
 $syncCfg    = config('Sync');
-$usersBase  = rtrim($syncCfg->usersPath ?? 'sync-admin/users', '/');
+$usersBase  = rtrim($syncCfg->usersPath ?? 'admin/users', '/');
 $profileUrl = $user !== null ? site_url($usersBase . '/' . $user->id . '/edit') : '#';
 $userName   = $user !== null ? (string) ($user->username ?? $user->email ?? '') : '';
 $nodeName   = esc($syncCfg->node);

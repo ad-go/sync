@@ -57,16 +57,16 @@ class Sync extends BaseConfig
     public string $routePrefix = 'sync-api';
 
     /** URL path of the conflict admin UI. */
-    public string $conflictsPath = 'sync-admin/conflicts';
+    public string $conflictsPath = 'admin/conflicts';
 
     /** URL path of the status admin page. */
-    public string $statusPath = 'sync-admin/status';
+    public string $statusPath = 'admin/status';
 
     /** URL path of the settings admin page. */
-    public string $settingsPath = 'sync-admin/settings';
+    public string $settingsPath = 'admin/settings';
 
     /** URL path of the users admin pages. */
-    public string $usersPath = 'sync-admin/users';
+    public string $usersPath = 'admin/users';
 
     /**
      * Shared HMAC secret (same on both nodes). Set it in .env:
