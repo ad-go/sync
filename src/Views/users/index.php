@@ -15,9 +15,11 @@ $banner = AuthWriteLock::banner();
 .off{opacity:.55}
 td form{display:inline;margin-left:8px}
 form.add{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:10px}
+form.add input[type=text],form.add input[type=email],form.add input[type=password]{width:160px}
 form.add button{padding:5px 12px}
 .grp label{margin-right:4px}
 tr.rowlink{cursor:pointer}
+table,form.add{max-width:100%}
 </style>
 </head>
 <body>
@@ -44,7 +46,7 @@ tr.rowlink{cursor:pointer}
 <h3>Add user</h3>
 <form method="post" action="<?= site_url($base) ?>" class="add">
   <?= csrf_field() ?>
-  <input name="username" placeholder="username" maxlength="30" required>
+  <input type="text" name="username" placeholder="username" maxlength="30" required>
   <input name="email" type="email" placeholder="e-mail" maxlength="254" required autocomplete="off">
   <input name="password" type="password" placeholder="password" autocomplete="new-password" required>
   <span class="grp"><?php foreach ($groups as $g): ?><label><input type="checkbox" name="groups[]" value="<?= esc($g) ?>" <?= $g === 'user' ? 'checked' : '' ?>> <?= esc($g) ?></label> <?php endforeach ?></span>
