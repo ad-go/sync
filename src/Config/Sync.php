@@ -66,6 +66,13 @@ class Sync extends BaseConfig
     public string $usersPath = 'admin/users';
 
     /**
+     * URL (relative to base_url()) of the DataTables + Editor combined asset directory.
+     * Must contain: datatables.min.js, datatables.min.css, key.js.
+     * In the composed full-app build this is `assets/vendor/datatables`; override per host.
+     */
+    public string $dteAssetsUrl = 'assets/datatables';
+
+    /**
      * Shared HMAC secret (same on both nodes). Set it in .env:
      *   sync.secret = <long random string>
      */

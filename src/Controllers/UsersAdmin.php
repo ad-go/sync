@@ -37,12 +37,13 @@ class UsersAdmin extends Controller
     {
         helper('form');
 
-        return view((string) config('Sync')->usersIndexView, [
-            'users'  => $this->users->withGroups()->orderBy('id')->findAll(),
+        $cfg = config('Sync');
+
+        return view((string) $cfg->usersIndexView, [
             'groups' => $this->groupNames(),
             'menu'   => $this->menu('users'),
-            'head'   => $this->head(),
             'base'   => $this->base(),
+            'dteUrl' => site_url(trim($cfg->dteAssetsUrl, '/') . '/'),
         ]);
     }
 
@@ -156,6 +157,117 @@ class UsersAdmin extends Controller
         $db->transComplete();
 
         return $this->ok('User deleted.');
+    }
+
+    /**
+     * DTE AJAX endpoint — handles list (GET) and create/edit/remove (POST).
+     *
+     * Row IDs are strings like "row_1" (DT_RowId) so DTE can track them in the DOM.
+     * Groups are stored/returned as a pipe-separated string: "admin|user".
+     * Password is write-only: on edit an empty value means "keep existing".
+     */
+    public function ajax(): ResponseInterface
+    {
+        $action = (string) ($this->request->getPost('action') ?? '');
+
+        if ($action === '') {
+            return $this->response->setJSON(['data' => $this->dteRows()]);
+        }
+
+        if ($action === 'remove') {
+            $ids = array_keys((array) $this->request->getPost('data'));
+
+            foreach ($ids as $rowId) {
+                $id   = (int) ltrim((string) $rowId, 'row_');
+                $user = $this->users->findById($id);
+
+                if ($user === null) {
+                    continue;
+                }
+
+                if ((int) $user->id === (int) auth()->id()) {
+                    return $this->response->setJSON(['error' => 'You cannot delete your own account.']);
+                }
+
+                if ($user->inGroup('superadmin') && $this->countSuperadmins() <= 1) {
+                    return $this->response->setJSON(['error' => 'Cannot delete the last superadmin.']);
+                }
+
+                $db = $this->kernel->db;
+                $db->transStart();
+                $db->table('auth_identities')->where('user_id', $user->id)->delete();
+                $db->table('auth_groups_users')->where('user_id', $user->id)->delete();
+                $db->table('auth_permissions_users')->where('user_id', $user->id)->delete();
+                $this->users->delete($user->id);
+                $db->transComplete();
+            }
+
+            return $this->response->setJSON(['data' => []]);
+        }
+
+        $rows    = (array) $this->request->getPost('data');
+        $updated = [];
+
+        foreach ($rows as $rowId => $posted) {
+            $posted = (array) $posted;
+
+            if ($action === 'create') {
+                [$input, $err] = $this->dteInput($posted, isNew: true);
+
+                if ($err !== null) {
+                    return $this->response->setJSON(['error' => $err]);
+                }
+
+                $user = new User([
+                    'username' => $input['username'],
+                    'email'    => $input['email'],
+                    'password' => $input['password'],
+                    'active'   => $input['active'] ? 1 : 0,
+                ]);
+                $this->users->save($user);
+                $user = $this->users->findById($this->users->getInsertID());
+                $user->syncGroups(...$input['groups']);
+
+                if (in_array('superadmin', $input['groups'], true)) {
+                    $this->provisionTotp($user);
+                }
+
+                $updated[] = $this->dteRow($this->users->withGroups()->findById((int) $user->id));
+            } elseif ($action === 'edit') {
+                $id   = (int) ltrim((string) $rowId, 'row_');
+                $user = $this->users->findById($id);
+
+                if ($user === null) {
+                    return $this->response->setJSON(['error' => 'Unknown user.']);
+                }
+
+                [$input, $err] = $this->dteInput($posted, isNew: false, currentEmail: (string) $user->email, currentUsername: $user->username);
+
+                if ($err !== null) {
+                    return $this->response->setJSON(['error' => $err]);
+                }
+
+                $wasSuper       = $user->inGroup('superadmin');
+                $user->username = $input['username'];
+                $user->email    = $input['email'];
+                $user->active   = $input['active'] ? 1 : 0;
+
+                if ($input['password'] !== '') {
+                    $user->password = $input['password'];
+                }
+
+                $this->users->save($user);
+                $user->syncGroups(...$input['groups']);
+
+                if (! $wasSuper && in_array('superadmin', $input['groups'], true)) {
+                    $this->provisionTotp($user);
+                }
+
+                $updated[] = $this->dteRow($this->users->withGroups()->findById($id));
+            }
+        }
+
+        return $this->response->setJSON(['data' => $updated]);
     }
 
     /** CSV import: username,email,password[,groups][,active] — one user per row, header row ignored. */
@@ -299,6 +411,86 @@ class UsersAdmin extends Controller
 
         if ($groups === []) {
             return [$empty, 'Select at least one group.'];
+        }
+
+        if ($username !== $currentUsername && $this->users->where('username', $username)->first() !== null) {
+            return [$empty, 'That username is already taken.'];
+        }
+
+        if ($email !== $currentEmail
+            && $this->kernel->db->table('auth_identities')->where(['type' => 'email_password', 'secret' => $email])->countAllResults() > 0) {
+            return [$empty, 'That e-mail is already taken.'];
+        }
+
+        return [['username' => $username, 'email' => $email, 'password' => $password, 'active' => $active, 'groups' => $groups], null];
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function dteRows(): array
+    {
+        return array_values(array_map(
+            fn (User $u) => $this->dteRow($u),
+            $this->users->withGroups()->orderBy('id')->findAll(),
+        ));
+    }
+
+    /** @return array<string, mixed> */
+    private function dteRow(User $u): array
+    {
+        $groups = array_map(
+            static fn ($g) => is_object($g) ? (string) ($g->name ?? $g->group ?? '') : (string) $g,
+            (array) ($u->groups ?? []),
+        );
+
+        return [
+            'DT_RowId'    => 'row_' . $u->id,
+            'DT_RowClass' => '',
+            'id'          => (int) $u->id,
+            'username'    => (string) $u->username,
+            'email'       => (string) $u->email,
+            'groups'      => implode('|', $groups),
+            'active'      => $u->active ? '1' : '0',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $posted
+     * @return array{0: array{username: string, email: string, password: string, active: bool, groups: list<string>}, 1: ?string}
+     */
+    private function dteInput(array $posted, bool $isNew, string $currentEmail = '', string $currentUsername = ''): array
+    {
+        $username = trim((string) ($posted['username'] ?? ''));
+        $email    = trim((string) ($posted['email'] ?? ''));
+        $password = (string) ($posted['password'] ?? '');
+        $active   = (string) ($posted['active'] ?? '1') !== '0';
+        $raw      = (string) ($posted['groups'] ?? 'user');
+        $groups   = array_values(array_filter(array_map('trim', explode('|', $raw))));
+        $groups   = array_values(array_intersect($groups, $this->groupNames()));
+
+        $empty = ['username' => '', 'email' => '', 'password' => '', 'active' => false, 'groups' => []];
+
+        if ($username === '' || mb_strlen($username) > 30) {
+            return [$empty, 'The username must be 1-30 characters.'];
+        }
+
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false || mb_strlen($email) > 254) {
+            return [$empty, 'Invalid e-mail.'];
+        }
+
+        if ($isNew && $password === '') {
+            return [$empty, 'A password is required.'];
+        }
+
+        if ($password !== '') {
+            $result = service('passwords')->check($password, new User(['username' => $username, 'email' => $email]));
+
+            if (! $result->isOK()) {
+                return [$empty, $result->reason()];
+            }
+        }
+
+        if ($groups === []) {
+            $groups = ['user'];
         }
 
         if ($username !== $currentUsername && $this->users->where('username', $username)->first() !== null) {

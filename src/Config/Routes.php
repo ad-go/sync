@@ -15,6 +15,33 @@ $syncCfg = config('Sync');
 $prefix  = trim($syncCfg->routePrefix, '/');
 $ns      = 'AdGo\Sync\Controllers';
 
+// Static assets fallback: serves DTE bundle files when the PHP built-in dev server cannot handle static files directly.
+// In production Apache/Nginx serves these before the request reaches PHP, so this route is never hit.
+$routes->get('(:segment)/datatables/(:any)', static function (string $dir, string $file): \CodeIgniter\HTTP\ResponseInterface {
+    $cfg   = config('Sync');
+    $base  = trim((string) $cfg->dteAssetsUrl, '/');
+    $parts = explode('/', $base);
+    $res   = service('response');
+
+    if ($parts[0] !== $dir) {
+        return $res->setStatusCode(404);
+    }
+
+    $name = basename($file);
+    $path = FCPATH . $base . '/' . $name;
+
+    if (! is_file($path) || ! preg_match('/\.(js|css|woff2?)$/i', $name)) {
+        return $res->setStatusCode(404);
+    }
+
+    $ext   = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+    $types = ['js' => 'application/javascript', 'css' => 'text/css', 'woff' => 'font/woff', 'woff2' => 'font/woff2'];
+    return $res
+        ->setContentType($types[$ext] ?? 'application/octet-stream')
+        ->setHeader('Cache-Control', 'public, max-age=86400')
+        ->setBody((string) file_get_contents($path));
+});
+
 // Static flag SVGs — needed only when the PHP built-in dev server handles requests (production: Apache/Nginx serves them directly).
 $routes->get('flags/(:segment)', static function (string $cc): \CodeIgniter\HTTP\ResponseInterface {
     $cc   = preg_replace('/[^a-z]/', '', strtolower(pathinfo($cc, PATHINFO_FILENAME)));
@@ -86,5 +113,7 @@ $routes->group(trim($syncCfg->usersPath, '/'), [
     $routes->post('(:num)', 'UsersAdmin::save/$1');
     $routes->post('(:num)/delete', 'UsersAdmin::delete/$1');
     $routes->get('(:num)/2fa', 'UsersAdmin::twofa/$1');
+    $routes->get('ajax', 'UsersAdmin::ajax');
+    $routes->post('ajax', 'UsersAdmin::ajax');
     $routes->post('import', 'UsersAdmin::import');
 });
