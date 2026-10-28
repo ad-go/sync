@@ -54,9 +54,27 @@ class ConflictAdmin extends Controller
 
     public function syncNow(): RedirectResponse
     {
-        $result = StatusAdmin::runSync();
+        $result = self::runSync();
 
         return $this->flash(str_starts_with($result, 'ok') ? 'message' : 'error', $result);
+    }
+
+    public static function runSync(): string
+    {
+        $kernel = Kernel::instance();
+        $result = null;
+
+        $ran = Support::exclusive('pull', static function () use ($kernel, &$result): void {
+            try {
+                $kernel->scanner()->scan();
+                $r      = $kernel->puller()->run();
+                $result = 'ok: pulled ' . $r['pulled'] . ' change(s)';
+            } catch (Throwable $e) {
+                $result = 'error: ' . $e->getMessage();
+            }
+        });
+
+        return $ran ? $result : 'error: another sync is already running';
     }
 
     public function lock(): RedirectResponse

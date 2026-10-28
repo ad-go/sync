@@ -59,9 +59,6 @@ class Sync extends BaseConfig
     /** URL path of the conflict admin UI. */
     public string $conflictsPath = 'admin/conflicts';
 
-    /** URL path of the status admin page. */
-    public string $statusPath = 'admin/status';
-
     /** URL path of the settings admin page. */
     public string $settingsPath = 'admin/settings';
 
@@ -248,13 +245,10 @@ class Sync extends BaseConfig
     /** Optional view printed inside <head> of the conflict pages, before their own styles (e.g. the application's CSS framework links). Empty = nothing. */
     public string $headView = '';
 
-    /** The conflict list and the conflict detail views. An application can point these at its own views (same variables) to match its layout. */
+    /** The conflict list and detail views; the settings and users views. An application can substitute its own (same variables). */
     public string $conflictsIndexView = 'AdGo\Sync\Views\conflicts\index';
 
     public string $conflictsShowView = 'AdGo\Sync\Views\conflicts\show';
-
-    /** The status, settings and users views. An application can point these at its own views (same variables) to match its layout. */
-    public string $statusIndexView = 'AdGo\Sync\Views\status\index';
 
     public string $settingsIndexView = 'AdGo\Sync\Views\settings\index';
 
@@ -262,7 +256,7 @@ class Sync extends BaseConfig
 
     public string $usersEditView = 'AdGo\Sync\Views\users\edit';
 
-    /** Roles (Shield groups) allowed to use the conflict/status/settings/users admin UI. */
+    /** Roles (Shield groups) allowed to use the conflicts/settings/users admin UI. */
     public string $adminPermission = 'admin.access';
 
     /** Roles (Shield groups) allowed to use the settings and users admin pages (a tighter subset of adminPermission, e.g. superadmin only). */

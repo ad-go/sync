@@ -62,11 +62,6 @@ $routes->group(trim($syncCfg->conflictsPath, '/'), [
     $routes->post('lock', 'ConflictAdmin::lock');
 });
 
-// Legacy status path — redirect to conflicts.
-$routes->get(trim($syncCfg->statusPath, '/') . '(/.*)?', static function () use ($syncCfg) {
-    return redirect()->to(site_url(trim($syncCfg->conflictsPath, '/')));
-}, ['namespace' => $ns, 'filter' => ['session', 'permission:' . $syncCfg->adminPermission]]);
-
 // Settings admin page (Shield session + the tighter superPermission).
 $routes->group(trim($syncCfg->settingsPath, '/'), [
     'namespace' => $ns,
