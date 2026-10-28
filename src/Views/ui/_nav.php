@@ -10,9 +10,9 @@ $cfg   = config('Sync');
 $super = auth()->user() !== null && auth()->user()->can($cfg->superPermission);
 
 $items = [
-    'users'     => ['label' => lang('Sync.nav.users'), 'path' => $cfg->usersPath, 'show' => $super],
     'conflicts' => ['label' => lang('Sync.nav.conflicts'), 'path' => $cfg->conflictsPath, 'show' => true],
     'settings'  => ['label' => lang('Sync.nav.settings'), 'path' => $cfg->settingsPath, 'show' => $super],
+    'users'     => ['label' => lang('Sync.nav.users'), 'path' => $cfg->usersPath, 'show' => $super],
 ];
 ?>
 <nav class="menu">

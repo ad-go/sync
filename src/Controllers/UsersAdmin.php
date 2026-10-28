@@ -158,6 +158,59 @@ class UsersAdmin extends Controller
         return $this->ok('User deleted.');
     }
 
+    /** CSV import: username,email,password[,groups][,active] — one user per row, header row ignored. */
+    public function import(): ResponseInterface
+    {
+        $file = $this->request->getFile('csv');
+
+        if ($file === null || ! $file->isValid()) {
+            return $this->response->setJSON(['ok' => false, 'message' => 'No file uploaded.']);
+        }
+
+        $lines   = array_filter(explode("\n", str_replace("\r", '', (string) file_get_contents($file->getTempName()))));
+        $created = 0;
+        $errors  = [];
+
+        foreach (array_values($lines) as $i => $line) {
+            $cols = str_getcsv($line);
+
+            if ($i === 0 && strtolower(trim($cols[0] ?? '')) === 'username') {
+                continue;
+            }
+
+            $username = trim($cols[0] ?? '');
+            $email    = trim($cols[1] ?? '');
+            $password = trim($cols[2] ?? '');
+            $groups   = array_filter(array_map('trim', explode('|', $cols[3] ?? 'user')));
+            $active   = strtolower(trim($cols[4] ?? '1')) !== '0';
+
+            if ($username === '' || $email === '' || $password === '') {
+                $errors[] = 'Row ' . ($i + 1) . ': username/email/password required.';
+                continue;
+            }
+
+            $user = new User(['username' => $username, 'email' => $email, 'password' => $password, 'active' => $active ? 1 : 0]);
+            $this->users->save($user);
+            $user = $this->users->findById($this->users->getInsertID());
+
+            if ($user === null) {
+                $errors[] = 'Row ' . ($i + 1) . ': could not save.';
+                continue;
+            }
+
+            $user->syncGroups(...array_values(array_intersect($groups, $this->groupNames())));
+            $created++;
+        }
+
+        $message = "Imported {$created} user(s).";
+
+        if ($errors !== []) {
+            $message .= ' Errors: ' . implode('; ', $errors);
+        }
+
+        return $this->response->setJSON(['ok' => $errors === [], 'message' => $message]);
+    }
+
     /** JSON endpoint for the "View 2FA" modal. */
     public function twofa(int $id): ResponseInterface
     {

@@ -86,4 +86,5 @@ $routes->group(trim($syncCfg->usersPath, '/'), [
     $routes->post('(:num)', 'UsersAdmin::save/$1');
     $routes->post('(:num)/delete', 'UsersAdmin::delete/$1');
     $routes->get('(:num)/2fa', 'UsersAdmin::twofa/$1');
+    $routes->post('import', 'UsersAdmin::import');
 });
