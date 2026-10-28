@@ -62,7 +62,8 @@ final class TransportTest extends TwoNodes
 
     public function testResponseSignatureIsBoundToTheRequestNonce(): void
     {
-        $this->assertNotSame(Signer::signResponse('k', 'a', 'body'), Signer::signResponse('k', 'b', 'body'));
+        $this->assertNotSame(Signer::signResponse('k', 'a', '/sync-api/pull', '200', 'body'), Signer::signResponse('k', 'b', '/sync-api/pull', '200', 'body'));
+        $this->assertNotSame(Signer::signResponse('k', 'a', '/sync-api/pull', '200', 'body'), Signer::signResponse('k', 'a', '/sync-api/push', '200', 'body'));
     }
 
     public function testSerializedPayloadNeverInstantiatesObjects(): void

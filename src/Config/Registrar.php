@@ -14,14 +14,21 @@ use AdGo\Sync\Jobs\TelegramJob;
 class Registrar
 {
     /**
-     * @return array<string, array<string, class-string>>
+     * @return array<string, mixed>
      */
     public static function Filters(): array
     {
+        $prefix = trim((string) config('Sync')->routePrefix, '/');
+
         return [
             'aliases' => [
                 'syncHmac'      => SyncHmac::class,
                 'authWriteLock' => AuthWriteLock::class,
+            ],
+            'globals' => [
+                'before' => [
+                    'csrf' => ['except' => [$prefix . '/*']],
+                ],
             ],
         ];
     }

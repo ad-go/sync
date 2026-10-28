@@ -161,7 +161,7 @@ class SyncClient implements PushClient, FilePushClient
 
         $sig = $response->getHeaderLine('X-Sync-Signature');
 
-        if (! hash_equals(Signer::signResponse($this->opt->secret, $nonce, $raw), $sig)) {
+        if (! hash_equals(Signer::signResponse($this->opt->secret, $nonce, $path, '200', $raw), $sig)) {
             throw new RuntimeException("Bad response signature from the peer on {$endpoint}.");
         }
 

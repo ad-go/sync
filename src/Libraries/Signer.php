@@ -47,9 +47,9 @@ final class Signer
         return ['ok' => true];
     }
 
-    /** Response signature: binds the body to the request nonce so it cannot be replayed for another request. */
-    public static function signResponse(string $secret, string $requestNonce, string $body): string
+    /** Response signature: binds the body to the request nonce, path, and HTTP status. Fixes audit F-5. */
+    public static function signResponse(string $secret, string $requestNonce, string $path, string $status, string $body): string
     {
-        return hash_hmac('sha256', 'response' . "\n" . $requestNonce . "\n" . hash('sha256', $body), $secret);
+        return hash_hmac('sha256', 'response' . "\n" . $requestNonce . "\n" . $path . "\n" . $status . "\n" . hash('sha256', $body), $secret);
     }
 }

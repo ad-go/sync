@@ -73,7 +73,8 @@ class SyncHmac implements FilterInterface
         $opt = Kernel::instance()->opt;
 
         if ($response->getStatusCode() === 200) {
-            $response->setHeader('X-Sync-Signature', Signer::signResponse($opt->secret, $request->getHeaderLine('X-Sync-Nonce'), (string) $response->getBody()));
+            $path = '/' . trim(uri_string(), '/');
+            $response->setHeader('X-Sync-Signature', Signer::signResponse($opt->secret, $request->getHeaderLine('X-Sync-Nonce'), $path, '200', (string) $response->getBody()));
         }
 
         return $response;
