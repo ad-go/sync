@@ -31,8 +31,7 @@ label{display:block;margin:8px 0}
 <div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1>Settings</h1>
-<?php if (session()->getFlashdata('message')): ?><div class="flash"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
-<?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
+<?= view('AdGo\Sync\Views\ui\_flash') ?>
 
 <fieldset>
 <legend>Branding</legend>

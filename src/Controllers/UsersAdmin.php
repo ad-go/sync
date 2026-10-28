@@ -22,6 +22,8 @@ class UsersAdmin extends Controller
 {
     use AdminChrome;
 
+    protected string $configKey = 'usersPath';
+
     private Kernel $kernel;
     private UserModel $users;
 
@@ -162,13 +164,13 @@ class UsersAdmin extends Controller
         $user = $this->users->findById($id);
 
         if ($user === null || ! $user->inGroup('superadmin')) {
-            return $this->response->setJSON(['error' => 'Not a superadmin.']);
+            return $this->response->setStatusCode(404)->setJSON(['error' => 'Not a superadmin.']);
         }
 
         $totp = new TwoFactor();
 
         if (! $totp->hasSecret($user)) {
-            return $this->response->setJSON(['error' => 'Not set up yet — the QR code appears the first time this user logs in.']);
+            return $this->response->setStatusCode(404)->setJSON(['error' => 'Not set up yet — the QR code appears the first time this user logs in.']);
         }
 
         $secret = $totp->ensureSecret($user);
@@ -269,8 +271,4 @@ class UsersAdmin extends Controller
         return (int) $this->kernel->db->table('auth_groups_users')->where('group', 'superadmin')->countAllResults();
     }
 
-    private function base(): string
-    {
-        return trim((string) config('Sync')->usersPath, '/');
-    }
 }

@@ -96,17 +96,19 @@ class AuthWriteLock implements FilterInterface
     /** For views: true while this node must show user-editing forms read-only (the peer is editing). */
     public static function readOnly(): bool
     {
-        $d = Kernel::instance()->locks()->describe('auth');
+        $k = Kernel::instance();
+        $d = $k->locks()->describe('auth');
 
-        return $d !== null && $d['holder'] !== Kernel::instance()->opt->node;
+        return $d !== null && $d['holder'] !== $k->opt->node;
     }
 
     /** For views: "site1 is editing users:12 (admin) since 10:12" while the peer edits, otherwise an empty string. */
     public static function banner(): string
     {
-        $d = Kernel::instance()->locks()->describe('auth');
+        $k = Kernel::instance();
+        $d = $k->locks()->describe('auth');
 
-        if ($d === null || $d['holder'] === Kernel::instance()->opt->node) {
+        if ($d === null || $d['holder'] === $k->opt->node) {
             return '';
         }
 

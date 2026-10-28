@@ -11,14 +11,6 @@
 <style>
 form.edit{background:var(--card);padding:14px;border:1px solid var(--line);border-radius:var(--r);max-width:560px}
 label{display:block;margin:8px 0}
-.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90;align-items:center;justify-content:center}
-.modal-backdrop.open{display:flex}
-.modal{background:var(--card);color:var(--fg);border-radius:var(--r);padding:20px;max-width:420px;width:92vw;max-height:85vh;overflow:auto;box-shadow:var(--shadow)}
-.modal h3{margin-top:0}.modal .qrwrap{max-width:200px;margin:12px auto}.modal .qrwrap svg{width:100%;height:auto}
-.modal code.key{word-break:break-all;display:block;background:var(--tint);padding:6px 8px;border-radius:6px;margin:6px 0}
-.modal .codes{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-family:ui-monospace,Consolas,monospace;font-size:13px;margin-top:8px}
-.modal .codes .used{text-decoration:line-through;color:var(--mute)}
-.modal .close{float:right;background:none;border:0;font-size:18px;cursor:pointer;color:var(--fg)}
 </style>
 </head>
 <body>
@@ -28,7 +20,7 @@ label{display:block;margin:8px 0}
 <div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1>Edit user #<?= (int) $user->id ?></h1>
-<?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
+<?= view('AdGo\Sync\Views\ui\_flash') ?>
 <p class="note">Opening this page took the edit lease on <b><?= esc($node ?? config('Sync')->node) ?></b>; the other node shows this user as read-only until you save or leave it idle.</p>
 <?php if (in_array('superadmin', $user->getGroups() ?? [], true)): ?>
 <p><button type="button" class="s" id="view2fa">View 2FA</button></p>

@@ -22,8 +22,7 @@ $label = static function (string $group, string $value): string {
 <div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1><?= lang('Sync.conflicts.title') ?> <small style="font-size:14px;font-weight:400;color:var(--mute)">(<?= lang('Sync.conflicts.node', [esc($node)]) ?>)</small></h1>
-<?php if (session()->getFlashdata('message')): ?><div class="flash"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
-<?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
+<?= view('AdGo\Sync\Views\ui\_flash') ?>
 <?php if ($lockHeld !== null && $lockHeld !== $node): ?><div class="banner"><?= lang('Sync.conflicts.editingActiveOn', ['<b>' . esc($lockHeld) . '</b>']) ?></div><?php endif ?>
 
 <h2><?= lang('Sync.conflicts.pending', [(string) count($pending)]) ?></h2>

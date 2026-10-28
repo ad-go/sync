@@ -19,6 +19,8 @@ class ConflictAdmin extends Controller
 {
     use AdminChrome;
 
+    protected string $configKey = 'conflictsPath';
+
     private Kernel $kernel;
 
     public function __construct()
@@ -120,10 +122,5 @@ class ConflictAdmin extends Controller
     private function conflict(int $id): ?array
     {
         return $this->kernel->db->table('sync_conflicts')->where('id', $id)->get()->getRowArray();
-    }
-
-    private function base(): string
-    {
-        return trim((string) config('Sync')->conflictsPath, '/');
     }
 }

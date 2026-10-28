@@ -18,14 +18,6 @@ form.add{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:
 form.add button{padding:5px 12px}
 .grp label{margin-right:4px}
 tr.rowlink{cursor:pointer}
-.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90;align-items:center;justify-content:center}
-.modal-backdrop.open{display:flex}
-.modal{background:var(--card);color:var(--fg);border-radius:var(--r);padding:20px;max-width:420px;width:92vw;max-height:85vh;overflow:auto;box-shadow:var(--shadow)}
-.modal h3{margin-top:0}.modal .qrwrap{max-width:200px;margin:12px auto}.modal .qrwrap svg{width:100%;height:auto}
-.modal code.key{word-break:break-all;display:block;background:var(--tint);padding:6px 8px;border-radius:6px;margin:6px 0}
-.modal .codes{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-family:ui-monospace,Consolas,monospace;font-size:13px;margin-top:8px}
-.modal .codes .used{text-decoration:line-through;color:var(--mute)}
-.modal .close{float:right;background:none;border:0;font-size:18px;cursor:pointer;color:var(--fg)}
 </style>
 </head>
 <body>
@@ -35,8 +27,7 @@ tr.rowlink{cursor:pointer}
 <div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1>Users</h1>
-<?php if (session()->getFlashdata('message')): ?><div class="flash"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
-<?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
+<?= view('AdGo\Sync\Views\ui\_flash') ?>
 <?php if ($banner !== ''): ?><div class="flash warn">&#128274; <?= esc($banner) ?></div><?php endif ?>
 
 <table>

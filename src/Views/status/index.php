@@ -20,8 +20,7 @@
 <div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1>Sync status <small style="font-size:14px;font-weight:400;color:var(--mute)">(node <?= esc($node) ?>)</small></h1>
-<?php if (session()->getFlashdata('message')): ?><div class="flash"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
-<?php if (session()->getFlashdata('error')): ?><div class="flash err"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
+<?= view('AdGo\Sync\Views\ui\_flash') ?>
 
 <table>
 <tr><th>This node</th><td><?= esc($node) ?><?= $passive ? ' <span class="tag">passive</span>' : '' ?></td></tr>

@@ -28,9 +28,12 @@ class SettingsAdmin extends Controller
 {
     use AdminChrome;
 
+    protected string $configKey = 'settingsPath';
+
     public function index(): string
     {
         helper('form');
+        $cfg = config('Sync');
         $env = EnvFile::default()->all();
 
         $fields = [];
@@ -39,8 +42,8 @@ class SettingsAdmin extends Controller
             $fields[$key] = $f + ['value' => in_array($f['type'], ['secret'], true) ? '' : ($env[$key] ?? ''), 'set' => isset($env[$key]) && $env[$key] !== ''];
         }
 
-        return view((string) config('Sync')->settingsIndexView, [
-            'node'         => config('Sync')->node,
+        return view((string) $cfg->settingsIndexView, [
+            'node'         => $cfg->node,
             'fields'       => $fields,
             'siteName'     => Branding::siteName(),
             'logo'         => Branding::logoUrl(),
@@ -48,9 +51,9 @@ class SettingsAdmin extends Controller
             'fontFamily'   => (string) setting('Sync.fontFamily'),
             'fontSize'     => (int) setting('Sync.fontSize'),
             'fonts'        => SyncConfig::FONTS,
-            'maxImageMb'   => config('Sync')->maxImageMb,
-            'secretHash'   => NodeIdentity::fingerprint(config('Sync')->secret),
-            'peerNode'     => config('Sync')->peerNode,
+            'maxImageMb'   => $cfg->maxImageMb,
+            'secretHash'   => NodeIdentity::fingerprint($cfg->secret),
+            'peerNode'     => $cfg->peerNode,
             'menu'         => $this->menu('settings'),
             'head'         => $this->head(),
             'base'         => $this->base(),
@@ -219,8 +222,4 @@ class SettingsAdmin extends Controller
         return $this->ok('Settings saved.');
     }
 
-    private function base(): string
-    {
-        return trim((string) config('Sync')->settingsPath, '/');
-    }
 }

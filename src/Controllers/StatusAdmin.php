@@ -18,6 +18,8 @@ class StatusAdmin extends Controller
 {
     use AdminChrome;
 
+    protected string $configKey = 'statusPath';
+
     private Kernel $kernel;
 
     public function __construct()
@@ -28,23 +30,24 @@ class StatusAdmin extends Controller
     public function index(): string
     {
         helper('form');
-        $k  = $this->kernel;
-        $db = $k->db;
+        $k   = $this->kernel;
+        $db  = $k->db;
+        $cfg = config('Sync');
 
-        return view((string) config('Sync')->statusIndexView, [
-            'node'      => $k->opt->node,
-            'peerNode'  => $k->opt->peerNode,
-            'peerUrl'   => $k->opt->peerUrl,
-            'passive'   => $k->opt->passive,
-            'cursor'    => $k->meta->cursor($k->opt->peerNode),
-            'conflicts' => (int) $db->table('sync_conflicts')->where('status', 'pending')->countAllResults(),
-            'journal'   => (int) $db->table('sync_changes')->countAllResults(),
-            'authLock'  => $k->locks()->describe('auth'),
-            'cronLock'  => $k->locks()->describe('cron'),
+        return view((string) $cfg->statusIndexView, [
+            'node'          => $k->opt->node,
+            'peerNode'      => $k->opt->peerNode,
+            'peerUrl'       => $k->opt->peerUrl,
+            'passive'       => $k->opt->passive,
+            'cursor'        => $k->meta->cursor($k->opt->peerNode),
+            'conflicts'     => (int) $db->table('sync_conflicts')->where('status', 'pending')->countAllResults(),
+            'journal'       => (int) $db->table('sync_changes')->countAllResults(),
+            'authLock'      => $k->locks()->describe('auth'),
+            'cronLock'      => $k->locks()->describe('cron'),
             'menu'          => $this->menu('status'),
             'head'          => $this->head(),
             'base'          => $this->base(),
-            'conflictsBase' => trim((string) config('Sync')->conflictsPath, '/'),
+            'conflictsBase' => trim((string) $cfg->conflictsPath, '/'),
         ]);
     }
 
@@ -88,10 +91,5 @@ class StatusAdmin extends Controller
         });
 
         return $ran ? $result : 'error: another sync is already running';
-    }
-
-    private function base(): string
-    {
-        return trim((string) config('Sync')->statusPath, '/');
     }
 }

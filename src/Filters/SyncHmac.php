@@ -23,7 +23,8 @@ class SyncHmac implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        $opt = Kernel::instance()->opt;
+        $kernel = Kernel::instance();
+        $opt    = $kernel->opt;
 
         if ($request->getMethod() !== 'POST') {
             return $this->deny(405, 'method');
@@ -51,11 +52,11 @@ class SyncHmac implements FilterInterface
             return $this->deny(403, 'unknown node');
         }
 
-        Kernel::instance()->requestPeer = $node;
-        (new ClockMonitor(Kernel::instance()->db, $opt))->observeRequest($node, $ts);
+        $kernel->requestPeer = $node;
+        (new ClockMonitor($kernel->db, $opt))->observeRequest($node, $ts);
 
         try {
-            if (! (new NonceStore(Kernel::instance()->db, $opt->replayWindow * 2))->claim($nonce)) {
+            if (! (new NonceStore($kernel->db, $opt->replayWindow * 2))->claim($nonce)) {
                 return $this->deny(401, 'replay');
             }
         } catch (Throwable $e) {

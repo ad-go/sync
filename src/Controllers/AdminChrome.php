@@ -9,12 +9,18 @@ use CodeIgniter\HTTP\RedirectResponse;
 /**
  * Shared across every admin controller (conflicts, status, settings, users): the host-application hooks
  * (`Config\Sync::$menuView`/`$headView`, rendered into each page's `$menu`/`$head` view data) and the
- * "redirect back to this page's own list with a flash message" pattern every action ends with. Every class
- * using this trait must define a `base(): string` method (each controller's own admin path, e.g.
- * `config('Sync')->usersPath`).
+ * "redirect back to this page's own list with a flash message" pattern every action ends with. Each class
+ * using this trait must declare `protected string $configKey = 'xxxPath'` (the `Config\Sync` property that
+ * holds its admin path, e.g. `'usersPath'`).
  */
 trait AdminChrome
 {
+    protected string $configKey = '';
+
+    private function base(): string
+    {
+        return trim((string) config('Sync')->{$this->configKey}, '/');
+    }
     private function menu(string $active): string
     {
         $view = (string) config('Sync')->menuView;
