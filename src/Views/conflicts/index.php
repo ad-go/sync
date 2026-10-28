@@ -13,12 +13,12 @@ $label = static function (string $group, string $value): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= lang('Sync.conflicts.title') ?> · <?= esc($node) ?></title>
-<?= view('AdGo\Sync\Views\_theme') ?>
+<?= view('AdGo\Sync\Views\ui\_theme') ?>
 </head>
 <body>
-<?= view('AdGo\Sync\Views\_topbar') ?>
+<?= view('AdGo\Sync\Views\ui\_topbar') ?>
 <div class="appshell">
-<aside id="appSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'conflicts']) ?><?= $menu ?? '' ?></aside>
+<aside id="appSidebar"><?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'conflicts']) ?><?= $menu ?? '' ?></aside>
 <div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1><?= lang('Sync.conflicts.title') ?> <small style="font-size:14px;font-weight:400;color:var(--mute)">(<?= lang('Sync.conflicts.node', [esc($node)]) ?>)</small></h1>

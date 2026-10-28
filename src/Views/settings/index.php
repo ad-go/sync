@@ -15,7 +15,7 @@ foreach ($fields as $key => $f) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Settings · <?= esc($siteName) ?></title>
-<?= view('AdGo\Sync\Views\_theme') ?>
+<?= view('AdGo\Sync\Views\ui\_theme') ?>
 <style>
 fieldset{background:var(--card);padding:14px;border:1px solid var(--line);border-radius:var(--r);margin-bottom:16px}
 legend{font-weight:700}
@@ -25,9 +25,9 @@ label{display:block;margin:8px 0}
 </style>
 </head>
 <body>
-<?= view('AdGo\Sync\Views\_topbar') ?>
+<?= view('AdGo\Sync\Views\ui\_topbar') ?>
 <div class="appshell">
-<aside id="appSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'settings']) ?><?= $menu ?? '' ?></aside>
+<aside id="appSidebar"><?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'settings']) ?><?= $menu ?? '' ?></aside>
 <div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1>Settings</h1>

@@ -13,7 +13,7 @@ $status    = lang($statusKey) === $statusKey ? (string) $c['status'] : lang($sta
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= lang('Sync.conflicts.conflict', [(string) (int) $c['id']]) ?></title>
-<?= view('AdGo\Sync\Views\_theme') ?>
+<?= view('AdGo\Sync\Views\ui\_theme') ?>
 <style>
 tr.diff td{background:var(--warn-bg)}
 .del{color:var(--err-fg);font-style:italic}
@@ -21,9 +21,9 @@ input[type=text]{width:100%;box-sizing:border-box}
 </style>
 </head>
 <body>
-<?= view('AdGo\Sync\Views\_topbar') ?>
+<?= view('AdGo\Sync\Views\ui\_topbar') ?>
 <div class="appshell">
-<aside id="appSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'conflicts']) ?><?= $menu ?? '' ?></aside>
+<aside id="appSidebar"><?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'conflicts']) ?><?= $menu ?? '' ?></aside>
 <div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <p><a href="<?= esc($back) ?>">&larr; <?= lang('Sync.conflicts.allConflicts') ?></a></p>

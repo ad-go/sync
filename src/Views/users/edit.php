@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Edit user · <?= esc(\AdGo\Sync\Libraries\Branding::siteName()) ?></title>
-<?= view('AdGo\Sync\Views\_theme') ?>
+<?= view('AdGo\Sync\Views\ui\_theme') ?>
 <style>
 form.edit{background:var(--card);padding:14px;border:1px solid var(--line);border-radius:var(--r);max-width:560px}
 label{display:block;margin:8px 0}
@@ -22,9 +22,9 @@ label{display:block;margin:8px 0}
 </style>
 </head>
 <body>
-<?= view('AdGo\Sync\Views\_topbar') ?>
+<?= view('AdGo\Sync\Views\ui\_topbar') ?>
 <div class="appshell">
-<aside id="appSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'users']) ?><?= $menu ?? '' ?></aside>
+<aside id="appSidebar"><?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'users']) ?><?= $menu ?? '' ?></aside>
 <div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1>Edit user #<?= (int) $user->id ?></h1>

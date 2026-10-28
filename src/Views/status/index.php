@@ -11,12 +11,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sync status · <?= esc($node) ?></title>
-<?= view('AdGo\Sync\Views\_theme') ?>
+<?= view('AdGo\Sync\Views\ui\_theme') ?>
 </head>
 <body>
-<?= view('AdGo\Sync\Views\_topbar') ?>
+<?= view('AdGo\Sync\Views\ui\_topbar') ?>
 <div class="appshell">
-<aside id="appSidebar"><?= view('AdGo\Sync\Views\_adminNav', ['active' => 'status']) ?><?= $menu ?? '' ?></aside>
+<aside id="appSidebar"><?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'status']) ?><?= $menu ?? '' ?></aside>
 <div class="sb-resize" id="sbResize"></div>
 <main class="appmain">
 <h1>Sync status <small style="font-size:14px;font-weight:400;color:var(--mute)">(node <?= esc($node) ?>)</small></h1>
