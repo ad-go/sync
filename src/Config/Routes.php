@@ -15,17 +15,18 @@ $syncCfg = config('Sync');
 $prefix  = trim($syncCfg->routePrefix, '/');
 $ns      = 'AdGo\Sync\Controllers';
 
-// Static flag SVGs — needed only when the PHP built-in dev server handles requests (production: Apache/Nginx serves them).
-$routes->get('flags/(:segment)', static function (string $cc) {
-    $cc   = preg_replace('/[^a-z]/', '', strtolower($cc));
+// Static flag SVGs — needed only when the PHP built-in dev server handles requests (production: Apache/Nginx serves them directly).
+$routes->get('flags/(:segment)', static function (string $cc): \CodeIgniter\HTTP\ResponseInterface {
+    $cc   = preg_replace('/[^a-z]/', '', strtolower(pathinfo($cc, PATHINFO_FILENAME)));
     $file = FCPATH . 'flags/' . $cc . '.svg';
-    if ($cc === '' || !is_file($file)) {
-        header('HTTP/1.1 404 Not Found');
-        exit;
+    $res  = service('response');
+    if ($cc === '' || ! is_file($file)) {
+        return $res->setStatusCode(404);
     }
-    header('Content-Type: image/svg+xml');
-    header('Cache-Control: public, max-age=86400');
-    readfile($file);
+    return $res
+        ->setContentType('image/svg+xml')
+        ->setHeader('Cache-Control', 'public, max-age=86400')
+        ->setBody((string) file_get_contents($file));
 });
 
 // Peer-to-peer API: HMAC-signed POSTs only.
