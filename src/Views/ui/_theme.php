@@ -50,7 +50,7 @@ a{color:var(--acc);text-decoration:none}a:hover{color:var(--acc-d);text-decorati
 .appshell>.appmain{flex:1;min-width:0;padding:16px;overflow:auto}
 /* sidebar nav.menu */
 .appshell nav.menu{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:2px;padding:10px;background:transparent;border:0;border-radius:0;box-shadow:none;font-size:13px;font-weight:600}
-.appshell nav.menu .brand,.appshell nav.menu .sp,.appshell nav.menu .who,.appshell nav.menu a.lang,.appshell nav.menu>a:last-child{display:none}
+.appshell nav.menu .brand,.appshell nav.menu .sp,.appshell nav.menu .who,.appshell nav.menu a.lang{display:none}
 .appshell nav.menu a{padding:7px 10px;border-radius:6px;border-bottom:0;color:inherit;text-decoration:none}
 .appshell nav.menu a:hover,.appshell nav.menu a[aria-current=page]{background:var(--tint);color:var(--acc)}
 /* sidebar backdrop (mobile) */
