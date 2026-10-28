@@ -15,7 +15,6 @@ use CodeIgniter\HTTP\RedirectResponse;
  */
 trait AdminChrome
 {
-    protected string $configKey = '';
 
     private function base(): string
     {

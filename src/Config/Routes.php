@@ -50,7 +50,7 @@ $routes->group($prefix, ['namespace' => $ns, 'filter' => 'syncHmac'], static fun
 // Telegram webhook (authenticated by the webhook secret token + chat id, not by HMAC).
 $routes->post($prefix . '/telegram', 'SyncController::telegram', ['namespace' => $ns]);
 
-// Conflict admin UI (Shield session + permission).
+// Conflict admin UI (Shield session + permission); includes status panel + sync/lock actions.
 $routes->group(trim($syncCfg->conflictsPath, '/'), [
     'namespace' => $ns,
     'filter'    => ['session', 'permission:' . $syncCfg->adminPermission],
@@ -58,17 +58,14 @@ $routes->group(trim($syncCfg->conflictsPath, '/'), [
     $routes->get('/', 'ConflictAdmin::index');
     $routes->get('(:num)', 'ConflictAdmin::show/$1');
     $routes->post('(:num)/resolve', 'ConflictAdmin::resolve/$1');
+    $routes->post('sync-now', 'ConflictAdmin::syncNow');
+    $routes->post('lock', 'ConflictAdmin::lock');
 });
 
-// Status admin page (Shield session + permission).
-$routes->group(trim($syncCfg->statusPath, '/'), [
-    'namespace' => $ns,
-    'filter'    => ['session', 'permission:' . $syncCfg->adminPermission],
-], static function ($routes): void {
-    $routes->get('/', 'StatusAdmin::index');
-    $routes->post('sync-now', 'StatusAdmin::syncNow');
-    $routes->post('lock', 'StatusAdmin::lock');
-});
+// Legacy status path — redirect to conflicts.
+$routes->get(trim($syncCfg->statusPath, '/') . '(/.*)?', static function () use ($syncCfg) {
+    return redirect()->to(site_url(trim($syncCfg->conflictsPath, '/')));
+}, ['namespace' => $ns, 'filter' => ['session', 'permission:' . $syncCfg->adminPermission]]);
 
 // Settings admin page (Shield session + the tighter superPermission).
 $routes->group(trim($syncCfg->settingsPath, '/'), [

@@ -10,68 +10,17 @@ use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RedirectResponse;
 use Throwable;
 
-/**
- * Sync status page: node/peer identity, journal cursor, pending conflicts, lock state, and a manual "sync now"
- * / "take or release the lock" action. Routes sit behind Shield's `session` + `permission` filters.
- */
+/** Redirects legacy /admin/status to /admin/conflicts; keeps the static runSync() used by ConflictAdmin. */
 class StatusAdmin extends Controller
 {
     use AdminChrome;
 
     protected string $configKey = 'statusPath';
 
-    private Kernel $kernel;
-
-    public function __construct()
+    /** Redirect legacy /admin/status → /admin/conflicts (status is now integrated there). */
+    public function index(): RedirectResponse
     {
-        $this->kernel = Kernel::instance();
-    }
-
-    public function index(): string
-    {
-        helper('form');
-        $k   = $this->kernel;
-        $db  = $k->db;
-        $cfg = config('Sync');
-
-        return view((string) $cfg->statusIndexView, [
-            'node'          => $k->opt->node,
-            'peerNode'      => $k->opt->peerNode,
-            'peerUrl'       => $k->opt->peerUrl,
-            'passive'       => $k->opt->passive,
-            'cursor'        => $k->meta->cursor($k->opt->peerNode),
-            'conflicts'     => (int) $db->table('sync_conflicts')->where('status', 'pending')->countAllResults(),
-            'journal'       => (int) $db->table('sync_changes')->countAllResults(),
-            'authLock'      => $k->locks()->describe('auth'),
-            'cronLock'      => $k->locks()->describe('cron'),
-            'menu'          => $this->menu('status'),
-            'head'          => $this->head(),
-            'base'          => $this->base(),
-            'conflictsBase' => trim((string) $cfg->conflictsPath, '/'),
-        ]);
-    }
-
-    public function syncNow(): RedirectResponse
-    {
-        $result = self::runSync();
-
-        return $this->flash(str_starts_with($result, 'ok') ? 'message' : 'error', $result);
-    }
-
-    public function lock(): RedirectResponse
-    {
-        $action = (string) $this->request->getPost('action');
-
-        if ($action === 'take') {
-            $r = $this->kernel->locks()->acquire('auth', true);
-        } elseif ($action === 'release') {
-            $this->kernel->locks()->release('auth');
-            $r = ['ok' => true];
-        } else {
-            $r = ['ok' => false, 'reason' => 'unknown action'];
-        }
-
-        return $this->flash($r['ok'] ? 'message' : 'error', $r['ok'] ? 'Done.' : ('Could not change the lock: ' . ($r['reason'] ?? '?')));
+        return redirect()->to(site_url(trim((string) config('Sync')->conflictsPath, '/')));
     }
 
     /** Runs a pull cycle right now (scan + pull + reconcile), the same work `sync:pull` does on its schedule. */

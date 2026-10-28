@@ -4,7 +4,7 @@
  * sidebar, above the host application's own `$menu` (Config\Sync::$menuView) if any. Settings and Users are
  * only shown to `Config\Sync::$superPermission` holders.
  *
- * @var string $active one of 'conflicts'|'status'|'settings'|'users'
+ * @var string $active one of 'conflicts'|'settings'|'users'
  */
 $cfg   = config('Sync');
 $super = auth()->user() !== null && auth()->user()->can($cfg->superPermission);
@@ -12,7 +12,6 @@ $super = auth()->user() !== null && auth()->user()->can($cfg->superPermission);
 $items = [
     'users'     => ['label' => lang('Sync.nav.users'), 'path' => $cfg->usersPath, 'show' => $super],
     'conflicts' => ['label' => lang('Sync.nav.conflicts'), 'path' => $cfg->conflictsPath, 'show' => true],
-    'status'    => ['label' => lang('Sync.nav.status'), 'path' => $cfg->statusPath, 'show' => true],
     'settings'  => ['label' => lang('Sync.nav.settings'), 'path' => $cfg->settingsPath, 'show' => $super],
 ];
 ?>

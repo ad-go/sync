@@ -9,11 +9,11 @@ use CodeIgniter\HTTP\RedirectResponse;
 use AdGo\Sync\Libraries\Kernel;
 use AdGo\Sync\Libraries\Lang;
 use AdGo\Sync\Libraries\Support;
+use Throwable;
 
 /**
- * Admin UI for quarantined conflicts: the source of truth for decisions
- * (Telegram is only a shortcut). Routes sit behind Shield's `session` and
- * `permission` filters (see Config/Routes.php).
+ * Admin UI for quarantined conflicts and node status. Routes sit behind
+ * Shield's `session` and `permission` filters (see Config/Routes.php).
  */
 class ConflictAdmin extends Controller
 {
@@ -31,17 +31,48 @@ class ConflictAdmin extends Controller
     public function index(): string
     {
         helper('form');
-        $db = $this->kernel->db;
+        $k  = $this->kernel;
+        $db = $k->db;
 
         return view((string) config('Sync')->conflictsIndexView, [
-            'node'     => $this->kernel->opt->node,
-            'pending'  => $db->table('sync_conflicts')->where('status', 'pending')->orderBy('detected_at', 'DESC')->get()->getResultArray(),
-            'recent'   => $db->table('sync_conflicts')->where('status !=', 'pending')->orderBy('detected_at', 'DESC')->limit(50)->get()->getResultArray(),
-            'lockHeld' => $this->kernel->locks()->holder('auth'),
-            'base'     => $this->base(),
-            'menu'     => $this->menu('conflicts'),
-            'head'     => $this->head(),
+            'node'      => $k->opt->node,
+            'peerNode'  => $k->opt->peerNode,
+            'peerUrl'   => $k->opt->peerUrl,
+            'passive'   => $k->opt->passive,
+            'cursor'    => $k->meta->cursor($k->opt->peerNode),
+            'journal'   => (int) $db->table('sync_changes')->countAllResults(),
+            'authLock'  => $k->locks()->describe('auth'),
+            'cronLock'  => $k->locks()->describe('cron'),
+            'pending'   => $db->table('sync_conflicts')->where('status', 'pending')->orderBy('detected_at', 'DESC')->get()->getResultArray(),
+            'recent'    => $db->table('sync_conflicts')->where('status !=', 'pending')->orderBy('detected_at', 'DESC')->limit(50)->get()->getResultArray(),
+            'lockHeld'  => $k->locks()->holder('auth'),
+            'base'      => $this->base(),
+            'menu'      => $this->menu('conflicts'),
+            'head'      => $this->head(),
         ]);
+    }
+
+    public function syncNow(): RedirectResponse
+    {
+        $result = StatusAdmin::runSync();
+
+        return $this->flash(str_starts_with($result, 'ok') ? 'message' : 'error', $result);
+    }
+
+    public function lock(): RedirectResponse
+    {
+        $action = (string) $this->request->getPost('action');
+
+        if ($action === 'take') {
+            $r = $this->kernel->locks()->acquire('auth', true);
+        } elseif ($action === 'release') {
+            $this->kernel->locks()->release('auth');
+            $r = ['ok' => true];
+        } else {
+            $r = ['ok' => false, 'reason' => 'unknown action'];
+        }
+
+        return $this->flash($r['ok'] ? 'message' : 'error', $r['ok'] ? 'Done.' : ('Could not change the lock: ' . ($r['reason'] ?? '?')));
     }
 
     public function show(int $id): string|RedirectResponse
