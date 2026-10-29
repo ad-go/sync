@@ -51,6 +51,7 @@ class SettingsAdmin extends Controller
             'fontFamily'   => (string) setting('Sync.fontFamily'),
             'fontSize'     => (int) setting('Sync.fontSize'),
             'fonts'        => SyncConfig::FONTS,
+            'loginField'   => (string) (setting('Sync.loginField') ?: 'email'),
             'maxImageMb'   => $cfg->maxImageMb,
             'secretHash'   => NodeIdentity::fingerprint($cfg->secret),
             'peerNode'     => $cfg->peerNode,
@@ -84,6 +85,9 @@ class SettingsAdmin extends Controller
 
         $size = (int) $this->request->getPost('fontSize');
         setting('Sync.fontSize', $size >= 12 && $size <= 20 ? $size : 0);
+
+        $lf = (string) $this->request->getPost('loginField');
+        setting('Sync.loginField', in_array($lf, ['email', 'username', 'both'], true) ? $lf : 'email');
 
         $logo = $this->request->getFile('logo');
 

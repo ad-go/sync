@@ -302,6 +302,9 @@ class Sync extends BaseConfig
     /** Largest uploaded logo accepted, in MiB. */
     public int $maxImageMb = 2;
 
+    /** Login credential field shown on the login page: 'email', 'username', or 'both'. Editable from the Settings page. */
+    public string $loginField = 'email';
+
     public function __construct()
     {
         parent::__construct();

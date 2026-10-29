@@ -1,7 +1,7 @@
 <?php
 /** @var string $node */ /** @var array<string, array<string, mixed>> $fields */ /** @var string $siteName */
 /** @var string $logo */ /** @var string $accentColor */ /** @var string $fontFamily */ /** @var int $fontSize */
-/** @var array<string,string> $fonts */ /** @var int $maxImageMb */ /** @var string $secretHash */ /** @var string $peerNode */
+/** @var array<string,string> $fonts */ /** @var string $loginField */ /** @var int $maxImageMb */ /** @var string $secretHash */ /** @var string $peerNode */
 /** @var string $base */
 $envGroups = [];
 $topEnvGroups = [];
@@ -114,6 +114,15 @@ foreach ($fields as $key => $f) {
           <label>Font size (px)</label>
           <input type="number" name="fontSize" class="sm" min="12" max="20"
                  value="<?= $fontSize > 0 ? $fontSize : '' ?>" placeholder="14">
+        </div>
+
+        <div class="sf">
+          <label>Login field</label>
+          <select name="loginField">
+            <option value="email"    <?= $loginField === 'email'    ? 'selected' : '' ?>>E-mail</option>
+            <option value="username" <?= $loginField === 'username' ? 'selected' : '' ?>>Username</option>
+            <option value="both"     <?= $loginField === 'both'     ? 'selected' : '' ?>>E-mail or username</option>
+          </select>
         </div>
 
         <div class="sf full">
