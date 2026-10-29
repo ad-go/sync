@@ -174,10 +174,11 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
         render: function(row) {
           var g = row.groups || '';
           var h = '';
+          var act = 'display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;font-size:14px';
           if (g.split('|').some(function(x){ return x.trim() === 'superadmin'; })) {
-            h += '<button class="btn-2fa s" data-id="' + row.id + '" title="View 2FA" style="padding:2px 6px;font-size:13px;margin-right:4px">&#x2399;</button>';
+            h += '<button class="btn-2fa s" data-id="' + row.id + '" title="View 2FA" style="' + act + ';margin-right:4px">&#x2399;</button>';
           }
-          h += '<button class="btn-del s" data-id="' + row.id + '" title="Delete" style="padding:2px 6px;font-size:13px;color:#c62828;border-color:#c62828"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor" style="display:block"><path d="M1 3h12M5 3V1h4v2M3 3l1 10h6l1-10"/></svg></button>';
+          h += '<button class="btn-del s" data-id="' + row.id + '" title="Delete" style="' + act + ';color:#c62828;border-color:#c62828"><svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor"><path d="M1 3h12M5 3V1h4v2M3 3l1 10h6l1-10"/></svg></button>';
           return h;
         }
       }
