@@ -12,6 +12,8 @@
 <style>
 form.edit{background:var(--card);padding:14px;border:1px solid var(--line);border-radius:var(--r);max-width:560px}
 label{display:block;margin:8px 0}
+fieldset label{display:flex;align-items:center;gap:6px;margin:3px 0;font-weight:400;cursor:pointer}
+fieldset label input[type=checkbox]{flex-shrink:0}
 </style>
 </head>
 <body>
