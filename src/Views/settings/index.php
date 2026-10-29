@@ -28,6 +28,7 @@ foreach ($fields as $key => $f) {
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
 .sg.c1{grid-template-columns:1fr}
 .sg.c3{grid-template-columns:1fr 1fr 1fr}
+.sg.narrow{grid-template-columns:repeat(auto-fill,minmax(120px,160px))}
 .sg .full{grid-column:1/-1}
 /* ── field ──────────────────────────────────────────────── */
 .sf{display:flex;flex-direction:column;gap:3px}
@@ -73,7 +74,7 @@ foreach ($fields as $key => $f) {
     <h2>Branding</h2>
     <form method="post" action="<?= site_url($base . '/branding') ?>" enctype="multipart/form-data">
       <?= csrf_field() ?>
-      <div class="sg">
+      <div class="sg narrow">
 
         <div class="sf">
           <label>Site name</label>
