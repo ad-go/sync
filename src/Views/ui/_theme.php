@@ -82,8 +82,8 @@ form.card{border-radius:var(--r);box-shadow:var(--shadow)}
 input[type=text],input[type=email],input[type=number],input[type=password],textarea,select{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;transition:border-color .12s,box-shadow .12s}
 input:focus,textarea:focus,select:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
 input[type=checkbox],input[type=radio],input[type=color]{accent-color:var(--acc)}
-button,a.btn{background:var(--acc);color:#fff;border:1px solid var(--acc);border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;text-decoration:none;transition:background .12s}
-button:hover,a.btn:hover{background:var(--acc-d);border-color:var(--acc-d);color:#fff;text-decoration:none}
+button:not(.btn-close),a.btn{background:var(--acc);color:#fff;border:1px solid var(--acc);border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;text-decoration:none;transition:background .12s}
+button:not(.btn-close):hover,a.btn:hover{background:var(--acc-d);border-color:var(--acc-d);color:#fff;text-decoration:none}
 button.s{background:transparent;color:var(--acc);border:1px solid var(--acc)}
 button.s:hover{background:var(--tint);color:var(--acc-d)}
 td button.d,button.d{background:transparent;color:#c62828;border:1px solid #c62828;border-radius:8px;padding:3px 10px}
