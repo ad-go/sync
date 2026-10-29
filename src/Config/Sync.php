@@ -192,7 +192,7 @@ class Sync extends BaseConfig
     public bool $scanOnShutdown = false;
 
     /**
-     * File sync: 'dir' is the directory kept identical on both nodes (default WRITEPATH/sync-files; set it per
+     * File sync: 'dir' is the directory kept identical on both nodes (default WRITEPATH/share; set it per
      * node in .env: `sync.files.dir = /path/to/shared`, absolute, writable by the web user).
      * 'ignore' are fnmatch() patterns relative to it.
      *
@@ -309,7 +309,7 @@ class Sync extends BaseConfig
         }
 
         if ($this->files['dir'] === '' && defined('WRITEPATH')) {
-            $this->files['dir'] = WRITEPATH . 'sync-files';
+            $this->files['dir'] = WRITEPATH . 'share';
         }
 
         $ntp = env('sync.ntpServers') ?? env('sync_ntpServers');
