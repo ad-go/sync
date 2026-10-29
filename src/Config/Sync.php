@@ -284,8 +284,8 @@ class Sync extends BaseConfig
         'mono'   => 'ui-monospace,Consolas,Menlo,monospace',
     ];
 
-    /** Site name shown in the admin chrome, browser titles and 2FA QR codes/e-mails. Editable from the Settings page. */
-    public string $siteName = 'Sync';
+    /** Site name shown in the admin chrome, browser titles and 2FA QR codes/e-mails. Editable from the Settings page. Empty = use hostname. */
+    public string $siteName = '';
 
     /** Site logo, relative to the public root (e.g. uploads/sync-logo.png). Editable from the Settings page. */
     public string $logo = '';

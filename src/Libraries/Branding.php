@@ -17,7 +17,8 @@ final class Branding
     {
         $v = (string) setting('Sync.siteName');
 
-        if ($v !== '') {
+        // 'Sync' was the old class default — treat it the same as empty so existing installs get the hostname.
+        if ($v !== '' && $v !== 'Sync') {
             return $v;
         }
 
