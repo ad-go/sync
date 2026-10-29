@@ -24,9 +24,7 @@ foreach ($fields as $key => $f) {
 <?= $head ?? '' ?>
 <style>
 /* ── page grids ─────────────────────────────────────────── */
-.s-top{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:14px;align-items:start;margin-bottom:14px}
-.s-top>.card:first-child{max-width:380px;width:100%}
-.s-top>.card:nth-child(2){max-width:320px;width:100%}
+.s-top{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:start;margin-bottom:14px}
 .s-env{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 /* ── card ───────────────────────────────────────────────── */
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
@@ -62,7 +60,9 @@ foreach ($fields as $key => $f) {
 /* ── misc ───────────────────────────────────────────────── */
 .fp{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--mute);word-break:break-all}
 /* ── responsive ─────────────────────────────────────────── */
-@media(max-width:680px){.s-top,.sg,.sg.c3{grid-template-columns:1fr}.sg .full,.sg .span2{grid-column:1}.s-env{grid-template-columns:1fr}}
+@media(max-width:900px){.s-top{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.s-top,.s-env{grid-template-columns:1fr}}
+@media(max-width:680px){.sg,.sg.c3{grid-template-columns:1fr}.sg .full,.sg .span2{grid-column:1}}
 </style>
 </head>
 <body>
