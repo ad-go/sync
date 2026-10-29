@@ -33,6 +33,10 @@ class Totp2FA implements ActionInterface, ConditionalActionInterface
 
     public function appliesTo(User $user): bool
     {
+        if ((string) env('sync.disable2fa') === 'true') {
+            return false;
+        }
+
         return $user->inGroup('superadmin');
     }
 
