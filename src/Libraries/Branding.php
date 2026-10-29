@@ -24,7 +24,7 @@ final class Branding
     {
         $logo = (string) setting('Sync.logo');
 
-        return $logo === '' ? '' : base_url($logo);
+        return $logo === '' ? '' : site_url('sync-logo');
     }
 
     /** CSS overriding the chrome's `:root` accent/font variables when the admin changed them from the defaults. */
