@@ -268,8 +268,16 @@ foreach ($fields as $key => $f) {
       </div>
     <?php endforeach ?>
     </div>
-    <div class="row-actions"><button><i class="bi bi-check-lg"></i> Save</button></div>
+    <div class="row-actions">
+      <button><i class="bi bi-check-lg"></i> Save</button>
+      <?php if ($groupName === 'Telegram alerts'): ?>
+      <button type="submit" form="tg-test" class="s"><i class="bi bi-send"></i> Test</button>
+      <?php endif ?>
+    </div>
   </form>
+  <?php if ($groupName === 'Telegram alerts'): ?>
+  <form id="tg-test" method="post" action="<?= site_url($base . '/telegram/test') ?>" style="display:none"><?= csrf_field() ?></form>
+  <?php endif ?>
 </div>
 <?php endforeach ?>
 </div><!-- .s-env -->
