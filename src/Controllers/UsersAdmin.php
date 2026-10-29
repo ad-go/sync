@@ -140,30 +140,16 @@ class UsersAdmin extends Controller
             return $this->err('Unknown user.');
         }
 
-        if ((int) $user->id === (int) auth()->id()) {
-            return $this->err('You cannot delete your own account.');
-        }
+        $err = $this->deleteUser($user);
 
-        if ($user->inGroup('superadmin') && $this->countSuperadmins() <= 1) {
-            return $this->err('Cannot delete the last superadmin.');
-        }
-
-        $db = $this->kernel->db;
-        $db->transStart();
-        $db->table('auth_identities')->where('user_id', $user->id)->delete();
-        $db->table('auth_groups_users')->where('user_id', $user->id)->delete();
-        $db->table('auth_permissions_users')->where('user_id', $user->id)->delete();
-        $this->users->delete($user->id);
-        $db->transComplete();
-
-        return $this->ok('User deleted.');
+        return $err !== null ? $this->err($err) : $this->ok('User deleted.');
     }
 
     /**
      * DTE AJAX endpoint — handles list (GET) and create/edit/remove (POST).
      *
      * Row IDs are strings like "row_1" (DT_RowId) so DTE can track them in the DOM.
-     * Groups are stored/returned as a pipe-separated string: "admin|user".
+     * Groups are returned as an array (DTE checkbox field); sent back as an array of checked values.
      * Password is write-only: on edit an empty value means "keep existing".
      */
     public function ajax(): ResponseInterface
@@ -185,21 +171,11 @@ class UsersAdmin extends Controller
                     continue;
                 }
 
-                if ((int) $user->id === (int) auth()->id()) {
-                    return $this->response->setJSON(['error' => 'You cannot delete your own account.']);
-                }
+                $err = $this->deleteUser($user);
 
-                if ($user->inGroup('superadmin') && $this->countSuperadmins() <= 1) {
-                    return $this->response->setJSON(['error' => 'Cannot delete the last superadmin.']);
+                if ($err !== null) {
+                    return $this->response->setJSON(['error' => $err]);
                 }
-
-                $db = $this->kernel->db;
-                $db->transStart();
-                $db->table('auth_identities')->where('user_id', $user->id)->delete();
-                $db->table('auth_groups_users')->where('user_id', $user->id)->delete();
-                $db->table('auth_permissions_users')->where('user_id', $user->id)->delete();
-                $this->users->delete($user->id);
-                $db->transComplete();
             }
 
             return $this->response->setJSON(['data' => []]);
@@ -448,7 +424,7 @@ class UsersAdmin extends Controller
             'id'          => (int) $u->id,
             'username'    => (string) $u->username,
             'email'       => (string) $u->email,
-            'groups'      => implode('|', $groups),
+            'groups'      => array_values($groups),
             'active'      => $u->active ? '1' : '0',
         ];
     }
@@ -463,9 +439,8 @@ class UsersAdmin extends Controller
         $email    = trim((string) ($posted['email'] ?? ''));
         $password = (string) ($posted['password'] ?? '');
         $active   = (string) ($posted['active'] ?? '1') !== '0';
-        $raw      = (string) ($posted['groups'] ?? 'user');
-        $groups   = array_values(array_filter(array_map('trim', explode('|', $raw))));
-        $groups   = array_values(array_intersect($groups, $this->groupNames()));
+        $raw      = $posted['groups'] ?? [];
+        $groups   = array_values(array_intersect(array_map('trim', (array) $raw), $this->groupNames()));
 
         $empty = ['username' => '', 'email' => '', 'password' => '', 'active' => false, 'groups' => []];
 
@@ -509,6 +484,27 @@ class UsersAdmin extends Controller
     private function groupNames(): array
     {
         return array_keys((array) setting('AuthGroups.groups'));
+    }
+
+    private function deleteUser(User $user): ?string
+    {
+        if ((int) $user->id === (int) auth()->id()) {
+            return 'You cannot delete your own account.';
+        }
+
+        if ($user->inGroup('superadmin') && $this->countSuperadmins() <= 1) {
+            return 'Cannot delete the last superadmin.';
+        }
+
+        $db = $this->kernel->db;
+        $db->transStart();
+        $db->table('auth_identities')->where('user_id', $user->id)->delete();
+        $db->table('auth_groups_users')->where('user_id', $user->id)->delete();
+        $db->table('auth_permissions_users')->where('user_id', $user->id)->delete();
+        $this->users->delete($user->id);
+        $db->transComplete();
+
+        return null;
     }
 
     private function countSuperadmins(): int

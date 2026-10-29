@@ -74,6 +74,11 @@ div.dt-paging .page-item .page-link:hover{background:var(--tint);color:var(--acc
 div.dt-paging .page-item.active .page-link{background:var(--acc);color:#fff;border-color:var(--acc)}
 div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
 
+/* DTE checkbox list */
+.DTED .DTE_Field_Type_checkbox .checkbox{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.DTED .DTE_Field_Type_checkbox label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;margin:0;text-transform:none;letter-spacing:0;cursor:pointer}
+.DTED .DTE_Field_Type_checkbox input[type=checkbox]{width:15px;height:15px;accent-color:var(--acc);cursor:pointer}
+
 /* --- 2FA modal (our own, unrelated to BS5) --- */
 .twofa-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9000;align-items:center;justify-content:center}
 .twofa-backdrop.open{display:flex}
@@ -145,7 +150,8 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
       { label: 'Username', name: 'username' },
       { label: 'E-mail',   name: 'email',    type: 'text' },
       { label: 'Password', name: 'password', type: 'password', attr: { placeholder: 'Leave blank to keep', autocomplete: 'new-password' } },
-      { label: 'Groups',   name: 'groups',   type: 'text',    attr: { placeholder: GROUPS.join(' | ') } },
+      { label: 'Groups', name: 'groups', type: 'checkbox',
+        options: GROUPS.map(function(g){ return { label: g, value: g }; }) },
       { label: 'Active',   name: 'active',   type: 'select',  options: [{label:'Yes', value:'1'},{label:'No', value:'0'}], def: '1' }
     ]
   });
@@ -167,7 +173,9 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
       { data: 'id',       className: 'dt-center', width: '40px' },
       { data: 'username' },
       { data: 'email' },
-      { data: 'groups' },
+      { data: 'groups', render: function(v){
+          return (Array.isArray(v) ? v : String(v || '').split('|').filter(Boolean)).join(', ');
+        } },
       { data: 'active', render: function(v){ return v === '1' ? '&#10003;' : '&ndash;'; }, className: 'dt-center' },
       {
         data: null, orderable: false, searchable: false, className: 'dt-center', width: '60px',
