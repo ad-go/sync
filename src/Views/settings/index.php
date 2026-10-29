@@ -4,9 +4,14 @@
 /** @var array<string,string> $fonts */ /** @var int $maxImageMb */ /** @var string $secretHash */ /** @var string $peerNode */
 /** @var string $base */
 $envGroups = [];
+$topEnvGroups = [];
 foreach ($fields as $key => $f) {
     if ($f['group'] === 'Application') continue;
-    $envGroups[$f['group']][$key] = $f;
+    if ($f['group'] === 'Database') {
+        $topEnvGroups[$f['group']][$key] = $f;
+    } else {
+        $envGroups[$f['group']][$key] = $f;
+    }
 }
 ?>
 <!doctype html>
@@ -19,9 +24,9 @@ foreach ($fields as $key => $f) {
 <?= $head ?? '' ?>
 <style>
 /* ── page grids ─────────────────────────────────────────── */
-.s-top{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start;margin-bottom:14px}
+.s-top{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start;margin-bottom:14px}
 .s-top>.card:first-child{max-width:380px;width:100%}
-.s-env{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.s-env{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 /* ── card ───────────────────────────────────────────────── */
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
 .card h2{margin:0 0 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:7px}
@@ -166,6 +171,53 @@ foreach ($fields as $key => $f) {
       <div class="row-actions"><button><i class="bi bi-check-lg"></i> Save</button></div>
     </form>
   </div><!-- .card Node identity -->
+
+
+<?php foreach ($topEnvGroups as $groupName => $items):
+    $count = count($items);
+    $cols  = $count >= 6 ? 'c3' : ($count >= 3 ? '' : 'c1');
+?>
+  <div class="card">
+    <h2><?= esc($groupName) ?></h2>
+    <form method="post" action="<?= site_url($base . '/env') ?>">
+      <?= csrf_field() ?>
+      <div class="sg <?= $cols ?>">
+      <?php foreach ($items as $key => $f):
+          $id = str_replace('.', '__', $key); ?>
+        <div class="sf">
+          <label title="<?= esc($key) ?>"><?= esc($f['label']) ?></label>
+          <?php if ($f['type'] === 'bool'): ?>
+            <select name="<?= $id ?>">
+              <option value="true"  <?= $f['value'] === 'true'  ? 'selected' : '' ?>>true</option>
+              <option value="false" <?= $f['value'] === 'false' ? 'selected' : '' ?>>false</option>
+            </select>
+          <?php elseif ($f['type'] === 'choice'): ?>
+            <select name="<?= $id ?>">
+              <?php foreach ($f['options'] as $o): ?>
+              <option value="<?= esc($o) ?>" <?= $f['value'] === $o ? 'selected' : '' ?>><?= esc($o) ?></option>
+              <?php endforeach ?>
+            </select>
+          <?php elseif ($f['type'] === 'secret'): ?>
+            <input type="password" name="<?= $id ?>"
+                   placeholder="<?= $f['set'] ? 'set — blank to keep' : 'not set' ?>"
+                   autocomplete="off">
+          <?php elseif ($f['type'] === 'int'): ?>
+            <input type="number" name="<?= $id ?>" class="sm"
+                   value="<?= esc($f['value']) ?>"
+                   min="<?= (int) ($f['min'] ?? 0) ?>" max="<?= (int) ($f['max'] ?? 9999) ?>">
+          <?php else: ?>
+            <input type="text" name="<?= $id ?>" value="<?= esc($f['value']) ?>">
+          <?php endif ?>
+          <?php if ($f['hint'] !== ''): ?>
+          <span class="sf-hint"><?= esc($f['hint']) ?></span>
+          <?php endif ?>
+        </div>
+      <?php endforeach ?>
+      </div>
+      <div class="row-actions"><button><i class="bi bi-check-lg"></i> Save</button></div>
+    </form>
+  </div>
+<?php endforeach ?>
 
 </div><!-- .s-top -->
 
