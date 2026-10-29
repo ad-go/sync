@@ -17,7 +17,14 @@ final class Branding
     {
         $v = (string) setting('Sync.siteName');
 
-        return $v === '' ? 'Sync' : $v;
+        if ($v !== '') {
+            return $v;
+        }
+
+        // Fall back to the app's hostname so TOTP issuers and page titles are always meaningful.
+        $host = (string) parse_url((string) base_url(), PHP_URL_HOST);
+
+        return $host !== '' ? $host : 'Sync';
     }
 
     public static function logoUrl(): string
