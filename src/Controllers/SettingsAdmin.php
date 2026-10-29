@@ -39,7 +39,7 @@ class SettingsAdmin extends Controller
         $fields = [];
 
         foreach (EnvSettings::FIELDS as $key => $f) {
-            $fields[$key] = $f + ['value' => in_array($f['type'], ['secret'], true) ? '' : ($env[$key] ?? ''), 'set' => isset($env[$key]) && $env[$key] !== ''];
+            $fields[$key] = $f + ['value' => in_array($f['type'], ['secret'], true) ? '' : ($env[$key] ?? (isset($f['default']) ? (string) $f['default'] : '')), 'set' => isset($env[$key]) && $env[$key] !== ''];
         }
 
         return view((string) $cfg->settingsIndexView, [
