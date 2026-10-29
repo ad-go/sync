@@ -44,9 +44,6 @@ class EnvSettings
         'database.default.username' => ['group' => 'Database', 'label' => 'User', 'type' => 'text', 'pattern' => '~^[A-Za-z0-9_.@$-]{1,64}$~', 'hint' => ''],
         'database.default.password' => ['group' => 'Database', 'label' => 'Password', 'type' => 'secret', 'free' => true,
             'hint' => 'Cannot contain quotes, backslash, # or ${ (they cannot be stored in .env safely).'],
-        'database.default.DBPrefix' => ['group' => 'Database', 'label' => 'Table prefix', 'type' => 'text', 'pattern' => '~^[A-Za-z0-9_]{1,16}$~', 'hint' => 'Empty = none. Changing it makes the application look for other tables.'],
-        'database.default.charset' => ['group' => 'Database', 'label' => 'Character set', 'type' => 'text', 'pattern' => '~^[A-Za-z0-9_]{1,32}$~', 'hint' => 'utf8mb4 recommended.'],
-        'database.default.DBCollat' => ['group' => 'Database', 'label' => 'Collation', 'type' => 'text', 'pattern' => '~^[A-Za-z0-9_]{1,64}$~', 'hint' => ''],
         // --- telegram
         'sync.telegram.token' => ['group' => 'Telegram alerts', 'label' => 'Bot token', 'type' => 'secret', 'pattern' => '/^\d{6,12}:[A-Za-z0-9_-]{30,50}$/', 'hint' => 'Empty = alerts off.'],
         'sync.telegram.chat_id' => ['group' => 'Telegram alerts', 'label' => 'Chat id', 'type' => 'text', 'pattern' => '/^-?\d{1,20}$/', 'hint' => 'Numeric chat or group id.'],
