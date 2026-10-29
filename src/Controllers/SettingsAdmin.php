@@ -12,7 +12,6 @@ use AdGo\Sync\Libraries\Kernel;
 use AdGo\Sync\Libraries\NodeIdentity;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RedirectResponse;
-use CodeIgniter\HTTP\ResponseInterface;
 use Config\Sync as SyncConfig;
 use RuntimeException;
 
@@ -103,13 +102,13 @@ class SettingsAdmin extends Controller
 
             $old = (string) setting('Sync.logo');
 
-            if ($old !== '' && is_file(WRITEPATH . 'share/' . $old)) {
-                @unlink(WRITEPATH . 'share/' . $old);
+            if ($old !== '' && is_file(FCPATH . $old)) {
+                @unlink(FCPATH . $old);
             }
 
             $name = 'sync-logo-' . bin2hex(random_bytes(6)) . '.' . $ext;
-            $logo->move(WRITEPATH . 'share', $name);
-            setting('Sync.logo', $name);
+            $logo->move(FCPATH . 'uploads', $name);
+            setting('Sync.logo', 'uploads/' . $name);
         }
 
         return $this->ok('Branding saved.');
@@ -119,37 +118,13 @@ class SettingsAdmin extends Controller
     {
         $old = (string) setting('Sync.logo');
 
-        if ($old !== '' && is_file(WRITEPATH . 'share/' . $old)) {
-            @unlink(WRITEPATH . 'share/' . $old);
+        if ($old !== '' && is_file(FCPATH . $old)) {
+            @unlink(FCPATH . $old);
         }
 
         setting('Sync.logo', '');
 
         return $this->ok('Logo removed.');
-    }
-
-    /** Serves the site logo from writable/share (public route, no auth). */
-    public function logoImg(): ResponseInterface
-    {
-        $filename = (string) setting('Sync.logo');
-
-        if ($filename === '') {
-            return $this->response->setStatusCode(404);
-        }
-
-        $path = WRITEPATH . 'share/' . basename($filename);
-
-        if (! is_file($path)) {
-            return $this->response->setStatusCode(404);
-        }
-
-        $ext  = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-        $mime = ['png' => 'image/png', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'svg' => 'image/svg+xml', 'webp' => 'image/webp'][$ext] ?? 'application/octet-stream';
-
-        return $this->response
-            ->setHeader('Content-Type', $mime)
-            ->setHeader('Cache-Control', 'public, max-age=86400')
-            ->setBody((string) file_get_contents($path));
     }
 
     /** Node identity: rename this node / the peer, or rotate the shared secret — written to `.env` only. */

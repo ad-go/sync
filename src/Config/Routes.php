@@ -90,9 +90,6 @@ $routes->group(trim($syncCfg->conflictsPath, '/'), [
     $routes->post('lock', 'ConflictAdmin::lock');
 });
 
-// Logo served from writable/share — public, no auth needed (it's just a logo).
-$routes->get('sync-logo', 'AdGo\Sync\Controllers\SettingsAdmin::logoImg');
-
 // Settings admin page (Shield session + the tighter superPermission).
 $routes->group(trim($syncCfg->settingsPath, '/'), [
     'namespace' => $ns,
