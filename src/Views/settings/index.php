@@ -19,7 +19,8 @@ foreach ($fields as $key => $f) {
 <?= $head ?? '' ?>
 <style>
 /* ── page grids ─────────────────────────────────────────── */
-.s-top{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:14px;align-items:start;margin-bottom:14px}
+.s-top{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start;margin-bottom:14px}
+.s-top>.card:first-child{max-width:380px;width:100%}
 .s-env{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
 /* ── card ───────────────────────────────────────────────── */
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
