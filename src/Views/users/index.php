@@ -43,8 +43,10 @@ use AdGo\Sync\Libraries\Branding;
 .DTED .btn-secondary:hover{background:var(--tint)}
 .DTED .btn-danger{background:transparent;border-color:#c62828;color:#c62828}
 .DTED .btn-danger:hover{background:#c62828;color:#fff}
-.DTED .btn-close{opacity:.7}
+.DTED .btn-close{opacity:.7;background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231c1f26'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e")}
 .DTED .btn-close:hover{opacity:1}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .DTED .btn-close{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23e6e8ec'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e")}}
+:root[data-theme="dark"] .DTED .btn-close{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23e6e8ec'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e")}
 .DTED .DTE_Field_Error{color:var(--err-fg);font-size:12px;margin-top:3px}
 
 /* --- DT toolbar buttons --- */
@@ -74,10 +76,14 @@ div.dt-paging .page-item .page-link:hover{background:var(--tint);color:var(--acc
 div.dt-paging .page-item.active .page-link{background:var(--acc);color:#fff;border-color:var(--acc)}
 div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
 
-/* DTE checkbox list */
-.DTED .DTE_Field_Type_checkbox .checkbox{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+/* DTE checkbox list — BS5 DTE renders <div class="form-check"><input class="form-check-input"><label class="form-check-label"> */
+.DTED .DTE_Field_Type_checkbox .checkbox{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.DTED .DTE_Field_Type_checkbox .form-check{display:flex;align-items:center;gap:8px;padding-left:0;min-height:unset}
+.DTED .DTE_Field_Type_checkbox .form-check-input{float:none;margin:0;flex-shrink:0;width:15px;height:15px;accent-color:var(--acc);cursor:pointer;position:static}
+.DTED .DTE_Field_Type_checkbox .form-check-label{font-size:13px;font-weight:400;cursor:pointer;margin:0}
+/* fallback: DTE with <label><span><input></span><span>text</span></label> structure */
 .DTED .DTE_Field_Type_checkbox label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;margin:0;text-transform:none;letter-spacing:0;cursor:pointer}
-.DTED .DTE_Field_Type_checkbox input[type=checkbox]{width:15px;height:15px;accent-color:var(--acc);cursor:pointer}
+.DTED .DTE_Field_Type_checkbox input[type=checkbox]{width:15px;height:15px;accent-color:var(--acc);cursor:pointer;flex-shrink:0}
 
 /* --- 2FA modal (our own, unrelated to BS5) --- */
 .twofa-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9000;align-items:center;justify-content:center}
