@@ -170,11 +170,15 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
       { data: 'groups' },
       { data: 'active', render: function(v){ return v === '1' ? '&#10003;' : '&ndash;'; }, className: 'dt-center' },
       {
-        data: null, orderable: false, searchable: false, className: 'dt-center', width: '36px',
+        data: null, orderable: false, searchable: false, className: 'dt-center', width: '60px',
         render: function(row) {
           var g = row.groups || '';
-          if (!g.split('|').some(function(x){ return x.trim() === 'superadmin'; })) return '';
-          return '<button class="btn-2fa s" data-id="' + row.id + '" title="View 2FA" style="padding:2px 7px;font-size:13px">&#x2399;</button>';
+          var h = '';
+          if (g.split('|').some(function(x){ return x.trim() === 'superadmin'; })) {
+            h += '<button class="btn-2fa s" data-id="' + row.id + '" title="View 2FA" style="padding:2px 6px;font-size:13px;margin-right:4px">&#x2399;</button>';
+          }
+          h += '<button class="btn-del s" data-id="' + row.id + '" title="Delete" style="padding:2px 6px;font-size:13px;color:#c62828;border-color:#c62828"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor" style="display:block"><path d="M1 3h12M5 3V1h4v2M3 3l1 10h6l1-10"/></svg></button>';
+          return h;
         }
       }
     ],
@@ -187,8 +191,6 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
     },
     buttons: [
       { extend: 'create', editor: editor, text: 'New', className: 'btn-new' },
-      { extend: 'edit',   editor: editor, text: 'Edit' },
-      { extend: 'remove', editor: editor, text: 'Delete', className: 'btn-delete' },
       { extend: 'csvHtml5', text: 'Export CSV', exportOptions: { columns: [0,1,2,3,4] } },
       {
         text: '<label class="btn-import"><svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor"><path d="M7 0v9M4 6l3 4 3-4M1 11v2h12v-2"/></svg> Import CSV<input type="file" id="importFile" accept=".csv"></label>',
@@ -212,11 +214,23 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
     e.target.value = '';
   });
 
+  /* click row -> edit */
+  table.on('click', 'tbody tr', function(e) {
+    if (e.target.closest('button')) return;
+    editor.edit(this);
+  });
+
   /* 2FA modal */
   var backdrop = document.getElementById('twofaBackdrop');
   var twofaBody = document.getElementById('twofaBody');
 
   document.getElementById('usersTable').addEventListener('click', function(e) {
+    var delBtn = e.target.closest('.btn-del');
+    if (delBtn) {
+      e.stopPropagation();
+      editor.remove(delBtn.closest('tr'), { title: 'Delete user', message: 'This action cannot be undone.', buttons: { label: 'Delete', className: 'btn-danger' } });
+      return;
+    }
     var btn = e.target.closest('.btn-2fa');
     if (!btn) return;
     e.stopPropagation();
