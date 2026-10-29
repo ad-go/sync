@@ -33,7 +33,7 @@ class Totp2FA implements ActionInterface, ConditionalActionInterface
 
     public function appliesTo(User $user): bool
     {
-        if ((string) env('sync.disable2fa') === 'true') {
+        if (env('sync.disable2fa') === true) {
             return false;
         }
 
