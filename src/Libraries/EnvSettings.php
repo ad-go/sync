@@ -49,7 +49,6 @@ class EnvSettings
         'sync.telegram.chat_id' => ['group' => 'Telegram alerts', 'label' => 'Chat id', 'type' => 'text', 'pattern' => '/^-?\d{1,20}$/', 'hint' => 'Numeric chat or group id.'],
         'sync.telegram.webhook_secret' => ['group' => 'Telegram alerts', 'label' => 'Webhook secret', 'type' => 'secret', 'pattern' => '/^[A-Za-z0-9_-]{8,128}$/', 'hint' => 'Checked on the bot webhook.'],
         'sync.telegram.admin_url' => ['group' => 'Telegram alerts', 'label' => 'Admin link in alerts', 'type' => 'url', 'hint' => 'URL of the conflict admin, e.g. https://…/admin/conflicts'],
-        'sync.telegram.queue' => ['group' => 'Telegram alerts', 'label' => 'Queue name', 'type' => 'text', 'pattern' => '/^[a-z0-9_-]{1,32}$/', 'hint' => 'Messages wait in this queue (default telegram); empty file value = default.'],
     ];
 
     /**
