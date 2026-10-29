@@ -56,8 +56,11 @@ class Sync extends BaseConfig
     /** Route prefix under which the sync API is exposed. */
     public string $routePrefix = 'sync-api';
 
-    /** URL path of the conflict admin UI. */
+    /** URL path of the conflict admin UI (also the status panel — statusPath defaults to the same). */
     public string $conflictsPath = 'admin/conflicts';
+
+    /** URL path of the status panel (defaults to conflictsPath; the two are the same page). */
+    public string $statusPath = '';
 
     /** URL path of the settings admin page. */
     public string $settingsPath = 'admin/settings';
@@ -306,6 +309,10 @@ class Sync extends BaseConfig
         if ($this->selfUrl === '' && ! $this->passive) {
             $base = config('App')->baseURL ?? '';
             $this->selfUrl = is_string($base) ? rtrim($base, '/') : '';
+        }
+
+        if ($this->statusPath === '') {
+            $this->statusPath = $this->conflictsPath;
         }
 
         if ($this->files['dir'] === '' && defined('WRITEPATH')) {
