@@ -10,7 +10,6 @@ use AdGo\Sync\Libraries\EnvFile;
 use AdGo\Sync\Libraries\EnvSettings;
 use AdGo\Sync\Libraries\Kernel;
 use AdGo\Sync\Libraries\NodeIdentity;
-use AdGo\Sync\Libraries\TelegramNotifier;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RedirectResponse;
 use Config\Sync as SyncConfig;
@@ -225,7 +224,7 @@ class SettingsAdmin extends Controller
 
     public function telegramTest(): RedirectResponse
     {
-        $n = new TelegramNotifier();
+        $n = Kernel::instance()->telegram();
 
         if (! $n->enabled()) {
             return $this->err('Telegram not configured — set the bot token and chat id first.');
