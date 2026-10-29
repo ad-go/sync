@@ -2,6 +2,8 @@
 /** @var string $secret */
 /** @var string $qr */
 /** @var list<array{code:string,used:bool}> $codes */
+/** @var string $siteName */
+/** @var string $account */
 ?>
 <?= $this->extend(config('Auth')->views['layout']) ?>
 
@@ -13,6 +15,9 @@
     <div class="card col-12 col-md-7 shadow-sm">
         <div class="card-body">
             <h5 class="card-title mb-3">Set up your authenticator app</h5>
+            <p class="mb-2 text-muted" style="font-size:13px">
+                <strong><?= esc($siteName) ?></strong> &bull; <?= esc($account) ?>
+            </p>
             <p>Your account is in the <b>superadmin</b> group, which requires a second factor. Scan this code
                 with Google Authenticator, Authy, or any other TOTP app, then enter the 6-digit code it shows.</p>
 

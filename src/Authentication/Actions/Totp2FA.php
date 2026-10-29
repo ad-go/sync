@@ -53,13 +53,18 @@ class Totp2FA implements ActionInterface, ConditionalActionInterface
             }
 
             return $this->view('AdGo\Sync\Views\totp_2fa_setup', [
-                'secret' => $secret,
-                'qr'     => $totp->qrSvg($totp->provisioningUri($user, $secret)),
-                'codes'  => $totp->recoveryCodes($user),
+                'secret'   => $secret,
+                'qr'       => $totp->qrSvg($totp->provisioningUri($user, $secret)),
+                'codes'    => $totp->recoveryCodes($user),
+                'siteName' => \AdGo\Sync\Libraries\Branding::siteName(),
+                'account'  => (string) ($user->email ?? $user->username),
             ]);
         }
 
-        return $this->view('AdGo\Sync\Views\totp_2fa_verify');
+        return $this->view('AdGo\Sync\Views\totp_2fa_verify', [
+            'siteName' => \AdGo\Sync\Libraries\Branding::siteName(),
+            'account'  => (string) ($user->email ?? $user->username),
+        ]);
     }
 
     /** Not used by our own views (they post straight to verify); kept only so the interface/routes stay happy. */

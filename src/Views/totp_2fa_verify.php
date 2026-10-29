@@ -1,3 +1,4 @@
+<?php /** @var string $siteName */ /** @var string $account */ ?>
 <?= $this->extend(config('Auth')->views['layout']) ?>
 
 <?= $this->section('title') ?>Enter your authenticator code<?= $this->endSection() ?>
@@ -8,6 +9,9 @@
     <div class="card col-12 col-md-5 shadow-sm">
         <div class="card-body">
             <h5 class="card-title mb-3">Enter your authenticator code</h5>
+            <p class="mb-2 text-muted" style="font-size:13px">
+                <strong><?= esc($siteName) ?></strong> &bull; <?= esc($account) ?>
+            </p>
             <p>Open your authenticator app and enter the 6-digit code, or one of your recovery codes.</p>
 
             <?php if (session('error') !== null) : ?>
