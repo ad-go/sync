@@ -14,7 +14,7 @@ use AdGo\Sync\Libraries\Branding;
 html[data-theme="dark"]{--bg:#14161a;--fg:#e6e8ec;--card:#1e2128;--line:#343944;--acc:#6aa2ff;--acc-d:#4d8bf0;--tint:#1a2535;--mute:#9aa3b2;--ok-bg:#143322;--ok-fg:#bfeacf;--err-bg:#431414;--err-fg:#fbd0d0;--warn-bg:#3d3000;--warn-fg:#ffe9a8;--shadow:0 1px 3px rgba(0,0,0,.4)}
 html[data-theme="light"]{--bg:#f6f7f9;--fg:#1c1f26;--card:#fff;--line:#dde;--acc:#1d5fd1;--acc-d:#1552b5;--tint:#eef2fb;--mute:#6b7380;--ok-bg:#e8f6ee;--ok-fg:#14532d;--err-bg:#fdecec;--err-fg:#7a1212;--warn-bg:#fff4d6;--warn-fg:#5c4400;--shadow:0 1px 3px rgba(29,36,48,.08),0 4px 14px rgba(29,36,48,.05)}
 html,body{max-width:none;margin:0;padding:0}
-body{font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;min-height:100vh}
+body{font:var(--font-size,14px)/1.5 var(--font-family,system-ui,-apple-system,"Segoe UI",sans-serif);background:var(--bg);color:var(--fg);display:flex;flex-direction:column;min-height:100vh}
 h1{font-size:22px;font-weight:700;margin:4px 0 14px;letter-spacing:-.01em}
 h2{font-size:17px;font-weight:700}
 a{color:var(--acc);text-decoration:none}a:hover{color:var(--acc-d);text-decoration:underline}

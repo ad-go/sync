@@ -34,8 +34,9 @@ final class Branding
         $c   = (string) setting('Sync.accentColor');
 
         if (preg_match('/^#[0-9a-fA-F]{6}$/', $c) === 1) {
-            $out .= ':root{--accent:' . $c . ';--accent-d:' . self::darkenHex($c, 0.2) . '}'
-                . '@media (prefers-color-scheme:dark){:root{--accent:' . self::lightenHex($c, 0.15) . ";--accent-d:{$c}}}";
+            $out .= ':root{--acc:' . $c . ';--acc-d:' . self::darkenHex($c, 0.2) . '}'
+                . '@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--acc:' . self::lightenHex($c, 0.15) . ";--acc-d:{$c}}}"
+                . ':root[data-theme="dark"]{--acc:' . self::lightenHex($c, 0.15) . ";--acc-d:{$c}}";
         }
 
         $font = \Config\Sync::FONTS[(string) setting('Sync.fontFamily')] ?? null;
