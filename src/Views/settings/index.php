@@ -18,25 +18,43 @@ foreach ($fields as $key => $f) {
 <?= view('AdGo\Sync\Views\ui\_theme') ?>
 <?= $head ?? '' ?>
 <style>
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+/* ── page grids ─────────────────────────────────────────── */
+.s-top{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:14px;align-items:start;margin-bottom:14px}
+.s-env{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+/* ── card ───────────────────────────────────────────────── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.card h2{margin:0 0 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:7px}
+/* ── field grid ─────────────────────────────────────────── */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.sg.c1{grid-template-columns:1fr}
 .sg.c3{grid-template-columns:1fr 1fr 1fr}
 .sg .full{grid-column:1/-1}
+/* ── field ──────────────────────────────────────────────── */
 .sf{display:flex;flex-direction:column;gap:3px}
-.sf label{font-size:11px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
-.sf input,.sf select,.sf textarea{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font-size:14px;width:100%;box-sizing:border-box}
-.sf input:focus,.sf select:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent)}
+.sf label{font-size:11px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sf input,.sf select,.sf textarea{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font-size:13px;width:100%;box-sizing:border-box}
+.sf input:focus,.sf select:focus,.sf textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent)}
+.sf input.sm{max-width:90px;width:90px}
+.sf-hint{font-size:11px;color:var(--mute);margin:1px 0 0;line-height:1.3}
+/* ── color picker ───────────────────────────────────────── */
 .color-row{display:flex;gap:8px;align-items:center}
-.color-row input[type=color]{width:38px;height:38px;padding:2px;border:1px solid var(--line);border-radius:8px;cursor:pointer;flex-shrink:0;background:none}
-.color-row input[type=text]{flex:1}
-.logo-drop{border:2px dashed var(--line);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s;position:relative}
-.logo-drop:hover,.logo-drop.drag{border-color:var(--acc)}
+.color-swatch{flex-shrink:0;width:40px;height:40px;border-radius:8px;border:1px solid var(--line);overflow:hidden;cursor:pointer;position:relative}
+.color-swatch input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;padding:0;cursor:pointer;opacity:1}
+.color-row .hex{flex:1}
+/* ── logo drop zone ─────────────────────────────────────── */
+.logo-drop{border:2px dashed var(--line);border-radius:10px;padding:18px 14px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:96px}
+.logo-drop:hover,.logo-drop.drag{border-color:var(--acc);background:var(--tint)}
 .logo-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.logo-drop img{max-height:48px;display:block;margin:0 auto 8px}
-.logo-drop .drop-hint{font-size:12px;color:var(--mute)}
-.fp{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--mute)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:16px}
-.card h2{margin:0 0 14px;font-size:15px;font-weight:700;border-bottom:1px solid var(--line);padding-bottom:10px}
-.row-actions{display:flex;gap:8px;margin-top:14px;align-items:center}
+.logo-drop img{max-height:52px;max-width:180px;display:block;border-radius:4px}
+.logo-drop .drop-ico{font-size:28px;color:var(--mute);line-height:1;pointer-events:none}
+.logo-drop .drop-title{font-size:13px;font-weight:600;color:var(--fg);pointer-events:none}
+.logo-drop .drop-meta{font-size:11px;color:var(--mute);pointer-events:none}
+/* ── row actions ────────────────────────────────────────── */
+.row-actions{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
+/* ── misc ───────────────────────────────────────────────── */
+.fp{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--mute);word-break:break-all}
+/* ── responsive ─────────────────────────────────────────── */
+@media(max-width:680px){.s-top,.sg,.sg.c3{grid-template-columns:1fr}.sg .full,.sg .span2{grid-column:1}.s-env{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -48,100 +66,150 @@ foreach ($fields as $key => $f) {
 <h1>Settings</h1>
 <?= view('AdGo\Sync\Views\ui\_flash') ?>
 
-<div class="card">
-  <h2>Branding</h2>
-  <form method="post" action="<?= site_url($base . '/branding') ?>" enctype="multipart/form-data">
-    <?= csrf_field() ?>
-    <div class="sg">
-      <div class="sf">
-        <label>Site name</label>
-        <input type="text" name="siteName" value="<?= esc($siteName) ?>" maxlength="80" required>
+<div class="s-top">
+
+  <!-- ── Branding ─────────────────────────────────── -->
+  <div class="card">
+    <h2>Branding</h2>
+    <form method="post" action="<?= site_url($base . '/branding') ?>" enctype="multipart/form-data">
+      <?= csrf_field() ?>
+      <div class="sg">
+
+        <div class="sf">
+          <label>Site name</label>
+          <input type="text" name="siteName" value="<?= esc($siteName) ?>" maxlength="80" required>
+        </div>
+
+        <div class="sf">
+          <label>Accent colour</label>
+          <div class="color-row">
+            <div class="color-swatch" title="Open colour picker">
+              <input type="color" id="colorPicker" value="<?= esc($accentColor ?: '#1d5fd1') ?>">
+            </div>
+            <input type="text" name="accentColor" id="colorText" class="hex"
+                   value="<?= esc($accentColor) ?>" placeholder="#1d5fd1"
+                   pattern="#[0-9a-fA-F]{6}" maxlength="7" spellcheck="false">
+          </div>
+        </div>
+
+        <div class="sf">
+          <label>Font</label>
+          <select name="fontFamily">
+            <option value="">(default)</option>
+            <?php foreach ($fonts as $key => $css): ?>
+            <option value="<?= esc($key) ?>" <?= $key === $fontFamily ? 'selected' : '' ?>><?= esc($key) ?></option>
+            <?php endforeach ?>
+          </select>
+        </div>
+
+        <div class="sf">
+          <label>Font size (px)</label>
+          <input type="number" name="fontSize" class="sm" min="12" max="20"
+                 value="<?= $fontSize > 0 ? $fontSize : '' ?>" placeholder="14">
+        </div>
+
+        <div class="sf full">
+          <label>Logo</label>
+          <div class="logo-drop" id="logoDrop">
+            <input type="file" name="logo" accept="image/png,image/jpeg,image/svg+xml,image/webp" id="logoFile">
+            <?php if ($logo !== ''): ?>
+              <img src="<?= esc($logo) ?>" alt="" id="logoPreview">
+              <div class="drop-meta" id="logoHint">Click or drag to replace</div>
+            <?php else: ?>
+              <img src="" alt="" id="logoPreview" style="display:none">
+              <i class="bi bi-image drop-ico" id="logoIcon"></i>
+              <div class="drop-title" id="logoTitle">Click or drag to upload</div>
+              <div class="drop-meta" id="logoHint">PNG · JPG · SVG · WebP &nbsp;·&nbsp; max <?= (int) $maxImageMb ?> MiB</div>
+            <?php endif ?>
+          </div>
+        </div>
+
+      </div><!-- .sg -->
+      <div class="row-actions">
+        <button><i class="bi bi-check-lg"></i> Save branding</button>
+        <?php if ($logo !== ''): ?>
+        <button type="button" id="rmLogoBtn" class="s"><i class="bi bi-x-lg"></i> Remove logo</button>
+        <?php endif ?>
       </div>
-      <div class="sf">
-        <label>Accent colour</label>
-        <div class="color-row">
-          <input type="color" id="colorPicker" value="<?= esc($accentColor ?: '#1d5fd1') ?>">
-          <input type="text" name="accentColor" id="colorText" value="<?= esc($accentColor) ?>" placeholder="#1d5fd1" pattern="#[0-9a-fA-F]{6}">
+    </form>
+    <?php if ($logo !== ''): ?>
+    <form method="post" action="<?= site_url($base . '/logo/remove') ?>" id="rmLogoForm" style="display:none"><?= csrf_field() ?></form>
+    <?php endif ?>
+  </div><!-- .card Branding -->
+
+  <!-- ── Node identity ────────────────────────────── -->
+  <div class="card">
+    <h2>Node identity</h2>
+    <p class="sf-hint" style="margin:0 0 10px">
+      Changes apply locally only — update the peer by hand with matching values.<br>
+      Secret fingerprint: <span class="fp"><?= esc($secretHash) ?></span>
+    </p>
+    <form method="post" action="<?= site_url($base . '/identity') ?>">
+      <?= csrf_field() ?>
+      <div class="sg">
+        <div class="sf">
+          <label>This node</label>
+          <input type="text" name="node" value="<?= esc($node) ?>" pattern="[a-z0-9][a-z0-9_-]{0,31}" spellcheck="false">
+        </div>
+        <div class="sf">
+          <label>Peer node</label>
+          <input type="text" name="peerNode" value="<?= esc($peerNode) ?>" pattern="[a-z0-9][a-z0-9_-]{0,31}" spellcheck="false">
+        </div>
+        <div class="sf full">
+          <label>New shared secret</label>
+          <input type="text" name="secret" placeholder="leave blank to keep current"
+                 pattern="[A-Za-z0-9]{32,128}" autocomplete="off" spellcheck="false">
         </div>
       </div>
-      <div class="sf">
-        <label>Font</label>
-        <select name="fontFamily">
-          <option value="">(default)</option>
-          <?php foreach ($fonts as $key => $css): ?>
-          <option value="<?= esc($key) ?>" <?= $key === $fontFamily ? 'selected' : '' ?>><?= esc($key) ?></option>
-          <?php endforeach ?>
-        </select>
-      </div>
-      <div class="sf">
-        <label>Font size (px)</label>
-        <input type="number" name="fontSize" min="12" max="20" value="<?= $fontSize > 0 ? $fontSize : '' ?>" placeholder="14">
-      </div>
-      <div class="sf full">
-        <label>Logo</label>
-        <div class="logo-drop" id="logoDrop">
-          <input type="file" name="logo" accept="image/png,image/jpeg,image/svg+xml,image/webp" id="logoFile">
-          <?php if ($logo !== ''): ?>
-          <img src="<?= esc($logo) ?>" alt="" id="logoPreview">
-          <div class="drop-hint" id="logoHint">Click or drag to replace</div>
-          <?php else: ?>
-          <img src="" alt="" id="logoPreview" style="display:none">
-          <div class="drop-hint" id="logoHint"><i class="bi bi-image"></i> Click or drag to upload &middot; PNG, JPG, SVG, WebP &middot; max <?= (int) $maxImageMb ?> MiB</div>
-          <?php endif ?>
-        </div>
-      </div>
-    </div>
-    <div class="row-actions">
-      <button><i class="bi bi-check-lg"></i> Save branding</button>
-    </div>
-  </form>
-  <?php if ($logo !== ''): ?>
-  <form method="post" action="<?= site_url($base . '/logo/remove') ?>" style="margin-top:6px"><?= csrf_field() ?><button class="s"><i class="bi bi-x-lg"></i> Remove logo</button></form>
-  <?php endif ?>
-</div>
+      <div class="row-actions"><button><i class="bi bi-check-lg"></i> Save</button></div>
+    </form>
+  </div><!-- .card Node identity -->
 
-<div class="card">
-  <h2>Node identity</h2>
-  <p class="hint" style="margin:0 0 12px">Renaming this node or rotating the secret only changes <b><?= esc($node) ?></b>; apply the matching value on the peer by hand. Secret fingerprint: <span class="fp"><?= esc($secretHash) ?></span></p>
-  <form method="post" action="<?= site_url($base . '/identity') ?>">
-    <?= csrf_field() ?>
-    <div class="sg">
-      <div class="sf">
-        <label>This node's name</label>
-        <input type="text" name="node" value="<?= esc($node) ?>" pattern="[a-z0-9][a-z0-9_-]{0,31}">
-      </div>
-      <div class="sf">
-        <label>Peer node's name</label>
-        <input type="text" name="peerNode" value="<?= esc($peerNode) ?>" pattern="[a-z0-9][a-z0-9_-]{0,31}">
-      </div>
-      <div class="sf full">
-        <label>New shared secret</label>
-        <input type="text" name="secret" placeholder="leave empty to keep current" pattern="[A-Za-z0-9]{32,128}">
-      </div>
-    </div>
-    <div class="row-actions"><button><i class="bi bi-check-lg"></i> Save identity</button></div>
-  </form>
-</div>
+</div><!-- .s-top -->
 
-<?php foreach ($envGroups as $groupName => $items): ?>
+<!-- ── Env groups ──────────────────────────────────────── -->
+<div class="s-env">
+<?php foreach ($envGroups as $groupName => $items):
+    $count = count($items);
+    $cols  = $count >= 6 ? 'c3' : ($count >= 3 ? '' : 'c1');
+?>
 <div class="card">
   <h2><?= esc($groupName) ?></h2>
   <form method="post" action="<?= site_url($base . '/env') ?>">
     <?= csrf_field() ?>
-    <div class="sg<?= count($items) >= 4 ? ' c3' : '' ?>">
-    <?php foreach ($items as $key => $f): $id = str_replace('.', '__', $key); ?>
-      <div class="sf">
-        <label><?= esc($f['label']) ?></label>
+    <div class="sg <?= $cols ?>">
+    <?php foreach ($items as $key => $f):
+        $id   = str_replace('.', '__', $key);
+        $isShort = in_array($f['type'], ['bool', 'int', 'choice'], true);
+    ?>
+      <div class="sf<?= $isShort ? '' : '' ?>">
+        <label title="<?= esc($key) ?>"><?= esc($f['label']) ?></label>
         <?php if ($f['type'] === 'bool'): ?>
-          <select name="<?= $id ?>"><option value="true" <?= $f['value'] === 'true' ? 'selected' : '' ?>>true</option><option value="false" <?= $f['value'] === 'false' ? 'selected' : '' ?>>false</option></select>
+          <select name="<?= $id ?>">
+            <option value="true"  <?= $f['value'] === 'true'  ? 'selected' : '' ?>>true</option>
+            <option value="false" <?= $f['value'] === 'false' ? 'selected' : '' ?>>false</option>
+          </select>
         <?php elseif ($f['type'] === 'choice'): ?>
-          <select name="<?= $id ?>"><?php foreach ($f['options'] as $o): ?><option value="<?= esc($o) ?>" <?= $f['value'] === $o ? 'selected' : '' ?>><?= esc($o) ?></option><?php endforeach ?></select>
+          <select name="<?= $id ?>">
+            <?php foreach ($f['options'] as $o): ?>
+            <option value="<?= esc($o) ?>" <?= $f['value'] === $o ? 'selected' : '' ?>><?= esc($o) ?></option>
+            <?php endforeach ?>
+          </select>
         <?php elseif ($f['type'] === 'secret'): ?>
-          <input type="password" name="<?= $id ?>" placeholder="<?= $f['set'] ? 'set — leave blank to keep' : 'not set' ?>" autocomplete="off">
+          <input type="password" name="<?= $id ?>"
+                 placeholder="<?= $f['set'] ? 'set — blank to keep' : 'not set' ?>"
+                 autocomplete="off">
+        <?php elseif ($f['type'] === 'int'): ?>
+          <input type="number" name="<?= $id ?>" class="sm"
+                 value="<?= esc($f['value']) ?>"
+                 min="<?= (int) ($f['min'] ?? 0) ?>" max="<?= (int) ($f['max'] ?? 9999) ?>">
         <?php else: ?>
-          <input type="text" name="<?= $id ?>" value="<?= esc($f['value']) ?>">
+          <input type="text" name="<?= $id ?>" value="<?= esc($f['value']) ?>"
+                 <?= ($f['type'] === 'url' || $f['type'] === 'baseurl') ? 'inputmode="url"' : '' ?>>
         <?php endif ?>
-        <?php if ($f['hint'] !== ''): ?><span class="hint" style="font-size:11px"><?= esc($f['hint']) ?></span><?php endif ?>
+        <?php if ($f['hint'] !== ''): ?>
+        <span class="sf-hint"><?= esc($f['hint']) ?></span>
+        <?php endif ?>
       </div>
     <?php endforeach ?>
     </div>
@@ -149,11 +217,13 @@ foreach ($fields as $key => $f) {
   </form>
 </div>
 <?php endforeach ?>
+</div><!-- .s-env -->
 
 </main>
 </div>
 <script>
 (function(){
+  /* color picker ↔ hex text sync */
   var picker = document.getElementById('colorPicker');
   var text   = document.getElementById('colorText');
   if (picker && text) {
@@ -162,25 +232,41 @@ foreach ($fields as $key => $f) {
       if (/^#[0-9a-fA-F]{6}$/.test(text.value)) picker.value = text.value;
     });
   }
+
+  /* logo drop zone */
   var drop    = document.getElementById('logoDrop');
   var file    = document.getElementById('logoFile');
   var preview = document.getElementById('logoPreview');
   var hint    = document.getElementById('logoHint');
+  var icon    = document.getElementById('logoIcon');
+  var title   = document.getElementById('logoTitle');
   if (file && preview && hint) {
     file.addEventListener('change', function(){
       var f = file.files[0];
       if (!f) return;
-      hint.textContent = f.name;
+      if (hint)  hint.textContent = f.name;
+      if (icon)  { icon.style.display = 'none'; }
+      if (title) { title.style.display = 'none'; }
       var reader = new FileReader();
       reader.onload = function(e){ preview.src = e.target.result; preview.style.display = 'block'; };
       reader.readAsDataURL(f);
     });
-    drop.addEventListener('dragover', function(e){ e.preventDefault(); drop.classList.add('drag'); });
+    drop.addEventListener('dragover',  function(e){ e.preventDefault(); drop.classList.add('drag'); });
     drop.addEventListener('dragleave', function(){ drop.classList.remove('drag'); });
     drop.addEventListener('drop', function(e){
       e.preventDefault(); drop.classList.remove('drag');
-      if (e.dataTransfer.files.length) { file.files = e.dataTransfer.files; file.dispatchEvent(new Event('change')); }
+      if (e.dataTransfer.files.length) {
+        file.files = e.dataTransfer.files;
+        file.dispatchEvent(new Event('change'));
+      }
     });
+  }
+
+  /* remove logo button submits the hidden form */
+  var rmBtn  = document.getElementById('rmLogoBtn');
+  var rmForm = document.getElementById('rmLogoForm');
+  if (rmBtn && rmForm) {
+    rmBtn.addEventListener('click', function(){ rmForm.submit(); });
   }
 })();
 </script>
