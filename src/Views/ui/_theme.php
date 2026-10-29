@@ -6,6 +6,7 @@
  */
 use AdGo\Sync\Libraries\Branding;
 ?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
 <script>try{var _t=localStorage.getItem('theme');if(_t)document.documentElement.setAttribute('data-theme',_t);}catch(e){}</script>
 <style>
 :root{--bg:#f6f7f9;--fg:#1c1f26;--card:#fff;--line:#dde;--acc:#1d5fd1;--acc-d:#1552b5;--tint:#eef2fb;--mute:#6b7380;--ok-bg:#e8f6ee;--ok-fg:#14532d;--err-bg:#fdecec;--err-fg:#7a1212;--warn-bg:#fff4d6;--warn-fg:#5c4400;--shadow:0 1px 3px rgba(29,36,48,.08),0 4px 14px rgba(29,36,48,.05);--r:10px}

@@ -176,9 +176,9 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
           var h = '';
           var act = 'display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;font-size:14px';
           if (g.split('|').some(function(x){ return x.trim() === 'superadmin'; })) {
-            h += '<button class="btn-2fa s" data-id="' + row.id + '" title="View 2FA" style="' + act + ';margin-right:4px">&#x2399;</button>';
+            h += '<button class="btn-2fa s" data-id="' + row.id + '" title="View 2FA" style="' + act + ';margin-right:4px"><i class="bi bi-shield-lock"></i></button>';
           }
-          h += '<button class="btn-del s" data-id="' + row.id + '" title="Delete" style="' + act + ';color:#c62828;border-color:#c62828"><svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor"><path d="M1 3h12M5 3V1h4v2M3 3l1 10h6l1-10"/></svg></button>';
+          h += '<button class="btn-del s" data-id="' + row.id + '" title="Delete" style="' + act + ';color:#c62828;border-color:#c62828"><i class="bi bi-trash3"></i></button>';
           return h;
         }
       }
@@ -194,7 +194,7 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
       { extend: 'create', editor: editor, text: 'New', className: 'btn-new' },
       { extend: 'csvHtml5', text: 'Export CSV', exportOptions: { columns: [0,1,2,3,4] } },
       {
-        text: '<label class="btn-import"><svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor"><path d="M7 0v9M4 6l3 4 3-4M1 11v2h12v-2"/></svg> Import CSV<input type="file" id="importFile" accept=".csv"></label>',
+        text: '<label class="btn-import"><i class="bi bi-upload"></i> Import CSV<input type="file" id="importFile" accept=".csv"></label>',
         action: function(){}
       }
     ]
