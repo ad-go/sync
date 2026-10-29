@@ -186,10 +186,10 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
       {
         data: null, orderable: false, searchable: false, className: 'dt-center', width: '60px',
         render: function(row) {
-          var g = row.groups || '';
+          var g = Array.isArray(row.groups) ? row.groups : String(row.groups || '').split('|').filter(Boolean);
           var h = '';
           var act = 'display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;font-size:14px';
-          if (g.split('|').some(function(x){ return x.trim() === 'superadmin'; })) {
+          if (g.some(function(x){ return x.trim() === 'superadmin'; })) {
             h += '<button class="btn-2fa s" data-id="' + row.id + '" title="View 2FA" style="' + act + ';margin-right:4px"><i class="bi bi-shield-lock"></i></button>';
           }
           h += '<button class="btn-del s" data-id="' + row.id + '" title="Delete" style="' + act + ';color:#c62828;border-color:#c62828"><i class="bi bi-trash3"></i></button>';
