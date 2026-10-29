@@ -120,7 +120,7 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= esc($dteUrl) ?>datatables.min.js"></script>
-<script src="<?= esc($dteUrl) ?>key.js"></script>
+<script src="<?= esc($dteUrl) ?>key.bak"></script>
 <script>
 (function () {
   'use strict';
