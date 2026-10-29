@@ -12,8 +12,16 @@
 <style>
 form.edit{background:var(--card);padding:14px;border:1px solid var(--line);border-radius:var(--r);max-width:560px}
 label{display:block;margin:8px 0}
-fieldset label{display:flex;align-items:center;gap:6px;margin:3px 0;font-weight:400;cursor:pointer}
-fieldset label input[type=checkbox]{flex-shrink:0}
+label.cb{display:flex;align-items:center;gap:6px;margin:3px 0;font-weight:400;cursor:pointer}
+label.cb input[type=checkbox]{flex-shrink:0}
+.twofa-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90;align-items:center;justify-content:center}
+.twofa-backdrop.open{display:flex}
+.sync-modal{background:var(--card);color:var(--fg);border-radius:var(--r);padding:20px;max-width:420px;width:92vw;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow)}
+.sync-modal h3{margin-top:0}.sync-modal .qrwrap{max-width:200px;margin:12px auto}.sync-modal .qrwrap svg{width:100%;height:auto}
+.sync-modal code.key{word-break:break-all;display:block;background:var(--tint);padding:6px 8px;border-radius:6px;margin:6px 0}
+.sync-modal .codes{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-family:ui-monospace,Consolas,monospace;font-size:13px;margin-top:8px}
+.sync-modal .codes .used{text-decoration:line-through;color:var(--mute)}
+.sync-modal .close-btn{float:right;background:none!important;border:0!important;font-size:18px;cursor:pointer;color:var(--fg);padding:0}
 </style>
 </head>
 <body>
@@ -33,10 +41,10 @@ fieldset label input[type=checkbox]{flex-shrink:0}
   <label>Username <input type="text" name="username" value="<?= esc($user->username) ?>" maxlength="30" required></label>
   <label>E-mail <input type="email" name="email" value="<?= esc((string) $user->email) ?>" maxlength="254" required autocomplete="off"></label>
   <label>New password <input type="password" name="password" autocomplete="new-password" placeholder="leave empty to keep the current one"></label>
-  <label><input type="checkbox" name="active" value="1" <?= $user->active ? 'checked' : '' ?>> active</label>
+  <label class="cb"><input type="checkbox" name="active" value="1" <?= $user->active ? 'checked' : '' ?>> active</label>
   <fieldset><legend>Groups</legend>
   <?php $mine = $user->getGroups() ?? []; foreach ($groups as $g): ?>
-    <label><input type="checkbox" name="groups[]" value="<?= esc($g) ?>" <?= in_array($g, $mine, true) ? 'checked' : '' ?>> <?= esc($g) ?></label>
+    <label class="cb"><input type="checkbox" name="groups[]" value="<?= esc($g) ?>" <?= in_array($g, $mine, true) ? 'checked' : '' ?>> <?= esc($g) ?></label>
   <?php endforeach ?>
   </fieldset>
   <button>Save</button>
@@ -49,16 +57,6 @@ fieldset label input[type=checkbox]{flex-shrink:0}
     <div id="twofaBody">Loading&hellip;</div>
   </div>
 </div>
-<style>
-.twofa-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90;align-items:center;justify-content:center}
-.twofa-backdrop.open{display:flex}
-.sync-modal{background:var(--card);color:var(--fg);border-radius:var(--r);padding:20px;max-width:420px;width:92vw;max-height:85vh;overflow:auto;box-shadow:var(--shadow)}
-.sync-modal h3{margin-top:0}.sync-modal .qrwrap{max-width:200px;margin:12px auto}.sync-modal .qrwrap svg{width:100%;height:auto}
-.sync-modal code.key{word-break:break-all;display:block;background:var(--tint);padding:6px 8px;border-radius:6px;margin:6px 0}
-.sync-modal .codes{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-family:ui-monospace,Consolas,monospace;font-size:13px;margin-top:8px}
-.sync-modal .codes .used{text-decoration:line-through;color:var(--mute)}
-.close-btn{float:right;background:none!important;border:0!important;font-size:18px;cursor:pointer;color:var(--fg);padding:0}
-</style>
 </main>
 </div>
 <?php if (in_array('superadmin', $user->getGroups() ?? [], true)): ?>
