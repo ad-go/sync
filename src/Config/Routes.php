@@ -101,6 +101,7 @@ $routes->group(trim($syncCfg->settingsPath, '/'), [
     $routes->post('identity', 'SettingsAdmin::identity');
     $routes->post('env', 'SettingsAdmin::saveEnv');
     $routes->post('telegram/test', 'SettingsAdmin::telegramTest');
+    $routes->post('dte', 'SettingsAdmin::dteToggle');
 });
 
 // Users admin pages (Shield session + the tighter superPermission).

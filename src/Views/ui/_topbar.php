@@ -34,6 +34,8 @@ $userName   = $user !== null ? (string) ($user->username ?? $user->email ?? '') 
 $nodeName   = esc($syncCfg->node);
 $siteName   = Branding::siteName();
 $logoUrl    = Branding::logoUrl();
+$dtePay     = (bool) (setting('Sync.pay') ?? $syncCfg->pay);
+$dteUrl     = site_url(rtrim($syncCfg->settingsPath, '/') . '/dte');
 ?>
 <header class="apptopbar" id="appTopbar">
   <button id="tbBurger" class="tb-burger" aria-label="Menu">&#9776;</button>
@@ -55,6 +57,10 @@ $logoUrl    = Branding::logoUrl();
     </div>
   </details>
   <?php endif ?>
+  <form method="post" action="<?= esc($dteUrl) ?>" style="display:inline;margin:0" title="<?= $dtePay ? 'DTE licensed — click to disable' : 'DTE unlicensed — click to enable' ?>">
+    <?= csrf_field() ?>
+    <button type="submit" style="background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;font-size:15px;color:<?= $dtePay ? 'var(--ok-fg)' : 'var(--mute)' ?>;transition:color .15s" title="<?= $dtePay ? 'DTE licensed' : 'DTE unlicensed' ?>"><i class="bi bi-patch-<?= $dtePay ? 'check-fill' : 'question' ?>"></i></button>
+  </form>
   <label class="tb-switch" title="Toggle dark/light"><span class="tb-sw-icon" id="tbThemeIcon">&#9788;</span><span class="tb-sw-track"><input type="checkbox" id="tbTheme"><span class="tb-slider"></span></span></label>
   <details class="tb-dd tb-user">
     <summary><?= $nodeName ?><?= $userName !== '' ? ' &middot; ' . esc($userName) : '' ?></summary>

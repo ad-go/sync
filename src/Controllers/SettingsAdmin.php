@@ -61,6 +61,16 @@ class SettingsAdmin extends Controller
         ]);
     }
 
+    /** Toggle licensed DTE mode (Sync.pay setting). */
+    public function dteToggle(): RedirectResponse
+    {
+        $current = (bool) (setting('Sync.pay') ?? config('Sync')->pay);
+        setting('Sync.pay', ! $current);
+
+        $ref = $this->request->getServer('HTTP_REFERER');
+        return redirect()->to($ref ?: site_url($this->base()));
+    }
+
     /** Site branding: name, logo upload, accent colour, font. */
     public function saveBranding(): RedirectResponse
     {

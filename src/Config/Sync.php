@@ -76,6 +76,12 @@ class Sync extends BaseConfig
     public string $dteAssetsUrl = 'assets/datatables';
 
     /**
+     * Licensed DataTables Editor mode. When true the package loads DTE from $dteAssetsUrl instead of the
+     * free CDN build. Toggle at runtime via the topbar icon (stored in Sync.pay setting) or set here.
+     */
+    public bool $pay = false;
+
+    /**
      * Shared HMAC secret (same on both nodes). Set it in .env:
      *   sync.secret = <long random string>
      */
