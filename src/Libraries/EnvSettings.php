@@ -49,6 +49,14 @@ class EnvSettings
         'sync.telegram.chat_id' => ['group' => 'Telegram alerts', 'label' => 'Chat id', 'type' => 'text', 'pattern' => '/^-?\d{1,20}$/', 'hint' => 'Numeric chat or group id.'],
         'sync.telegram.webhook_secret' => ['group' => 'Telegram alerts', 'label' => 'Webhook secret', 'type' => 'secret', 'pattern' => '/^[A-Za-z0-9_-]{8,128}$/', 'hint' => 'Checked on the bot webhook.'],
         'sync.telegram.admin_url' => ['group' => 'Telegram alerts', 'label' => 'Admin link in alerts', 'type' => 'url', 'hint' => 'URL of the conflict admin, e.g. https://…/admin/conflicts'],
+        // --- e-mail alerts (sync.mail.*); independent of CI4's own Config\Email
+        'sync.mail.to'     => ['group' => 'Telegram alerts', 'label' => 'Alert e-mail (to)', 'type' => 'text', 'pattern' => '/^[^@\s]+@[^@\s]+$/', 'hint' => 'Recipient for e-mail copies of alerts. Empty = e-mail off.'],
+        'sync.mail.from'   => ['group' => 'Telegram alerts', 'label' => 'From address', 'type' => 'text', 'pattern' => '/^[^@\s]+@[^@\s]+$/', 'hint' => 'Defaults to the SMTP user if left empty.'],
+        'sync.mail.host'   => ['group' => 'Telegram alerts', 'label' => 'SMTP host', 'type' => 'host', 'hint' => ''],
+        'sync.mail.port'   => ['group' => 'Telegram alerts', 'label' => 'SMTP port', 'type' => 'int', 'min' => 1, 'max' => 65535, 'default' => 587, 'hint' => '587 = STARTTLS · 465 = SSL'],
+        'sync.mail.crypto' => ['group' => 'Telegram alerts', 'label' => 'Encryption', 'type' => 'choice', 'options' => ['tls', 'ssl', ''], 'hint' => 'tls = STARTTLS (port 587) · ssl = implicit (port 465)'],
+        'sync.mail.user'   => ['group' => 'Telegram alerts', 'label' => 'SMTP user', 'type' => 'text', 'hint' => ''],
+        'sync.mail.pass'   => ['group' => 'Telegram alerts', 'label' => 'SMTP password', 'type' => 'secret', 'hint' => ''],
     ];
 
     /**
@@ -63,6 +71,11 @@ class EnvSettings
         $v = trim($raw);
 
         if ($v === '') {
+            /* Allow empty string when it is a valid choice (e.g. crypto = '' means no encryption). */
+            if ($f['type'] === 'choice' && in_array('', $f['options'] ?? [], true)) {
+                return ['', null];
+            }
+
             return ! empty($f['required']) ? [null, "{$f['label']} cannot be empty."] : [null, null];
         }
 

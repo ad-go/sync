@@ -20,6 +20,9 @@ $tabLabel = [
 ];
 $label = static fn (string $g): string => $tabLabel[$g] ?? esc($g);
 
+/* Tab ID overrides: map internal group name → clean tab ID */
+$tabIdOverrides = ['Telegram alerts' => 't-alerts'];
+
 /* Return a grid-span class based on field type */
 $fspan = static function (array $f): string {
     $t = $f['type'] ?? 'text';
@@ -93,8 +96,10 @@ button.stab.active{color:var(--acc);background:var(--card);border-color:var(--li
 <div class="stabs" role="tablist">
   <button class="stab active" data-tab="t-branding" role="tab"><?= lang('Sync.settings.tab.branding') ?></button>
   <button class="stab" data-tab="t-node" role="tab"><?= lang('Sync.settings.tab.node') ?></button>
-  <?php foreach ($groups as $groupName => $_): ?>
-  <button class="stab" data-tab="t-<?= esc(strtolower(str_replace(' ', '-', $groupName))) ?>" role="tab"><?= $label($groupName) ?></button>
+  <?php foreach ($groups as $groupName => $_):
+      $btnTabId = $tabIdOverrides[$groupName] ?? ('t-' . strtolower(str_replace(' ', '-', $groupName)));
+  ?>
+  <button class="stab" data-tab="<?= esc($btnTabId) ?>" role="tab"><?= $label($groupName) ?></button>
   <?php endforeach ?>
   <button class="stab" data-tab="t-users" role="tab"><?= lang('Sync.settings.tab.users') ?></button>
   <button class="stab" data-tab="t-conflicts" role="tab"><?= lang('Sync.settings.tab.conflicts') ?></button>
@@ -212,15 +217,32 @@ button.stab.active{color:var(--acc);background:var(--card);border-color:var(--li
 
 <!-- ── Env group tabs (Synchronisation, Database, Alerts …) ─────────── -->
 <?php foreach ($groups as $groupName => $items):
-    $tabId = 't-' . strtolower(str_replace(' ', '-', $groupName));
+    $tabId = $tabIdOverrides[$groupName] ?? ('t-' . strtolower(str_replace(' ', '-', $groupName)));
 ?>
 <div id="<?= esc($tabId) ?>" class="spanel">
   <div class="scard">
     <div class="scard-title"><?= $label($groupName) ?></div>
     <form method="post" action="<?= site_url($base . '/env') ?>">
       <?= csrf_field() ?>
-      <div class="fgrid4">
-      <?php foreach ($items as $key => $f):
+      <?php
+      /* For "Telegram alerts" split fields visually into Telegram / E-mail sections */
+      $sections = [];
+      if ($groupName === 'Telegram alerts') {
+          foreach ($items as $k => $f) {
+              $sections[str_starts_with($k, 'sync.mail.') ? 'email' : 'telegram'][$k] = $f;
+          }
+      } else {
+          $sections['_all'] = $items;
+      }
+      ?>
+      <?php foreach ($sections as $sectionKey => $sectionItems): ?>
+      <?php if ($sectionKey === 'telegram'): ?>
+      <p class="scard-title" style="margin-top:0">Telegram</p>
+      <?php elseif ($sectionKey === 'email'): ?>
+      <p class="scard-title" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)">E-mail</p>
+      <?php endif ?>
+      <div class="fgrid4" style="<?= $sectionKey !== '_all' ? 'margin-bottom:4px' : '' ?>">
+      <?php foreach ($sectionItems as $key => $f):
           $id   = str_replace('.', '__', $key);
           $span = $fspan($f);
       ?>
@@ -234,7 +256,7 @@ button.stab.active{color:var(--acc);background:var(--card);border-color:var(--li
           <?php elseif ($f['type'] === 'choice'): ?>
             <select name="<?= $id ?>">
               <?php foreach ($f['options'] as $o): ?>
-              <option value="<?= esc($o) ?>" <?= $f['value'] === $o ? 'selected' : '' ?>><?= esc($o) ?></option>
+              <option value="<?= esc($o) ?>" <?= $f['value'] === $o ? 'selected' : '' ?>><?= ($o === '' ? '(none)' : esc($o)) ?></option>
               <?php endforeach ?>
             </select>
           <?php elseif ($f['type'] === 'secret'): ?>
@@ -253,10 +275,11 @@ button.stab.active{color:var(--acc);background:var(--card);border-color:var(--li
         </div>
       <?php endforeach ?>
       </div>
+      <?php endforeach ?>
       <div class="form-footer">
         <button class="btn-sm"><i class="bi bi-check-lg"></i> Save</button>
         <?php if ($groupName === 'Telegram alerts'): ?>
-        <button type="submit" form="tg-test" class="btn-sm btn-outline"><i class="bi bi-send"></i> Test</button>
+        <button type="submit" form="tg-test" class="btn-sm btn-outline"><i class="bi bi-send"></i> Test Telegram</button>
         <?php endif ?>
       </div>
     </form>
