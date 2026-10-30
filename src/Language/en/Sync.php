@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Placeholders {0}, {1}, ... are filled with the arguments of lang() / AdGo\Sync\Libraries\Lang::line().
  */
 return [
-    // Admin page switcher (Views/_adminNav.php)
+    // Admin page switcher (Views/ui/_nav.php)
     'nav' => [
         'dashboard' => 'Dashboard',
         'conflicts' => 'Conflicts',
@@ -15,6 +15,20 @@ return [
         'settings'  => 'Settings',
         'users'     => 'Users',
         'main_site' => 'Main site',
+    ],
+
+    // Settings page tab labels (Views/settings/index.php)
+    'settings' => [
+        'tab' => [
+            'branding'        => 'Branding',
+            'node'            => 'Node',
+            'synchronisation' => 'Synchronisation',
+            'database'        => 'Database',
+            'alerts'          => 'Alerts',
+            'users'           => 'Users',
+            'conflicts'       => 'Conflicts',
+            'application'     => 'Application',
+        ],
     ],
 
     // Dashboard admin page (Views/dashboard/index.php)

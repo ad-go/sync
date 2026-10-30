@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Deutsche Texte des Sync-Pakets. Gleiche Schlüsselstruktur wie Language/en/Sync.php.
  */
 return [
-    // Admin-Seitenumschalter (Views/_adminNav.php)
+    // Admin-Seitenumschalter (Views/ui/_nav.php)
     'nav' => [
         'dashboard' => 'Dashboard',
         'conflicts' => 'Konflikte',
@@ -14,6 +14,20 @@ return [
         'settings'  => 'Einstellungen',
         'users'     => 'Benutzer',
         'main_site' => 'Hauptseite',
+    ],
+
+    // Tab-Labels der Einstellungsseite (Views/settings/index.php)
+    'settings' => [
+        'tab' => [
+            'branding'        => 'Branding',
+            'node'            => 'Knoten',
+            'synchronisation' => 'Synchronisierung',
+            'database'        => 'Datenbank',
+            'alerts'          => 'Benachrichtigungen',
+            'users'           => 'Benutzer',
+            'conflicts'       => 'Konflikte',
+            'application'     => 'Anwendung',
+        ],
     ],
 
     // Dashboard-Seite (Views/dashboard/index.php)
