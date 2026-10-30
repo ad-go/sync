@@ -8,10 +8,35 @@ declare(strict_types=1);
 return [
     // Admin-Seitenumschalter (Views/_adminNav.php)
     'nav' => [
+        'dashboard' => 'Dashboard',
         'conflicts' => 'Konflikte',
         'status'    => 'Status',
         'settings'  => 'Einstellungen',
         'users'     => 'Benutzer',
+    ],
+
+    // Dashboard-Seite (Views/dashboard/index.php)
+    'dashboard' => [
+        'title'            => 'Dashboard',
+        'stat_changes'     => 'Änderungen gesamt',
+        'stat_pending'     => 'Ausstehend (ungesendet)',
+        'stat_applied'     => 'Von Peers übernommen',
+        'stat_conflicts'   => 'Konflikte',
+        'stat_files'       => 'Synchronisierte Dateien',
+        'stat_size'        => 'Dateigröße',
+        'peers'            => 'Peers',
+        'recent'           => 'Letzte Änderungen',
+        'no_changes'       => 'Noch keine Änderungen.',
+        'col_peer'         => 'Peer',
+        'col_last_seq'     => 'Letzter Seq',
+        'col_clock_offset' => 'Uhr-Offset',
+        'col_clock_at'     => 'Gemessen am',
+        'col_table'        => 'Tabelle',
+        'col_op'           => 'Op',
+        'col_uuid'         => 'UUID',
+        'col_origin'       => 'Herkunft',
+        'col_seen'         => 'Gesehen',
+        'col_changed_at'   => 'Geändert am',
     ],
 
     // Konflikt-Verwaltung (Views/conflicts/index.php und show.php)

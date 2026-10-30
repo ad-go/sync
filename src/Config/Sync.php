@@ -56,6 +56,9 @@ class Sync extends BaseConfig
     /** Route prefix under which the sync API is exposed. */
     public string $routePrefix = 'sync-api';
 
+    /** URL path of the dashboard admin page. */
+    public string $dashboardPath = 'admin/dashboard';
+
     /** URL path of the conflict admin UI (also the status panel — statusPath defaults to the same). */
     public string $conflictsPath = 'admin/conflicts';
 

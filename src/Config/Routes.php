@@ -78,6 +78,12 @@ $routes->group($prefix, ['namespace' => $ns, 'filter' => 'syncHmac'], static fun
 // Telegram webhook (authenticated by the webhook secret token + chat id, not by HMAC).
 $routes->post($prefix . '/telegram', 'SyncController::telegram', ['namespace' => $ns]);
 
+// Dashboard admin page (Shield session + adminPermission).
+$routes->get(trim($syncCfg->dashboardPath, '/'), 'DashboardAdmin::index', [
+    'namespace' => $ns,
+    'filter'    => ['session', 'permission:' . $syncCfg->adminPermission],
+]);
+
 // Conflict admin UI (Shield session + permission); includes status panel + sync/lock actions.
 $routes->group(trim($syncCfg->conflictsPath, '/'), [
     'namespace' => $ns,

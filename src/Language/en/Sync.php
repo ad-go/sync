@@ -9,10 +9,35 @@ declare(strict_types=1);
 return [
     // Admin page switcher (Views/_adminNav.php)
     'nav' => [
+        'dashboard' => 'Dashboard',
         'conflicts' => 'Conflicts',
         'status'    => 'Status',
         'settings'  => 'Settings',
         'users'     => 'Users',
+    ],
+
+    // Dashboard admin page (Views/dashboard/index.php)
+    'dashboard' => [
+        'title'            => 'Dashboard',
+        'stat_changes'     => 'Total changes',
+        'stat_pending'     => 'Pending (unsent)',
+        'stat_applied'     => 'Applied from peers',
+        'stat_conflicts'   => 'Conflicts',
+        'stat_files'       => 'Synced files',
+        'stat_size'        => 'Files size',
+        'peers'            => 'Peers',
+        'recent'           => 'Recent changes',
+        'no_changes'       => 'No changes recorded yet.',
+        'col_peer'         => 'Peer',
+        'col_last_seq'     => 'Last seq',
+        'col_clock_offset' => 'Clock offset',
+        'col_clock_at'     => 'Measured at',
+        'col_table'        => 'Table',
+        'col_op'           => 'Op',
+        'col_uuid'         => 'UUID',
+        'col_origin'       => 'Origin',
+        'col_seen'         => 'Seen',
+        'col_changed_at'   => 'Changed at',
     ],
 
     // Conflict admin UI (Views/conflicts/index.php and show.php)

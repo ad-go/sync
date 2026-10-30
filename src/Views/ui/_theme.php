@@ -104,5 +104,10 @@ tr.fresh{animation:fresh 1.6s ease-out}@keyframes fresh{from{background:var(--ti
 .modal .codes{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-family:ui-monospace,Consolas,monospace;font-size:13px;margin-top:8px}
 .modal .codes .used{text-decoration:line-through;color:var(--mute)}
 .modal .close{float:right;background:none;border:0;font-size:18px;cursor:pointer;color:var(--fg)}
+.cf-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.cf-stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;text-decoration:none;color:inherit;transition:box-shadow .12s}
+.cf-stat:hover{box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.cf-stat-val{font-size:1.6rem;font-weight:800;line-height:1.1;margin-bottom:4px}
+.cf-stat-lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);font-weight:600}
 <?= Branding::css() ?>
 </style>
