@@ -41,6 +41,7 @@ class SyncInstall extends BaseCommand
         $this->config($installer, $options);
         $this->tasks($installer);
         $this->authAction($installer);
+        $this->indexPage($installer);
 
         if (! $this->hasFlag('no-seed')) {
             Kernel::use(null);
@@ -143,6 +144,18 @@ class SyncInstall extends BaseCommand
             'present' => CLI::write('app/Config/Auth.php already registers the TOTP 2FA action'),
             'missing' => CLI::write('app/Config/Auth.php not found yet; run `php spark shield:setup` first, then `php spark sync:install --no-migrate`', 'yellow'),
             default   => CLI::write("could not patch app/Config/Auth.php automatically; set \$actions['login'] = \\AdGo\\Sync\\Authentication\\Actions\\Totp2FA::class; by hand", 'yellow'),
+        };
+    }
+
+    private function indexPage(Installer $installer): void
+    {
+        $result = $installer->ensureIndexPage(APPPATH . 'Config/App.php');
+
+        match ($result) {
+            'patched' => CLI::write('app/Config/App.php: $indexPage set to \'\' — clean URLs without index.php (backup: App.php.bak)', 'green'),
+            'present' => CLI::write('app/Config/App.php already has $indexPage = \'\''),
+            'missing' => CLI::write('app/Config/App.php not found; set $indexPage = \'\' by hand', 'yellow'),
+            default   => CLI::write("could not patch app/Config/App.php automatically; set \$indexPage = ''; by hand", 'yellow'),
         };
     }
 

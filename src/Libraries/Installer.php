@@ -358,6 +358,33 @@ final class Installer
         return 'patched';
     }
 
+    // --------------------------------------------------------------- Config\App::$indexPage
+
+    /** @return string 'patched' | 'present' | 'missing' | 'manual' */
+    public function ensureIndexPage(string $file): string
+    {
+        if (! is_file($file)) {
+            return 'missing';
+        }
+
+        $code = (string) file_get_contents($file);
+
+        if (preg_match('/\$indexPage\s*=\s*\'\'/', $code) === 1) {
+            return 'present';
+        }
+
+        $patched = preg_replace("/(\\\$indexPage\\s*=\\s*)'index\\.php'/", "$1''", $code, 1, $n);
+
+        if ($n !== 1 || $patched === null) {
+            return 'manual';
+        }
+
+        copy($file, $file . '.bak');
+        file_put_contents($file, $patched);
+
+        return 'patched';
+    }
+
     // ----------------------------------------------------------------- cron
 
     /**
