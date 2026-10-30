@@ -25,5 +25,10 @@ $hostMenu = ($cfg->menuView !== '') ? view($cfg->menuView) : '';
 </main>
 </div>
 <?= $scripts ?? '' ?>
+<script>
+if (window.self !== window.top) {
+  document.documentElement.classList.add('iframe-mode');
+}
+</script>
 </body>
 </html>

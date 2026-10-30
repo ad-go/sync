@@ -3,6 +3,7 @@
 /** @var string $logo */ /** @var string $accentColor */ /** @var string $fontFamily */ /** @var int $fontSize */
 /** @var array<string,string> $fonts */ /** @var string $loginField */ /** @var int $maxImageMb */ /** @var string $secretHash */ /** @var string $peerNode */
 /** @var string $base */
+$cfg = config('Sync');
 $envGroups    = [];
 $topEnvGroups = [];
 foreach ($fields as $key => $f) {
@@ -17,6 +18,14 @@ $title = 'Settings · ' . esc($siteName);
 ob_start();
 ?>
 <style>
+/* ── tabs ───────────────────────────────────────────────── */
+.stabs{display:flex;gap:0;border-bottom:2px solid var(--line);margin-bottom:14px}
+.stab{background:transparent;border:1px solid transparent;border-bottom:none;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--mute);border-radius:6px 6px 0 0;margin-bottom:-2px;transition:color .12s}
+.stab:hover{color:var(--fg)}
+.stab.active{color:var(--acc);background:var(--card);border-color:var(--line)}
+.spanel{display:none}
+.spanel.active{display:block}
+.stab-iframe{width:100%;height:calc(100vh - 130px);border:none;display:block}
 /* ── page grids ─────────────────────────────────────────── */
 .s-top{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:start;margin-bottom:14px}
 .s-env{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -58,8 +67,16 @@ ob_start();
 @media(max-width:600px){.s-top,.s-env{grid-template-columns:1fr}}
 @media(max-width:680px){.sg,.sg.c3{grid-template-columns:1fr}.sg .full,.sg .span2{grid-column:1}}
 </style>
+<?php $head = ob_get_clean(); ob_start(); ?>
 
-<h1>Settings</h1>
+<div class="stabs">
+  <button class="stab active" data-tab="t-settings"><?= lang('Sync.nav.settings') ?></button>
+  <button class="stab" data-tab="t-conflicts"><?= lang('Sync.nav.conflicts') ?></button>
+  <button class="stab" data-tab="t-users"><?= lang('Sync.nav.users') ?></button>
+</div>
+
+<!-- ── Settings panel ──────────────────────────────────── -->
+<div id="t-settings" class="spanel active">
 
 <div class="s-top">
 
@@ -231,9 +248,8 @@ ob_start();
     <div class="sg <?= $cols ?>">
     <?php foreach ($items as $key => $f):
         $id   = str_replace('.', '__', $key);
-        $isShort = in_array($f['type'], ['bool', 'int', 'choice'], true);
     ?>
-      <div class="sf<?= $isShort ? '' : '' ?>">
+      <div class="sf">
         <label title="<?= esc($key) ?>"><?= esc($f['label']) ?></label>
         <?php if ($f['type'] === 'bool'): ?>
           <select name="<?= $id ?>">
@@ -278,21 +294,63 @@ ob_start();
 <?php endforeach ?>
 </div><!-- .s-env -->
 
+</div><!-- #t-settings -->
+
+<!-- ── Conflicts panel ─────────────────────────────────── -->
+<div id="t-conflicts" class="spanel">
+  <iframe class="stab-iframe" data-src="<?= site_url(trim($cfg->conflictsPath, '/')) ?>"></iframe>
+</div>
+
+<!-- ── Users panel ─────────────────────────────────────── -->
+<div id="t-users" class="spanel">
+  <iframe class="stab-iframe" data-src="<?= site_url(trim($cfg->usersPath, '/')) ?>"></iframe>
+</div>
+
 <?php $content = ob_get_clean(); ?>
 <?php ob_start(); ?>
 <script>
-(function(){
-  /* color picker ↔ hex text sync */
+(function () {
+  'use strict';
+
+  /* ── tab switching ─────────────────────────────── */
+  function switchTab(btn) {
+    document.querySelectorAll('.stab').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('.spanel').forEach(function (p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    var panel = document.getElementById(btn.dataset.tab);
+    panel.classList.add('active');
+    /* lazy-load iframe */
+    var iframe = panel.querySelector('iframe[data-src]');
+    if (iframe) { iframe.src = iframe.dataset.src; delete iframe.dataset.src; }
+    /* persist */
+    try { sessionStorage.setItem('sync-settings-tab', btn.dataset.tab); } catch (e) {}
+    history.replaceState(null, '', location.pathname + '#' + btn.dataset.tab.replace('t-', ''));
+  }
+
+  document.querySelectorAll('.stab').forEach(function (btn) {
+    btn.addEventListener('click', function () { switchTab(btn); });
+  });
+
+  /* restore from URL hash or sessionStorage */
+  var hash = location.hash.replace('#', '');
+  var saved = hash || (function () { try { return sessionStorage.getItem('sync-settings-tab'); } catch (e) { return null; } }());
+  if (saved) {
+    var target = document.querySelector('.stab[data-tab="t-' + saved + '"]')
+               || document.querySelector('.stab[data-tab="' + saved + '"]');
+    if (target) switchTab(target);
+  }
+
+  /* ── color picker ↔ hex text sync ─────────────── */
   var picker = document.getElementById('colorPicker');
   var text   = document.getElementById('colorText');
   if (picker && text) {
-    picker.addEventListener('input', function(){ text.value = picker.value; });
-    text.addEventListener('input', function(){
+    picker.addEventListener('input', function () { text.value = picker.value; });
+    text.addEventListener('input', function () {
       if (/^#[0-9a-fA-F]{6}$/.test(text.value)) picker.value = text.value;
     });
   }
 
-  /* logo drop zone */
+  /* ── logo drop zone ────────────────────────────── */
   var drop    = document.getElementById('logoDrop');
   var file    = document.getElementById('logoFile');
   var preview = document.getElementById('logoPreview');
@@ -300,19 +358,19 @@ ob_start();
   var icon    = document.getElementById('logoIcon');
   var title   = document.getElementById('logoTitle');
   if (file && preview && hint) {
-    file.addEventListener('change', function(){
+    file.addEventListener('change', function () {
       var f = file.files[0];
       if (!f) return;
-      if (hint)  hint.textContent = f.name;
+      if (hint)  { hint.textContent = f.name; }
       if (icon)  { icon.style.display = 'none'; }
       if (title) { title.style.display = 'none'; }
       var reader = new FileReader();
-      reader.onload = function(e){ preview.src = e.target.result; preview.style.display = 'block'; };
+      reader.onload = function (e) { preview.src = e.target.result; preview.style.display = 'block'; };
       reader.readAsDataURL(f);
     });
-    drop.addEventListener('dragover',  function(e){ e.preventDefault(); drop.classList.add('drag'); });
-    drop.addEventListener('dragleave', function(){ drop.classList.remove('drag'); });
-    drop.addEventListener('drop', function(e){
+    drop.addEventListener('dragover', function (e) { e.preventDefault(); drop.classList.add('drag'); });
+    drop.addEventListener('dragleave', function () { drop.classList.remove('drag'); });
+    drop.addEventListener('drop', function (e) {
       e.preventDefault(); drop.classList.remove('drag');
       if (e.dataTransfer.files.length) {
         file.files = e.dataTransfer.files;
@@ -321,13 +379,13 @@ ob_start();
     });
   }
 
-  /* remove logo button submits the hidden form */
+  /* ── remove logo ───────────────────────────────── */
   var rmBtn  = document.getElementById('rmLogoBtn');
   var rmForm = document.getElementById('rmLogoForm');
   if (rmBtn && rmForm) {
-    rmBtn.addEventListener('click', function(){ rmForm.submit(); });
+    rmBtn.addEventListener('click', function () { rmForm.submit(); });
   }
-})();
+}());
 </script>
 <?php $scripts = ob_get_clean(); ?>
-<?= view('AdGo\Sync\Views\ui\_layout', compact('title', 'content', 'scripts')) ?>
+<?= view('AdGo\Sync\Views\ui\_layout', compact('title', 'head', 'content', 'scripts')) ?>

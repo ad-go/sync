@@ -11,10 +11,9 @@ $on    = static fn (string $path): string =>
 ?>
 <nav class="menu">
   <a href="<?= site_url(trim($cfg->dashboardPath, '/')) ?>" <?= $on($cfg->dashboardPath) ?>><?= lang('Sync.nav.dashboard') ?></a>
-  <a href="<?= site_url(trim($cfg->conflictsPath, '/')) ?>" <?= $on($cfg->conflictsPath) ?>><?= lang('Sync.nav.conflicts') ?></a>
 <?php if ($super): ?>
-  <a href="<?= site_url(trim($cfg->settingsPath, '/')) ?>" <?= $on($cfg->settingsPath) ?>><?= lang('Sync.nav.settings') ?></a>
-  <a href="<?= site_url(trim($cfg->usersPath,    '/')) ?>" <?= $on($cfg->usersPath) ?>><?= lang('Sync.nav.users') ?></a>
+  <a href="<?= site_url(trim($cfg->settingsPath, '/')) ?>"
+     <?= ($on($cfg->settingsPath) ?: $on($cfg->conflictsPath) ?: $on($cfg->usersPath)) ?>><?= lang('Sync.nav.settings') ?></a>
 <?php endif ?>
   <a href="<?= site_url('/') ?>" style="margin-top:auto;border-top:1px solid var(--line);padding-top:10px"><?= lang('Sync.nav.main_site') ?></a>
 </nav>

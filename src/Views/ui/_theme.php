@@ -110,4 +110,11 @@ tr.fresh{animation:fresh 1.6s ease-out}@keyframes fresh{from{background:var(--ti
 .cf-stat-val{font-size:1.6rem;font-weight:800;line-height:1.1;margin-bottom:4px}
 .cf-stat-lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);font-weight:600}
 <?= Branding::css() ?>
+/* iframe-mode: hide chrome when rendered inside a tab iframe */
+html.iframe-mode #appTopbar,
+html.iframe-mode #tbResize,
+html.iframe-mode #appSidebar,
+html.iframe-mode .sb-resize{display:none!important}
+html.iframe-mode .appshell{grid-template-columns:1fr}
+html.iframe-mode .appmain{padding:12px 16px}
 </style>
