@@ -6,27 +6,15 @@ $fmt = static fn ($v) => $v === null ? 'NULL' : (string) $v;
 // The status is translated when a text exists, otherwise shown as stored.
 $statusKey = 'Sync.conflicts.status.' . $c['status'];
 $status    = lang($statusKey) === $statusKey ? (string) $c['status'] : lang($statusKey);
+$title     = lang('Sync.conflicts.conflict', [(string) (int) $c['id']]);
+ob_start();
 ?>
-<!doctype html>
-<html lang="<?= esc(service('request')->getLocale()) ?>">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= lang('Sync.conflicts.conflict', [(string) (int) $c['id']]) ?></title>
-<?= view('AdGo\Sync\Views\ui\_theme') ?>
-<?= $head ?? '' ?>
 <style>
 tr.diff td{background:var(--warn-bg)}
 .del{color:var(--err-fg);font-style:italic}
 input[type=text]{width:100%;box-sizing:border-box}
 </style>
-</head>
-<body>
-<?= view('AdGo\Sync\Views\ui\_topbar') ?>
-<div class="appshell">
-<aside id="appSidebar"><?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'conflicts']) ?><?= $menu ?? '' ?></aside>
-<div class="sb-resize" id="sbResize"></div>
-<main class="appmain">
+
 <p><a href="<?= esc($back) ?>">&larr; <?= lang('Sync.conflicts.allConflicts') ?></a></p>
 <h1><?= lang('Sync.conflicts.conflict', [(string) (int) $c['id']]) ?> <small style="font-size:14px;font-weight:400;color:var(--mute)">(<?= esc($status) ?>)</small></h1>
 <p><?= lang('Sync.conflicts.tableRow', ['<b>' . esc($c['table_name']) . '</b>', '<code>' . esc($c['uuid']) . '</code>']) ?>
@@ -61,7 +49,6 @@ input[type=text]{width:100%;box-sizing:border-box}
 <button name="action" value="ignore" class="d"><?= lang('Sync.conflicts.ignore') ?></button>
 <?php endif ?>
 </form>
-</main>
-</div>
-</body>
-</html>
+
+<?php $content = ob_get_clean(); ?>
+<?= view('AdGo\Sync\Views\ui\_layout', compact('title', 'content')) ?>

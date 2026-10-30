@@ -49,9 +49,6 @@ class DashboardAdmin extends Controller
             'cursors' => $cursors,
             'recent'  => $recent,
             'cfg'     => $cfg,
-            'menu'    => $this->menu('dashboard'),
-            'head'    => $this->head(),
-            'base'    => $this->base(),
         ]);
     }
 }

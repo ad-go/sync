@@ -41,7 +41,6 @@ class UsersAdmin extends Controller
 
         return view((string) $cfg->usersIndexView, [
             'groups' => $this->groupNames(),
-            'menu'   => $this->menu('users'),
             'base'   => $this->base(),
             'dteUrl' => site_url(trim($cfg->dteAssetsUrl, '/') . '/'),
         ]);
@@ -64,8 +63,6 @@ class UsersAdmin extends Controller
             'groups' => $this->groupNames(),
             'base'   => $this->base(),
             'node'   => config('Sync')->node,
-            'menu'   => $this->menu('users'),
-            'head'   => $this->head(),
         ]);
     }
 

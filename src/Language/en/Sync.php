@@ -14,6 +14,7 @@ return [
         'status'    => 'Status',
         'settings'  => 'Settings',
         'users'     => 'Users',
+        'main_site' => 'Main site',
     ],
 
     // Dashboard admin page (Views/dashboard/index.php)

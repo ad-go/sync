@@ -20,20 +20,6 @@ trait AdminChrome
     {
         return trim((string) config('Sync')->{$this->configKey}, '/');
     }
-    private function menu(string $active): string
-    {
-        $view = (string) config('Sync')->menuView;
-
-        return $view === '' ? '' : view($view, ['active' => $active]);
-    }
-
-    private function head(): string
-    {
-        $view = (string) config('Sync')->headView;
-
-        return $view === '' ? '' : view($view);
-    }
-
     private function flash(string $type, string $message): RedirectResponse
     {
         return redirect()->to(site_url($this->base()))->with($type, $message);

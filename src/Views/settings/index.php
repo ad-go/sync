@@ -3,7 +3,7 @@
 /** @var string $logo */ /** @var string $accentColor */ /** @var string $fontFamily */ /** @var int $fontSize */
 /** @var array<string,string> $fonts */ /** @var string $loginField */ /** @var int $maxImageMb */ /** @var string $secretHash */ /** @var string $peerNode */
 /** @var string $base */
-$envGroups = [];
+$envGroups    = [];
 $topEnvGroups = [];
 foreach ($fields as $key => $f) {
     if ($f['group'] === 'Application') continue;
@@ -13,15 +13,9 @@ foreach ($fields as $key => $f) {
         $envGroups[$f['group']][$key] = $f;
     }
 }
+$title = 'Settings · ' . esc($siteName);
+ob_start();
 ?>
-<!doctype html>
-<html lang="<?= esc(service('request')->getLocale()) ?>">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Settings · <?= esc($siteName) ?></title>
-<?= view('AdGo\Sync\Views\ui\_theme') ?>
-<?= $head ?? '' ?>
 <style>
 /* ── page grids ─────────────────────────────────────────── */
 .s-top{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:start;margin-bottom:14px}
@@ -64,15 +58,8 @@ foreach ($fields as $key => $f) {
 @media(max-width:600px){.s-top,.s-env{grid-template-columns:1fr}}
 @media(max-width:680px){.sg,.sg.c3{grid-template-columns:1fr}.sg .full,.sg .span2{grid-column:1}}
 </style>
-</head>
-<body>
-<?= view('AdGo\Sync\Views\ui\_topbar') ?>
-<div class="appshell">
-<aside id="appSidebar"><?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'settings']) ?><?= $menu ?? '' ?></aside>
-<div class="sb-resize" id="sbResize"></div>
-<main class="appmain">
+
 <h1>Settings</h1>
-<?= view('AdGo\Sync\Views\ui\_flash') ?>
 
 <div class="s-top">
 
@@ -291,8 +278,8 @@ foreach ($fields as $key => $f) {
 <?php endforeach ?>
 </div><!-- .s-env -->
 
-</main>
-</div>
+<?php $content = ob_get_clean(); ?>
+<?php ob_start(); ?>
 <script>
 (function(){
   /* color picker ↔ hex text sync */
@@ -342,5 +329,5 @@ foreach ($fields as $key => $f) {
   }
 })();
 </script>
-</body>
-</html>
+<?php $scripts = ob_get_clean(); ?>
+<?= view('AdGo\Sync\Views\ui\_layout', compact('title', 'content', 'scripts')) ?>

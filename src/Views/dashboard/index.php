@@ -1,23 +1,9 @@
 <?php
 /** @var array $stats */ /** @var array $cursors */ /** @var array $recent */
-/** @var \AdGo\Sync\Config\Sync $cfg */ /** @var string $menu */ /** @var string $head */ /** @var string $base */
+/** @var \AdGo\Sync\Config\Sync $cfg */
+$title = lang('Sync.dashboard.title') . ' · ' . esc($cfg->node);
+ob_start();
 ?>
-<!doctype html>
-<html lang="<?= esc(service('request')->getLocale()) ?>">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= lang('Sync.dashboard.title') ?> · <?= esc($cfg->node) ?></title>
-<?= view('AdGo\Sync\Views\ui\_theme') ?>
-<?= $head ?? '' ?>
-</head>
-<body>
-<?= view('AdGo\Sync\Views\ui\_topbar') ?>
-<div class="appshell">
-<aside id="appSidebar"><?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'dashboard']) ?><?= $menu ?? '' ?></aside>
-<div class="sb-resize" id="sbResize"></div>
-<main class="appmain" id="appMain">
-<?= view('AdGo\Sync\Views\ui\_flash') ?>
 
 <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:18px">
   <h1 style="margin:0;font-size:1.25rem;font-weight:700"><?= lang('Sync.dashboard.title') ?></h1>
@@ -114,7 +100,5 @@
   </tbody>
 </table>
 
-</main>
-</div>
-</body>
-</html>
+<?php $content = ob_get_clean(); ?>
+<?= view('AdGo\Sync\Views\ui\_layout', compact('title', 'content')) ?>

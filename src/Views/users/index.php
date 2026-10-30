@@ -1,15 +1,9 @@
 <?php
 /** @var list<string> $groups */ /** @var string $base */ /** @var string $dteUrl */
 use AdGo\Sync\Libraries\Branding;
+$title = 'Users · ' . esc(Branding::siteName());
+ob_start();
 ?>
-<!doctype html>
-<html lang="<?= esc(service('request')->getLocale()) ?>">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Users · <?= esc(Branding::siteName()) ?></title>
-<?= view('AdGo\Sync\Views\ui\_theme') ?>
-<?= $head ?? '' ?>
 <link rel="stylesheet" href="<?= esc($dteUrl) ?>datatables.min.css">
 <style>
 /*
@@ -95,18 +89,10 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
 .sync-modal .codes .used{text-decoration:line-through;color:var(--mute)}
 .sync-modal .close-btn{float:right;background:none!important;border:0!important;font-size:18px;cursor:pointer;color:var(--fg);padding:0}
 </style>
-</head>
-<body>
-<?= view('AdGo\Sync\Views\ui\_topbar') ?>
-<div class="appshell">
-<aside id="appSidebar">
-  <?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'users']) ?>
-  <?= $menu ?? '' ?>
-</aside>
-<div class="sb-resize" id="sbResize"></div>
-<main class="appmain">
+<?php $head = ob_get_clean(); ?>
+<?php ob_start(); ?>
+
 <h1>Users</h1>
-<?= view('AdGo\Sync\Views\ui\_flash') ?>
 
 <table id="usersTable" style="width:100%">
 <thead><tr>
@@ -121,8 +107,9 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
     <div id="twofaBody">Loading&hellip;</div>
   </div>
 </div>
-</main>
-</div>
+
+<?php $content = ob_get_clean(); ?>
+<?php ob_start(); ?>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= esc($dteUrl) ?>datatables.min.js"></script>
@@ -269,5 +256,5 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
   backdrop.addEventListener('click', function(e){ if(e.target === backdrop) backdrop.classList.remove('open'); });
 })();
 </script>
-</body>
-</html>
+<?php $scripts = ob_get_clean(); ?>
+<?= view('AdGo\Sync\Views\ui\_layout', compact('title', 'head', 'content', 'scripts')) ?>

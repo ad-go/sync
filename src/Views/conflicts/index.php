@@ -12,24 +12,11 @@ $label = static function (string $group, string $value): string {
 
     return $t === $key ? $value : $t;
 };
+$title = lang('Sync.conflicts.title') . ' · ' . esc($node);
+ob_start();
 ?>
-<!doctype html>
-<html lang="<?= esc(service('request')->getLocale()) ?>">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= lang('Sync.conflicts.title') ?> · <?= esc($node) ?></title>
-<?= view('AdGo\Sync\Views\ui\_theme') ?>
-<?= $head ?? '' ?>
-</head>
-<body>
-<?= view('AdGo\Sync\Views\ui\_topbar') ?>
-<div class="appshell">
-<aside id="appSidebar"><?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'conflicts']) ?><?= $menu ?? '' ?></aside>
-<div class="sb-resize" id="sbResize"></div>
-<main class="appmain">
+
 <h1><?= lang('Sync.conflicts.title') ?> <small style="font-size:14px;font-weight:400;color:var(--mute)">(<?= lang('Sync.conflicts.node', [esc($node)]) ?>)</small></h1>
-<?= view('AdGo\Sync\Views\ui\_flash') ?>
 <?php if ($lockHeld !== null && $lockHeld !== $node): ?><div class="banner"><?= lang('Sync.conflicts.editingActiveOn', ['<b>' . esc($lockHeld) . '</b>']) ?></div><?php endif ?>
 
 <details class="status-panel" style="margin-bottom:18px">
@@ -83,7 +70,6 @@ $label = static function (string $group, string $value): string {
 </tr>
 <?php endforeach ?>
 </table>
-</main>
-</div>
-</body>
-</html>
+
+<?php $content = ob_get_clean(); ?>
+<?= view('AdGo\Sync\Views\ui\_layout', compact('title', 'content')) ?>

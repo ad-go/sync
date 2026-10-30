@@ -47,8 +47,6 @@ class ConflictAdmin extends Controller
             'recent'    => $db->table('sync_conflicts')->where('status !=', 'pending')->orderBy('detected_at', 'DESC')->limit(50)->get()->getResultArray(),
             'lockHeld'  => $k->locks()->holder('auth'),
             'base'      => $this->base(),
-            'menu'      => $this->menu('conflicts'),
-            'head'      => $this->head(),
         ]);
     }
 
@@ -117,8 +115,6 @@ class ConflictAdmin extends Controller
             'divergent' => $c['fields'] === '*' ? $fields : array_filter(explode(',', (string) $c['fields'])),
             'action'    => site_url($this->base() . '/' . $id . '/resolve'),
             'back'      => site_url($this->base()),
-            'menu'      => $this->menu('conflicts'),
-            'head'      => $this->head(),
         ]);
     }
 

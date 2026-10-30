@@ -1,25 +1,20 @@
 <?php
 /**
- * Switches between the package's own admin pages (conflicts/status/settings/users), shown at the top of the
- * sidebar, above the host application's own `$menu` (Config\Sync::$menuView) if any. Settings and Users are
- * only shown to `Config\Sync::$superPermission` holders.
- *
- * @var string $active one of 'dashboard'|'conflicts'|'settings'|'users'
+ * Package admin sidebar nav. Active state detected from the current URL, like the ia host app.
+ * Settings and Users are only shown to Config\Sync::$superPermission holders.
  */
 $cfg   = config('Sync');
 $super = auth()->user() !== null && auth()->user()->can($cfg->superPermission);
-
-$items = [
-    'dashboard' => ['label' => lang('Sync.nav.dashboard'), 'path' => $cfg->dashboardPath, 'show' => true],
-    'conflicts' => ['label' => lang('Sync.nav.conflicts'), 'path' => $cfg->conflictsPath, 'show' => true],
-    'settings'  => ['label' => lang('Sync.nav.settings'), 'path' => $cfg->settingsPath, 'show' => $super],
-    'users'     => ['label' => lang('Sync.nav.users'), 'path' => $cfg->usersPath, 'show' => $super],
-];
+$seg   = parse_url(current_url(), PHP_URL_PATH);
+$on    = static fn (string $path): string =>
+    str_contains($seg, '/' . trim($path, '/')) ? 'aria-current="page"' : '';
 ?>
 <nav class="menu">
-<?php foreach ($items as $key => $it): ?>
-<?php if (! $it['show']) { continue; } ?>
-<a href="<?= site_url(trim($it['path'], '/')) ?>" <?= $key === $active ? 'aria-current="page"' : '' ?>><?= esc($it['label']) ?></a>
-<?php endforeach ?>
+  <a href="<?= site_url(trim($cfg->dashboardPath, '/')) ?>" <?= $on($cfg->dashboardPath) ?>><?= lang('Sync.nav.dashboard') ?></a>
+  <a href="<?= site_url(trim($cfg->conflictsPath, '/')) ?>" <?= $on($cfg->conflictsPath) ?>><?= lang('Sync.nav.conflicts') ?></a>
+<?php if ($super): ?>
+  <a href="<?= site_url(trim($cfg->settingsPath, '/')) ?>" <?= $on($cfg->settingsPath) ?>><?= lang('Sync.nav.settings') ?></a>
+  <a href="<?= site_url(trim($cfg->usersPath,    '/')) ?>" <?= $on($cfg->usersPath) ?>><?= lang('Sync.nav.users') ?></a>
+<?php endif ?>
+  <a href="<?= site_url('/') ?>" style="margin-top:auto;border-top:1px solid var(--line);padding-top:10px"><?= lang('Sync.nav.main_site') ?></a>
 </nav>
-

@@ -13,6 +13,7 @@ return [
         'status'    => 'Status',
         'settings'  => 'Einstellungen',
         'users'     => 'Benutzer',
+        'main_site' => 'Hauptseite',
     ],
 
     // Dashboard-Seite (Views/dashboard/index.php)

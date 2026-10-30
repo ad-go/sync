@@ -1,14 +1,9 @@
 <?php
 /** @var \CodeIgniter\Shield\Entities\User $user */ /** @var list<string> $groups */ /** @var string $base */ /** @var string $node */
+use AdGo\Sync\Libraries\Branding;
+$title = 'Edit user · ' . esc(Branding::siteName());
+ob_start();
 ?>
-<!doctype html>
-<html lang="<?= esc(service('request')->getLocale()) ?>">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Edit user · <?= esc(\AdGo\Sync\Libraries\Branding::siteName()) ?></title>
-<?= view('AdGo\Sync\Views\ui\_theme') ?>
-<?= $head ?? '' ?>
 <style>
 form.edit{background:var(--card);padding:14px;border:1px solid var(--line);border-radius:var(--r);max-width:560px}
 label{display:block;margin:8px 0}
@@ -23,15 +18,9 @@ label.cb input[type=checkbox]{flex-shrink:0}
 .sync-modal .codes .used{text-decoration:line-through;color:var(--mute)}
 .sync-modal .close-btn{float:right;background:none!important;border:0!important;font-size:18px;cursor:pointer;color:var(--fg);padding:0}
 </style>
-</head>
-<body>
-<?= view('AdGo\Sync\Views\ui\_topbar') ?>
-<div class="appshell">
-<aside id="appSidebar"><?= view('AdGo\Sync\Views\ui\_nav', ['active' => 'users']) ?><?= $menu ?? '' ?></aside>
-<div class="sb-resize" id="sbResize"></div>
-<main class="appmain">
+<?php $head = ob_get_clean(); ob_start(); ?>
+
 <h1>Edit user #<?= (int) $user->id ?></h1>
-<?= view('AdGo\Sync\Views\ui\_flash') ?>
 <p class="note">Opening this page took the edit lease on <b><?= esc($node ?? config('Sync')->node) ?></b>; the other node shows this user as read-only until you save or leave it idle.</p>
 <?php if (in_array('superadmin', $user->getGroups() ?? [], true)): ?>
 <p><button type="button" class="s" id="view2fa">View 2FA</button></p>
@@ -57,9 +46,9 @@ label.cb input[type=checkbox]{flex-shrink:0}
     <div id="twofaBody">Loading&hellip;</div>
   </div>
 </div>
-</main>
-</div>
-<?php if (in_array('superadmin', $user->getGroups() ?? [], true)): ?>
+
+<?php $content = ob_get_clean(); ?>
+<?php if (in_array('superadmin', $user->getGroups() ?? [], true)): ob_start(); ?>
 <script>
 (function () {
   'use strict';
@@ -89,6 +78,5 @@ label.cb input[type=checkbox]{flex-shrink:0}
   backdrop.addEventListener('click', function (e) { if (e.target === backdrop) { backdrop.classList.remove('open'); } });
 })();
 </script>
-<?php endif ?>
-</body>
-</html>
+<?php $scripts = ob_get_clean(); endif; ?>
+<?= view('AdGo\Sync\Views\ui\_layout', ['title' => $title, 'head' => $head, 'content' => $content, 'scripts' => $scripts ?? '']) ?>

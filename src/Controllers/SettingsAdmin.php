@@ -55,8 +55,6 @@ class SettingsAdmin extends Controller
             'maxImageMb'   => $cfg->maxImageMb,
             'secretHash'   => NodeIdentity::fingerprint($cfg->secret),
             'peerNode'     => $cfg->peerNode,
-            'menu'         => $this->menu('settings'),
-            'head'         => $this->head(),
             'base'         => $this->base(),
         ]);
     }
