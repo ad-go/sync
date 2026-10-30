@@ -79,13 +79,32 @@ class Totp2FA implements ActionInterface, ConditionalActionInterface
         $totp = new TwoFactor();
         $code = (string) $request->getPost('token');
 
-        $ok = $totp->verifyCode($user, $code) || $totp->verifyRecoveryCode($user, $code);
+        try {
+            $ok = $totp->verifyCode($user, $code) || $totp->verifyRecoveryCode($user, $code);
+        } catch (\Throwable $e) {
+            log_message('error', 'sync: TOTP verify exception for user ' . $user->id . ': ' . $e->getMessage());
+            $ok = false;
+        }
 
         if (! $ok) {
-            session()->setFlashdata('error', 'Invalid code. Check your authenticator app, or use one of your recovery codes.');
+            // After 3 consecutive failures on a confirmed TOTP, reset it so the setup QR is shown again.
+            // This handles the case where the node's stored secret diverged from the user's authenticator app
+            // (e.g. a sync conflict overwrote the secret after the QR was scanned).
+            $failures = (int) session('totp_failures') + 1;
+            session()->set('totp_failures', $failures);
+
+            if ($failures >= 3 && $totp->isConfirmed($user)) {
+                $totp->resetConfirmed($user);
+                session()->remove('totp_failures');
+                session()->setFlashdata('error', 'Too many invalid codes — please re-scan the QR code with your authenticator app.');
+            } else {
+                session()->setFlashdata('error', 'Invalid code. Check your authenticator app, or use one of your recovery codes.');
+            }
 
             return $this->show();
         }
+
+        session()->remove('totp_failures');
 
         if (! $totp->isConfirmed($user)) {
             $totp->confirm($user);

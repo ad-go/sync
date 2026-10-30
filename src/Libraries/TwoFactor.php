@@ -86,6 +86,16 @@ class TwoFactor
         }
     }
 
+    /** Resets confirmed status back to unconfirmed so the setup QR is shown again on next login. */
+    public function resetConfirmed(User $user): void
+    {
+        $row = $this->identities->getIdentityByType($user, self::TYPE_SECRET);
+
+        if ($row !== null) {
+            $this->identities->update($row->id, ['extra' => 'unconfirmed']);
+        }
+    }
+
     public function hasSecret(User $user): bool
     {
         return $this->identities->getIdentityByType($user, self::TYPE_SECRET) !== null;

@@ -64,9 +64,19 @@ class LoginController extends ShieldLoginController
 
                 if ($user !== null) {
                     $totp = new TwoFactor();
-                    $ok   = $totp->verifyCode($user, $token) || $totp->verifyRecoveryCode($user, $token);
+
+                    try {
+                        $ok = $totp->verifyCode($user, $token) || $totp->verifyRecoveryCode($user, $token);
+                    } catch (\Throwable) {
+                        $ok = false;
+                    }
 
                     if (! $ok) {
+                        // TOTP not confirmed yet → guide to setup page, not error on login form.
+                        if (! $totp->isConfirmed($user)) {
+                            return redirect()->route('auth-action-show')->withCookies();
+                        }
+
                         return redirect()->route('login')->withInput()->with('error', 'Invalid 2FA code.');
                     }
 
