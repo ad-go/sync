@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * Deutsche Texte des Sync-Pakets. Gleiche Schlüsselstruktur wie Language/en/Sync.php.
+ * German texts of the sync package. Same key structure as Language/en/Sync.php.
  */
 return [
-    // Admin-Seitenumschalter (Views/ui/_nav.php)
+    // Admin page switcher (Views/ui/_nav.php)
     'nav' => [
         'dashboard' => 'Dashboard',
         'conflicts' => 'Konflikte',
@@ -16,7 +16,7 @@ return [
         'main_site' => 'Hauptseite',
     ],
 
-    // Tab-Labels der Einstellungsseite (Views/settings/index.php)
+    // Settings page tab labels (Views/settings/index.php)
     'settings' => [
         'tab' => [
             'branding'        => 'Branding',
@@ -30,7 +30,7 @@ return [
         ],
     ],
 
-    // Dashboard-Seite (Views/dashboard/index.php)
+    // Dashboard admin page (Views/dashboard/index.php)
     'dashboard' => [
         'title'            => 'Dashboard',
         'stat_changes'     => 'Änderungen gesamt',
@@ -54,7 +54,7 @@ return [
         'col_changed_at'   => 'Geändert am',
     ],
 
-    // Konflikt-Verwaltung (Views/conflicts/index.php und show.php)
+    // Conflict admin UI (Views/conflicts/index.php and show.php)
     'conflicts' => [
         'title'           => 'Sync-Konflikte',
         'node'            => 'Knoten {0}',
@@ -87,7 +87,7 @@ return [
             'lastCommon'  => 'Letzter gemeinsamer Stand',
             'mergeResult' => 'Ergebnis der Zusammenführung',
         ],
-        // Werte der sync_conflicts-Spalten, wie sie in der Oberfläche angezeigt werden
+        // Values of the sync_conflicts columns as shown in the UI
         'status' => [
             'pending'  => 'ausstehend',
             'resolved' => 'entschieden',
@@ -104,7 +104,7 @@ return [
         ],
     ],
 
-    // Flash-Meldungen der Konflikt-Verwaltung (Controllers/ConflictAdmin.php)
+    // Flash messages of the conflict admin (Controllers/ConflictAdmin.php)
     'flash' => [
         'unknownConflict' => 'Unbekannter Konflikt.',
         'couldNotResolve' => 'Der Konflikt konnte nicht entschieden werden.',
@@ -112,7 +112,7 @@ return [
         'notPropagated'   => 'Der andere Knoten war nicht erreichbar; er erhält die Entscheidung bei seinem nächsten Abruf.',
     ],
 
-    // Telegram-Meldungen, Schaltflächen und Rückmeldungen (Libraries/TelegramNotifier.php, Controllers/SyncController.php)
+    // Telegram alerts, buttons and callback answers (Libraries/TelegramNotifier.php, Controllers/SyncController.php)
     'telegram' => [
         'alert'               => "⚠️ Sync-Konflikt #{0} auf {1}\nTabelle: {2}\nZeile: {3}\nAbweichende Felder: {4}\n\n{5} ({6}): {7}\n{8} ({9}): {10}",
         'rowDeletedOnOneNode' => '(Zeile auf einem Knoten gelöscht)',
@@ -128,7 +128,7 @@ return [
         'blocked'             => '🔒 Benutzerbearbeitung auf {0} blockiert: {1}',
     ],
 
-    // Schreibsperre für Benutzerbearbeitung (Filters/AuthWriteLock.php, Libraries/AuthLock.php)
+    // Auth write-lock / edit lease (Filters/AuthWriteLock.php, Libraries/AuthLock.php)
     'lock' => [
         'message'               => 'Die Benutzerbearbeitung ist derzeit auf dem anderen Knoten aktiv.',
         'banner'                => '{0} bearbeitet {1}{2} seit {3} UTC — hier nur lesend, bis die Bearbeitung abgeschlossen ist.',
@@ -141,7 +141,7 @@ return [
         'couldNotCatchUp'       => 'Änderungen von {0} konnten nicht nachgezogen werden: {1}',
     ],
 
-    // Konfliktentscheidungen (Libraries/ConflictResolver.php)
+    // Conflict decisions (Libraries/ConflictResolver.php)
     'resolver' => [
         'unknownConflict' => 'unbekannter Konflikt',
         'rowChanged'      => 'die Zeile wurde auf diesem Knoten nach dem Erkennen des Konflikts geändert; bitte prüfen Sie sie erneut',

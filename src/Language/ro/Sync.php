@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * Texte românești ale pachetului Sync. Aceeași structură de chei ca Language/en/Sync.php.
+ * Romanian texts of the sync package. Same key structure as Language/en/Sync.php.
  */
 return [
-    // Meniul lateral admin (Views/ui/_nav.php)
+    // Admin page switcher (Views/ui/_nav.php)
     'nav' => [
         'dashboard' => 'Panou',
         'conflicts' => 'Conflicte',
@@ -16,7 +16,7 @@ return [
         'main_site' => 'Site principal',
     ],
 
-    // Etichetele tab-urilor din pagina de setări (Views/settings/index.php)
+    // Settings page tab labels (Views/settings/index.php)
     'settings' => [
         'tab' => [
             'branding'        => 'Branding',
