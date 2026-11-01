@@ -11,7 +11,7 @@ $logo    = \AdGo\Sync\Libraries\Branding::logoUrl();
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sign in · <?= esc($site) ?></title>
+<title><?= esc(lang('Login.title')) ?> · <?= esc($site) ?></title>
 <?= view('AdGo\Sync\Views\ui\_theme') ?>
 <style>
 html,body{height:100%}
@@ -64,50 +64,50 @@ body{display:flex;min-height:100vh;align-items:center;justify-content:center;pad
 
     <?php if (in_array($lf, ['email', 'both'], true)): ?>
     <div class="lf">
-      <label for="li-email">E-mail</label>
+      <label for="li-email"><?= lang('Login.email') ?></label>
       <input type="email" id="li-email" name="email" inputmode="email" autocomplete="email"
              value="<?= esc(old('email')) ?>" <?= $lf === 'email' ? 'required' : '' ?>>
     </div>
     <?php endif ?>
 
     <?php if ($lf === 'both'): ?>
-    <div class="lf-sep">or</div>
+    <div class="lf-sep"><?= lang('Login.or') ?></div>
     <?php endif ?>
 
     <?php if (in_array($lf, ['username', 'both'], true)): ?>
     <div class="lf">
-      <label for="li-user">Username</label>
+      <label for="li-user"><?= lang('Login.username') ?></label>
       <input type="text" id="li-user" name="username" autocomplete="username"
              value="<?= esc(old('username')) ?>" <?= $lf === 'username' ? 'required' : '' ?>>
     </div>
     <?php endif ?>
 
     <div class="lf">
-      <label for="li-pass">Password</label>
+      <label for="li-pass"><?= lang('Login.password') ?></label>
       <input type="password" id="li-pass" name="password" autocomplete="current-password" required>
     </div>
 
     <?php if ($show2fa): ?>
     <div class="lf">
-      <label for="li-token">2FA code</label>
+      <label for="li-token"><?= lang('Login.token') ?></label>
       <input type="text" id="li-token" name="token" inputmode="numeric" autocomplete="one-time-code"
-             maxlength="32" placeholder="000000 or recovery code" spellcheck="false">
-      <div class="lf-hint">Superadmin only — leave blank if not applicable.</div>
+             maxlength="32" placeholder="<?= esc(lang('Login.token_placeholder')) ?>" spellcheck="false">
+      <div class="lf-hint"><?= lang('Login.token_hint') ?></div>
     </div>
     <?php endif ?>
 
     <?php if (setting('Auth.sessionConfig')['allowRemembering'] ?? false): ?>
     <label style="display:flex;align-items:center;gap:6px;font-size:13px;margin:10px 0 4px;cursor:pointer">
-      <input type="checkbox" name="remember" <?= old('remember') ? 'checked' : '' ?>> Remember me
+      <input type="checkbox" name="remember" <?= old('remember') ? 'checked' : '' ?>> <?= lang('Login.remember') ?>
     </label>
     <?php endif ?>
 
-    <button type="submit" class="lc-submit">Sign in</button>
+    <button type="submit" class="lc-submit"><?= lang('Login.submit') ?></button>
   </form>
 
   <?php if (setting('Auth.allowMagicLinkLogins')): ?>
   <div class="lc-links">
-    <a href="<?= url_to('magic-link') ?>">Forgot password?</a>
+    <a href="<?= url_to('magic-link') ?>"><?= lang('Login.forgot') ?></a>
   </div>
   <?php endif ?>
 

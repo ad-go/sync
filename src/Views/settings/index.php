@@ -56,7 +56,7 @@ $fspan = static function (array $f): string {
     return 'w2';
 };
 
-$title = 'Settings · ' . esc($siteName);
+$title = lang('Settings.title') . ' · ' . esc($siteName);
 ob_start();
 ?>
 <style>
@@ -216,12 +216,12 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
     <form id="brandForm" method="post" action="<?= site_url($base . '/branding') ?>" enctype="multipart/form-data" class="brand-form">
       <?= csrf_field() ?>
       <div class="brand-grid">
-        <label class="logo-drop<?= $logo !== '' ? ' has-logo' : '' ?>" id="logoDrop" title="Click or drop an image here">
+        <label class="logo-drop<?= $logo !== '' ? ' has-logo' : '' ?>" id="logoDrop" title="<?= esc(lang('Settings.brand.logo_title')) ?>">
           <img id="logoPreview" alt="" src="<?= esc($logo) ?>"<?= $logo === '' ? ' hidden' : '' ?>>
           <span class="logo-drop-text">
             <i class="bi bi-cloud-arrow-up"></i>
-            <span id="logoText"><?= $logo === '' ? 'Logo: click or drop an image' : 'Logo: click or drop to replace' ?></span>
-            <small>PNG · JPG · SVG · WebP, max <?= (int) $maxImageMb ?> MiB</small>
+            <span id="logoText"><?= $logo === '' ? lang('Settings.brand.logo_empty') : lang('Settings.brand.logo_replace') ?></span>
+            <small><?= lang('Settings.brand.logo_formats', [(string) (int) $maxImageMb]) ?></small>
           </span>
           <input type="file" name="logo" id="logoInput" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden>
         </label>
@@ -229,13 +229,13 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
         <div class="brand-fields">
           <div class="fgrid3 brand-row">
             <div class="fg">
-              <label><i class="bi bi-type"></i> Site name</label>
+              <label><i class="bi bi-type"></i> <?= lang('Settings.brand.site_name') ?></label>
               <input type="text" name="siteName" value="<?= esc($siteName) ?>" maxlength="80" required style="width:100%">
             </div>
             <div class="fg">
-              <label><i class="bi bi-droplet-half"></i> Accent colour</label>
+              <label><i class="bi bi-droplet-half"></i> <?= lang('Settings.brand.accent') ?></label>
               <div class="color-row">
-                <div class="color-swatch" title="Pick a colour">
+                <div class="color-swatch" title="<?= esc(lang('Settings.brand.pick_colour')) ?>">
                   <input type="color" id="colorPicker" value="<?= esc($accentColor ?: '#1d5fd1') ?>">
                 </div>
                 <input type="text" name="accentColor" id="colorText" class="hex"
@@ -248,36 +248,36 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
             <div class="fg">
               <div class="font-pair">
                 <div class="fg-sub">
-                  <label><i class="bi bi-fonts"></i> Font</label>
+                  <label><i class="bi bi-fonts"></i> <?= lang('Settings.brand.font') ?></label>
                   <select name="fontFamily" id="fontSelect" style="width:16ch;max-width:100%">
-                    <option value="">(default)</option>
+                    <option value=""><?= lang('Settings.brand.font_default') ?></option>
                     <?php foreach ($fonts as $key => $css): ?>
                     <option value="<?= esc($key) ?>" <?= $key === $fontFamily ? 'selected' : '' ?>><?= esc($key) ?></option>
                     <?php endforeach ?>
                   </select>
                 </div>
                 <div class="fg-sub">
-                  <label><i class="bi bi-text-paragraph"></i> Size (px)</label>
+                  <label><i class="bi bi-text-paragraph"></i> <?= lang('Settings.brand.size') ?></label>
                   <input type="number" name="fontSize" id="fontSize" min="12" max="20" style="width:9ch"
-                         value="<?= $fontSize > 0 ? $fontSize : '' ?>" placeholder="14" aria-label="Font size (px)">
+                         value="<?= $fontSize > 0 ? $fontSize : '' ?>" placeholder="14" aria-label="<?= esc(lang('Settings.brand.size_aria')) ?>">
                 </div>
               </div>
             </div>
             <div class="fg">
-              <label><i class="bi bi-box-arrow-in-right"></i> Login field</label>
+              <label><i class="bi bi-box-arrow-in-right"></i> <?= lang('Settings.brand.login_field') ?></label>
               <select name="loginField" style="width:25ch;max-width:100%">
-                <option value="email"    <?= $loginField === 'email'    ? 'selected' : '' ?>>E-mail</option>
-                <option value="username" <?= $loginField === 'username' ? 'selected' : '' ?>>Username</option>
-                <option value="both"     <?= $loginField === 'both'     ? 'selected' : '' ?>>E-mail or username</option>
+                <option value="email"    <?= $loginField === 'email'    ? 'selected' : '' ?>><?= lang('Settings.brand.login_email') ?></option>
+                <option value="username" <?= $loginField === 'username' ? 'selected' : '' ?>><?= lang('Settings.brand.login_username') ?></option>
+                <option value="both"     <?= $loginField === 'both'     ? 'selected' : '' ?>><?= lang('Settings.brand.login_both') ?></option>
               </select>
             </div>
           </div>
         </div>
       </div>
       <div class="form-footer">
-        <span class="save-state" id="brandState"><i class="bi bi-check2-circle"></i> Changes are saved automatically</span>
+        <span class="save-state" id="brandState"><i class="bi bi-check2-circle"></i> <?= lang('Settings.brand.autosave') ?></span>
         <?php if ($logo !== ''): ?>
-        <button type="submit" form="rmLogoForm" class="btn-sm btn-outline"><i class="bi bi-x-lg"></i> Remove logo</button>
+        <button type="submit" form="rmLogoForm" class="btn-sm btn-outline"><i class="bi bi-x-lg"></i> <?= lang('Settings.brand.remove_logo') ?></button>
         <?php endif ?>
       </div>
     </form>
@@ -293,13 +293,13 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
     <div class="scard-title"><?= lang('Sync.settings.tab.node') ?></div>
     <div class="fgrid4" style="margin-bottom:12px">
       <div class="fg w4">
-        <label><i class="bi bi-fingerprint"></i> Secret fingerprint</label>
+        <label><i class="bi bi-fingerprint"></i> <?= lang('Settings.node.fingerprint') ?></label>
         <div class="secret-row">
           <span class="fp" style="width:280px;max-width:100%;box-sizing:border-box"><?= esc($secretHash) ?></span>
-          <button type="button" class="btn-sm btn-outline gen-btn" id="genFp" title="Generate a new secret into the field below (save to apply)" aria-label="Generate a new secret"><i class="bi bi-arrow-repeat"></i></button>
-          <button type="button" class="btn-sm btn-outline gen-btn copy-btn" data-copy="fp" title="Copy the fingerprint" aria-label="Copy the fingerprint"><i class="bi bi-clipboard"></i></button>
+          <button type="button" class="btn-sm btn-outline gen-btn" id="genFp" title="<?= esc(lang('Settings.node.gen_fp_title')) ?>" aria-label="<?= esc(lang('Settings.node.generate')) ?>"><i class="bi bi-arrow-repeat"></i></button>
+          <button type="button" class="btn-sm btn-outline gen-btn copy-btn" data-copy="fp" title="<?= esc(lang('Settings.node.copy_fp_title')) ?>" aria-label="<?= esc(lang('Settings.node.copy_fp_title')) ?>"><i class="bi bi-clipboard"></i></button>
         </div>
-        <span class="hint">Renaming a node or rotating the secret only changes <strong><?= esc($node) ?></strong> — apply the matching value on the peer by hand.</span>
+        <span class="hint"><?= lang('Settings.node.fp_hint', ['<strong>' . esc($node) . '</strong>']) ?></span>
       </div>
     </div>
     <form method="post" action="<?= site_url($base . '/identity') ?>">
@@ -308,28 +308,28 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
         <div class="fg w2">
           <div class="font-pair">
             <div class="fg-sub">
-              <label>This node</label>
+              <label><?= lang('Settings.node.this_node') ?></label>
               <input type="text" name="node" value="<?= esc($node) ?>" pattern="[a-z0-9][a-z0-9_-]{0,31}" maxlength="32" spellcheck="false" style="width:20ch;max-width:100%">
             </div>
             <div class="fg-sub">
-              <label>Peer node</label>
+              <label><?= lang('Settings.node.peer_node') ?></label>
               <input type="text" name="peerNode" value="<?= esc($peerNode) ?>" pattern="[a-z0-9][a-z0-9_-]{0,31}" maxlength="32" spellcheck="false" style="width:20ch;max-width:100%">
             </div>
           </div>
         </div>
         <div class="fg w4">
-          <label><i class="bi bi-key"></i> New shared secret</label>
+          <label><i class="bi bi-key"></i> <?= lang('Settings.node.new_secret') ?></label>
           <div class="secret-row">
-            <input type="text" name="secret" class="secret-input" placeholder="leave blank to keep the current one"
+            <input type="text" name="secret" class="secret-input" placeholder="<?= esc(lang('Settings.node.secret_placeholder')) ?>"
                    pattern="[A-Za-z0-9]{32,128}" maxlength="128" autocomplete="off" spellcheck="false" style="width:280px;max-width:100%">
-            <button type="button" class="btn-sm btn-outline gen-btn" id="genSecret" title="Generate a random secret (save to apply)" aria-label="Generate a random secret"><i class="bi bi-shuffle"></i></button>
-            <button type="button" class="btn-sm btn-outline gen-btn copy-btn" data-copy="secret" title="Copy the new secret" aria-label="Copy the new secret"><i class="bi bi-clipboard"></i></button>
+            <button type="button" class="btn-sm btn-outline gen-btn" id="genSecret" title="<?= esc(lang('Settings.node.gen_secret_title')) ?>" aria-label="<?= esc(lang('Settings.node.gen_secret_aria')) ?>"><i class="bi bi-shuffle"></i></button>
+            <button type="button" class="btn-sm btn-outline gen-btn copy-btn" data-copy="secret" title="<?= esc(lang('Settings.node.copy_secret_title')) ?>" aria-label="<?= esc(lang('Settings.node.copy_secret_title')) ?>"><i class="bi bi-clipboard"></i></button>
           </div>
-          <span class="hint" id="secretHint">Min 32 alphanumeric characters. Leave blank to keep the current secret.</span>
+          <span class="hint" id="secretHint"><?= lang('Settings.node.secret_hint') ?></span>
         </div>
       </div>
       <div class="form-footer">
-        <button class="btn-sm"><i class="bi bi-check-lg"></i> Save</button>
+        <button class="btn-sm"><i class="bi bi-check-lg"></i> <?= lang('Settings.btn.save') ?></button>
       </div>
     </form>
   </div>
@@ -349,7 +349,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
 <div class="<?= $groupName === 'Telegram alerts' ? 'scards' : '' ?>">
 <?php foreach ($cards as $cardTitle => $cardItems): ?>
   <div class="scard">
-    <div class="scard-title"><?= $cardTitle ?></div>
+    <div class="scard-title"><?= $cardTitle === 'E-mail' ? lang('Settings.card.email') : ($cardTitle === 'Telegram' ? lang('Settings.card.telegram') : esc($cardTitle)) ?></div>
     <form method="post" action="<?= site_url($base . '/env') ?>">
       <?= csrf_field() ?>
       <?php if ($groupName === 'Synchronisation'): /* directory and other node in a row, then the six numeric settings in a 3-column grid */ $headKeys = ['sync.files.dir', 'sync.peerUrl']; ?>
@@ -393,12 +393,12 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
       <?php if ($groupName !== 'Synchronisation'): /* that tab saves as it changes: no button */ ?>
       <?php if ($groupName === 'Telegram alerts'): /* space above the footer: at least 14px, grows to push it down */ ?><div class="alert-gap"></div><?php endif ?>
       <div class="form-footer">
-        <button class="btn-sm"><i class="bi bi-check-lg"></i> Save</button>
+        <button class="btn-sm"><i class="bi bi-check-lg"></i> <?= lang('Settings.btn.save') ?></button>
         <?php if ($groupName === 'Telegram alerts' && $cardTitle === 'E-mail'): ?>
-        <button type="submit" form="mail-test" class="btn-sm btn-outline"><i class="bi bi-envelope-check"></i> Test e-mail</button>
+        <button type="submit" form="mail-test" class="btn-sm btn-outline"><i class="bi bi-envelope-check"></i> <?= lang('Settings.btn.test_email') ?></button>
         <?php endif ?>
         <?php if ($groupName === 'Telegram alerts' && $cardTitle === 'Telegram'): ?>
-        <button type="submit" form="tg-test" class="btn-sm btn-outline"><i class="bi bi-send"></i> Test Telegram</button>
+        <button type="submit" form="tg-test" class="btn-sm btn-outline"><i class="bi bi-send"></i> <?= lang('Settings.btn.test_telegram') ?></button>
         <?php endif ?>
       </div>
       <?php endif ?>
@@ -456,7 +456,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
     function setChosen(id) {
       chosen = id;
       useBtn.disabled = id === null;
-      picked.textContent = id === null ? 'Select a folder in the tree.' : root + sep + id.split('/').join(sep);
+      picked.textContent = id === null ? <?= json_encode(lang('Settings.folder.select')) ?> : root + sep + id.split('/').join(sep);
     }
     function open() { modal.hidden = false; setChosen(null); useBtn.focus(); }
     function close() { modal.hidden = true; btn.focus(); }
@@ -559,7 +559,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
       if (seq !== fpSeq) { return; }                   // a newer value was typed meanwhile
       fpBox.textContent = fp;
       fpBox.classList.add('fp-preview');
-      fpBox.title = 'Preview: the fingerprint the node gets after Save (now: ' + currentFp + ')';
+            fpBox.title = <?= json_encode(lang('Settings.node.fp_preview', ['__CUR__'])) ?>.replace('__CUR__', currentFp);
     });
   }
 
@@ -574,7 +574,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
     secretInput.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--acc) 45%, transparent)';
     setTimeout(function () { secretInput.style.boxShadow = ''; }, 1600);
     var hint = document.getElementById('secretHint');
-    if (hint) { hint.textContent = 'New secret generated: its fingerprint is shown above; press Save to apply it.'; hint.style.color = 'var(--acc)'; }
+        if (hint) { hint.textContent = <?= json_encode(lang('Settings.node.secret_generated')) ?>; hint.style.color = 'var(--acc)'; }
     showPreview(value);
   }
 
@@ -619,7 +619,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
       if (text !== '') { copyText(text, btn); return; }
       var hint = document.getElementById('secretHint');
       if (btn.dataset.copy === 'secret' && hint) {
-        hint.textContent = 'Nothing to copy yet: generate a secret or type one first.';
+                hint.textContent = <?= json_encode(lang('Settings.node.nothing_to_copy')) ?>;
         hint.style.color = 'var(--err-fg)';
       }
     });
@@ -641,22 +641,22 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
   }
 
   function saveBrand() {
-    setState('Saving…', false);
+        setState(<?= json_encode(lang('Settings.js.saving')) ?>, false);
     fetch(brandForm.action, {
       method: 'POST',
       body: new FormData(brandForm),
       credentials: 'same-origin',
       headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
     }).then(function (r) {
-      return r.json().catch(function () { return { ok: false, message: 'Not saved: unexpected response (' + r.status + ')' }; });
+      return r.json().catch(function () { return { ok: false, message: (<?= json_encode(lang('Settings.js.bad_response', ['{0}'])) ?>).replace('{0}', r.status) }; });
     }).then(function (j) {
       if (j.tokenName && j.token) {                       // the CSRF token is regenerated on each save:
         // every form on the page carries it (the Remove logo form sits outside this one), so update all of them
         document.querySelectorAll('input[name="' + j.tokenName + '"]').forEach(function (t) { t.value = j.token; });
       }
-      setState(j.ok ? 'Saved' : j.message, !j.ok);
+            setState(j.ok ? <?= json_encode(lang('Settings.js.saved')) ?> : j.message, !j.ok);
       window.syncToast(j.message, j.ok);
-    }).catch(function () { setState('Not saved: network error', true); });
+        }).catch(function () { setState(<?= json_encode(lang('Settings.js.net_error')) ?>, true); });
   }
 
   function queueSave() {
@@ -703,7 +703,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
       prev.src = reader.result;
       prev.hidden = false;
       drop.classList.add('has-logo');
-      document.getElementById('logoText').textContent = 'Logo: click or drop to replace';
+            document.getElementById('logoText').textContent = <?= json_encode(lang('Settings.brand.logo_replace')) ?>;
     };
     if (file.type.indexOf('image/') === 0) { reader.readAsDataURL(file); }
     saveBrand();
@@ -741,11 +741,11 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
         credentials: 'same-origin',
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
       }).then(function (r) {
-        return r.json().catch(function () { return { ok: false, message: 'Not saved: unexpected response (' + r.status + ')' }; });
+        return r.json().catch(function () { return { ok: false, message: (<?= json_encode(lang('Settings.js.bad_response', ['{0}'])) ?>).replace('{0}', r.status) }; });
       }).then(function (j) {
         refreshTokens(j.tokenName, j.token);
         window.syncToast(j.message, j.ok);
-      }).catch(function () { window.syncToast('Not saved: network error', false); });
+      }).catch(function () { window.syncToast(<?= json_encode(lang('Settings.js.net_error')) ?>, false); });
     }
     function queue() { clearTimeout(timer); timer = setTimeout(save, 500); }
 

@@ -165,10 +165,10 @@ class AuthLock
                 usleep(400_000);
             } while (microtime(true) < $deadline);
         } catch (Throwable $e) {
-            return ['ok' => false, 'reason' => 'peer unreachable (' . $e->getMessage() . '); the lease stays until it expires'];
+            return ['ok' => false, 'reason' => \AdGo\Sync\Libraries\Lang::text('Messages.lock.peerUnreachable', [$e->getMessage()])];
         }
 
-        return ['ok' => false, 'reason' => 'the peer has not applied our changes yet; the lease stays until it expires'];
+        return ['ok' => false, 'reason' => \AdGo\Sync\Libraries\Lang::text('Messages.lock.notApplied')];
     }
 
     /**

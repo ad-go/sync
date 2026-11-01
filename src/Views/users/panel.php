@@ -1,7 +1,45 @@
 <?php
 /** @var list<string> $groups */ /** @var string $base */ /** @var string $dteUrl */
 use AdGo\Sync\Libraries\Branding;
-$title = 'Users · ' . esc(Branding::siteName());
+$title = lang('Users.page_title') . ' · ' . esc(Branding::siteName());
+/* Texts the script needs: DataTables and its Editor take the standard option names (language, i18n) */
+$jsText = [
+    'lang' => [
+        'search'         => lang('Users.dt.search'),
+        'info'           => lang('Users.dt.info'),
+        'infoEmpty'      => lang('Users.dt.info_empty'),
+        'emptyTable'     => lang('Users.dt.empty'),
+        'zeroRecords'    => lang('Users.dt.zero'),
+        'loadingRecords' => lang('Users.dt.loading'),
+        'paginate'       => ['previous' => lang('Users.dt.previous'), 'next' => lang('Users.dt.next')],
+    ],
+    'editor' => [
+        'create' => ['button' => lang('Users.btn.new'), 'title' => lang('Users.dt.create_title'), 'submit' => lang('Users.dt.create_submit')],
+        'edit'   => ['title' => lang('Users.dt.edit_title'), 'submit' => lang('Users.dt.edit_submit')],
+        'remove' => [
+            'title'   => lang('Users.dt.remove_title'),
+            'submit'  => lang('Users.dt.remove_submit'),
+            'confirm' => ['_' => lang('Users.dt.remove_confirm'), '1' => lang('Users.dt.remove_confirm_one')],
+        ],
+        'error'  => ['system' => lang('Users.dt.system_error')],
+    ],
+    'field' => [
+        'username'      => lang('Users.field.username'),
+        'email'         => lang('Users.field.email'),
+        'password'      => lang('Users.field.password'),
+        'passwordHint'  => lang('Users.field.password_hint'),
+        'groups'        => lang('Users.field.groups'),
+        'active'        => lang('Users.field.active'),
+        'yes'           => lang('Users.field.yes'),
+        'no'            => lang('Users.field.no'),
+    ],
+    'btn'      => ['new' => lang('Users.btn.new'), 'export' => lang('Users.btn.export'), 'import' => lang('Users.btn.import')],
+    'del'      => ['title' => lang('Users.delete.title'), 'message' => lang('Users.delete.message'), 'button' => lang('Users.delete.button'), 'tip' => lang('Users.delete.tooltip')],
+    'twofa'    => ['tip' => lang('Users.twofa.tooltip'), 'loading' => lang('Users.twofa.loading'), 'error' => lang('Users.twofa.error'), 'key' => lang('Users.twofa.key'), 'codes' => lang('Users.twofa.codes')],
+    'drop'     => lang('Users.import.drop'),
+    'done'     => lang('Users.import.done'),
+    'failed'   => lang('Users.import.failed'),
+];
 ob_start();
 ?>
 <link rel="stylesheet" href="<?= esc($dteUrl) ?>datatables.min.css">
@@ -109,37 +147,37 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
 <?php $head = ob_get_clean(); ?>
 <?php ob_start(); ?>
 
-<h1>Users</h1>
+<h1><?= lang('Users.title') ?></h1>
 
 <table id="usersTable" style="width:100%">
 <thead><tr>
-  <th data-dt-column="orderable:false;searchable:false"></th><th>ID</th><th>Username</th><th>Email</th><th>Groups</th><th>Active</th>
+  <th data-dt-column="orderable:false;searchable:false"></th><th><?= lang('Users.col.id') ?></th><th><?= lang('Users.col.username') ?></th><th><?= lang('Users.col.email') ?></th><th><?= lang('Users.col.groups') ?></th><th><?= lang('Users.col.active') ?></th>
 </tr></thead>
 </table>
 
 <div class="twofa-backdrop" id="twofaBackdrop">
   <div class="sync-modal">
-    <button type="button" class="close-btn" id="twofaClose" aria-label="Close">&times;</button>
-    <h3>Authenticator (2FA)</h3>
-    <div id="twofaBody">Loading&hellip;</div>
+    <button type="button" class="close-btn" id="twofaClose" aria-label="<?= esc(lang('Users.twofa.close')) ?>">&times;</button>
+    <h3><?= lang('Users.twofa.heading') ?></h3>
+    <div id="twofaBody"><?= lang('Users.twofa.loading') ?></div>
   </div>
 </div>
 
 <div class="twofa-backdrop" id="importBackdrop">
   <div class="sync-modal">
-    <button type="button" class="close-btn" id="importClose" aria-label="Close">&times;</button>
-    <h3><i class="bi bi-upload"></i> Import users (Excel)</h3>
-    <p>One user per row, in this order: <code>username, email, password, groups, active</code>. Groups are separated by <code>|</code> (for example <code>user|beta</code>); active is <code>1</code> or <code>0</code>. A first row with the column names is skipped.</p>
-    <p><a href="<?= esc(site_url($base . '/import/template')) ?>" download><i class="bi bi-file-earmark-arrow-down"></i> Download the Excel model</a></p>
+    <button type="button" class="close-btn" id="importClose" aria-label="<?= esc(lang('Users.import.close')) ?>">&times;</button>
+    <h3><i class="bi bi-upload"></i> <?= lang('Users.import.title') ?></h3>
+    <p><?= lang('Users.import.format') ?></p>
+    <p><a href="<?= esc(site_url($base . '/import/template')) ?>" download><i class="bi bi-file-earmark-arrow-down"></i> <?= lang('Users.import.model') ?></a></p>
     <label class="imp-drop" id="impDrop">
       <i class="bi bi-cloud-arrow-up"></i>
-      <span id="impDropText">Choose an Excel file (.xlsx), or drop it here</span>
-      <small>.xlsx · one user per row</small>
+      <span id="impDropText"><?= lang('Users.import.drop') ?></span>
+      <small><?= lang('Users.import.drop_hint') ?></small>
       <input type="file" id="importFile" accept=".xlsx" hidden>
     </label>
     <div class="imp-foot">
-      <button type="button" class="btn-sm btn-outline" id="importCancel">Cancel</button>
-      <button type="button" class="btn-sm" id="importRun" disabled>Import</button>
+      <button type="button" class="btn-sm btn-outline" id="importCancel"><?= lang('Users.import.cancel') ?></button>
+      <button type="button" class="btn-sm" id="importRun" disabled><?= lang('Users.import.run') ?></button>
     </div>
   </div>
 </div>
@@ -156,6 +194,8 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
 
   /* tell DTE to use the Bootstrap 5 instance loaded above */
   DataTable.use(bootstrap);
+
+  var TXT = <?= json_encode($jsText, JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) ?>;
 
   var BASE    = <?= json_encode(site_url($base)) ?>;
   var GROUPS  = <?= json_encode($groups) ?>;
@@ -175,13 +215,14 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
     },
     table: '#usersTable',
     idSrc:  'DT_RowId',
+    i18n: TXT.editor,
     fields: [
-      { label: 'Username', name: 'username' },
-      { label: 'E-mail',   name: 'email',    type: 'text' },
-      { label: 'Password', name: 'password', type: 'password', attr: { placeholder: 'Leave blank to keep', autocomplete: 'new-password' } },
-      { label: 'Groups', name: 'groups', type: 'checkbox',
+      { label: TXT.field.username, name: 'username' },
+      { label: TXT.field.email,    name: 'email',    type: 'text' },
+      { label: TXT.field.password, name: 'password', type: 'password', attr: { placeholder: TXT.field.passwordHint, autocomplete: 'new-password' } },
+      { label: TXT.field.groups, name: 'groups', type: 'checkbox',
         options: GROUPS.map(function(g){ return { label: g, value: g }; }) },
-      { label: 'Active',   name: 'active',   type: 'select',  options: [{label:'Yes', value:'1'},{label:'No', value:'0'}], def: '1' }
+      { label: TXT.field.active,   name: 'active',   type: 'select',  options: [{label: TXT.field.yes, value:'1'},{label: TXT.field.no, value:'0'}], def: '1' }
     ]
   });
 
@@ -193,6 +234,7 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
   });
 
   var table = new DataTable('#usersTable', {
+    language: TXT.lang,
     ajax: {
       url:  BASE + '/ajax',
       type: 'GET',
@@ -206,9 +248,9 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
           var g = Array.isArray(row.groups) ? row.groups : String(row.groups || '').split('|').filter(Boolean);
           var h = '';
           var act = 'display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;font-size:14px';
-          h += '<button class="btn-del s" data-id="' + row.id + '" title="Delete" style="' + act + ';color:#c62828;border-color:#c62828;margin-right:4px"><i class="bi bi-trash3"></i></button>';
+          h += '<button class="btn-del s" data-id="' + row.id + '" title="' + TXT.del.tip + '" style="' + act + ';color:#c62828;border-color:#c62828;margin-right:4px"><i class="bi bi-trash3"></i></button>';
           if (g.some(function(x){ return x.trim() === 'superadmin'; })) {
-            h += '<button class="btn-2fa s" data-id="' + row.id + '" title="View 2FA" style="' + act + '"><i class="bi bi-shield-lock"></i></button>';
+            h += '<button class="btn-2fa s" data-id="' + row.id + '" title="' + TXT.twofa.tip + '" style="' + act + '"><i class="bi bi-shield-lock"></i></button>';
           }
           return h;
         }
@@ -229,10 +271,10 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
       bottomEnd:   'paging'
     },
     buttons: [
-      { extend: 'create', editor: editor, text: 'New', className: 'btn-new' },
-      { text: '<i class="bi bi-download"></i> Export Excel', action: function(){ window.location = BASE + '/export'; } },
+      { extend: 'create', editor: editor, text: TXT.btn.new, className: 'btn-new' },
+      { text: '<i class="bi bi-download"></i> ' + TXT.btn.export, action: function(){ window.location = BASE + '/export'; } },
       {
-        text: '<i class="bi bi-upload"></i> Import Excel',
+        text: '<i class="bi bi-upload"></i> ' + TXT.btn.import,
         className: 'btn-import-open',
         action: function(){ document.getElementById('importBackdrop').style.display = 'flex'; }
       }
@@ -249,7 +291,7 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
     var f = impFile.files[0];
     impRun.disabled = !f;
     impDrop.classList.toggle('has-file', !!f);
-    impDropText.textContent = f ? f.name : 'Choose an Excel file (.xlsx), or drop it here';
+    impDropText.textContent = f ? f.name : TXT.drop;
   }
   function impClose() { impBackdrop.style.display = 'none'; impFile.value = ''; impShow(); }
   function toast(text, ok) { if (window.syncToast) { syncToast(text, ok); } }
@@ -281,11 +323,11 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
       .then(function(r){ return r.json(); })
       .then(function(d){
         freshCsrf(d);
-        toast(d.message || 'Done.', !!d.ok);
+        toast(d.message || TXT.done, !!d.ok);
         impClose();
         if (d.ok) { table.ajax.reload(); }
       })
-      .catch(function(){ toast('Import failed.', false); impRun.disabled = false; });
+      .catch(function(){ toast(TXT.failed, false); impRun.disabled = false; });
   });
 
   /* click row -> edit */
@@ -302,26 +344,26 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
     var delBtn = e.target.closest('.btn-del');
     if (delBtn) {
       e.stopPropagation();
-      editor.remove(delBtn.closest('tr'), { title: 'Delete user', message: 'This action cannot be undone.', buttons: { label: 'Delete', className: 'btn-danger' } });
+      editor.remove(delBtn.closest('tr'), { title: TXT.del.title, message: TXT.del.message, buttons: { label: TXT.del.button, className: 'btn-danger' } });
       return;
     }
     var btn = e.target.closest('.btn-2fa');
     if (!btn) return;
     e.stopPropagation();
-    twofaBody.textContent = 'Loading…';
+    twofaBody.textContent = TXT.twofa.loading;
     backdrop.classList.add('open');
     fetch(BASE + '/' + btn.dataset.id + '/2fa', { headers: { Accept: 'application/json' } })
       .then(function(r){ return r.json(); })
       .then(function(data) {
         if (data.error) { twofaBody.textContent = data.error; return; }
         var html = '<div class="qrwrap">' + data.qr + '</div>';
-        html += '<p><small>Manual key:</small><code class="key">' + data.secret.replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }) + '</code></p>';
-        html += '<p><small>Recovery codes (struck through = used):</small></p><div class="codes">';
+        html += '<p><small>' + TXT.twofa.key + '</small><code class="key">' + data.secret.replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }) + '</code></p>';
+        html += '<p><small>' + TXT.twofa.codes + '</small></p><div class="codes">';
         data.codes.forEach(function(c){ html += '<div class="'+(c.used?'used':'')+'">' + c.code + '</div>'; });
         html += '</div>';
         twofaBody.innerHTML = html;
       })
-      .catch(function(){ twofaBody.textContent = 'Could not load.'; });
+      .catch(function(){ twofaBody.textContent = TXT.twofa.error; });
   });
 
   document.getElementById('twofaClose').addEventListener('click', function(){ backdrop.classList.remove('open'); });

@@ -38,7 +38,7 @@ $dtePay     = (bool) (setting('Sync.pay') ?? $syncCfg->pay);
 $dteUrl     = site_url(rtrim($syncCfg->settingsPath, '/') . '/dte');
 ?>
 <header class="apptopbar" id="appTopbar">
-  <button id="tbBurger" class="tb-burger" aria-label="Menu">&#9776;</button>
+  <button id="tbBurger" class="tb-burger" aria-label="<?= esc(lang('Ui.menu_label')) ?>">&#9776;</button>
   <a class="tb-brand" href="<?= site_url('/') ?>">
     <?php if ($logoUrl !== ''): ?>
       <img src="<?= esc($logoUrl) ?>" alt="<?= esc($siteName) ?>" style="max-height:28px;vertical-align:middle">
@@ -52,17 +52,17 @@ $dteUrl     = site_url(rtrim($syncCfg->settingsPath, '/') . '/dte');
   <a class="tb-lang" href="<?= site_url('lang/' . $code) ?>" title="<?= esc(strtoupper($code)) ?>"
      style="display:inline-flex;align-items:center;padding:4px 4px;border-radius:6px;line-height:0;text-decoration:none"><?= $flag($code) ?: esc(strtoupper($code)) ?></a>
   <?php endforeach ?>
-  <form method="post" action="<?= esc($dteUrl) ?>" style="display:inline;margin:0" title="<?= $dtePay ? 'DTE licensed — click to disable' : 'DTE unlicensed — click to enable' ?>">
+  <form method="post" action="<?= esc($dteUrl) ?>" style="display:inline;margin:0" title="<?= esc($dtePay ? lang('Ui.dte_on_title') : lang('Ui.dte_off_title')) ?>">
     <?= csrf_field() ?>
-    <button type="submit" style="background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;font-size:15px;color:<?= $dtePay ? 'var(--ok-fg)' : 'var(--mute)' ?>;transition:color .15s" title="<?= $dtePay ? 'DTE licensed' : 'DTE unlicensed' ?>"><i class="bi bi-patch-<?= $dtePay ? 'check-fill' : 'question' ?>"></i></button>
+    <button type="submit" style="background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;font-size:15px;color:<?= $dtePay ? 'var(--ok-fg)' : 'var(--mute)' ?>;transition:color .15s" title="<?= esc($dtePay ? lang('Ui.dte_on') : lang('Ui.dte_off')) ?>"><i class="bi bi-patch-<?= $dtePay ? 'check-fill' : 'question' ?>"></i></button>
   </form>
-  <label class="tb-switch" title="Toggle dark/light"><span class="tb-sw-icon" id="tbThemeIcon">&#9788;</span><span class="tb-sw-track"><input type="checkbox" id="tbTheme"><span class="tb-slider"></span></span></label>
+  <label class="tb-switch" title="<?= esc(lang('Ui.theme_toggle')) ?>"><span class="tb-sw-icon" id="tbThemeIcon">&#9788;</span><span class="tb-sw-track"><input type="checkbox" id="tbTheme"><span class="tb-slider"></span></span></label>
   <details class="tb-dd tb-user">
     <summary><?= $nodeName ?><?= $userName !== '' ? ' &middot; ' . esc($userName) : '' ?></summary>
     <div class="tb-ddmenu">
-      <a href="<?= esc($profileUrl) ?>">Profile</a>
+      <a href="<?= esc($profileUrl) ?>"><?= lang('Ui.profile') ?></a>
       <hr>
-      <a href="<?= esc($logoutUrl) ?>">Sign out</a>
+      <a href="<?= esc($logoutUrl) ?>"><?= lang('Ui.sign_out') ?></a>
     </div>
   </details>
 </header>

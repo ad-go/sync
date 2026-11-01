@@ -71,7 +71,7 @@ class UsersAdmin extends Controller
 
         $this->store(null, $in);
 
-        return $this->ok('User created.');
+        return $this->ok(lang('Messages.users.created'));
     }
 
     public function delete(int $id): RedirectResponse
@@ -79,12 +79,12 @@ class UsersAdmin extends Controller
         $user = $this->users->findById($id);
 
         if ($user === null) {
-            return $this->err('Unknown user.');
+            return $this->err(lang('Messages.users.unknown'));
         }
 
         $err = $this->deleteUser($user);
 
-        return $err !== null ? $this->err($err) : $this->ok('User deleted.');
+        return $err !== null ? $this->err($err) : $this->ok(lang('Messages.users.deleted'));
     }
 
     /**
@@ -121,7 +121,7 @@ class UsersAdmin extends Controller
         }
 
         if (! in_array($action, ['create', 'edit'], true)) {
-            return $this->response->setJSON(['error' => 'Unknown action.']);
+            return $this->response->setJSON(['error' => lang('Messages.users.unknownAction')]);
         }
 
         $updated = [];
@@ -133,7 +133,7 @@ class UsersAdmin extends Controller
                 $user = $this->users->findById((int) ltrim((string) $rowId, 'row_'));
 
                 if ($user === null) {
-                    return $this->response->setJSON(['error' => 'Unknown user.']);
+                    return $this->response->setJSON(['error' => lang('Messages.users.unknown')]);
                 }
             }
 
@@ -200,11 +200,11 @@ class UsersAdmin extends Controller
         $file = $this->request->getFile('xlsx');
 
         if ($file === null || ! $file->isValid()) {
-            return $this->response->setJSON(['ok' => false, 'message' => 'No file uploaded.']);
+            return $this->response->setJSON(['ok' => false, 'message' => lang('Messages.users.noFile')]);
         }
 
         if (strtolower($file->getClientExtension()) !== 'xlsx') {
-            return $this->response->setJSON(['ok' => false, 'message' => 'Only Excel (.xlsx) files can be imported.']);
+            return $this->response->setJSON(['ok' => false, 'message' => lang('Messages.users.xlsxOnly')]);
         }
 
         try {
@@ -234,7 +234,7 @@ class UsersAdmin extends Controller
             ], isNew: true, defaultGroups: ['user']);
 
             if ($err !== null) {
-                $errors[] = 'Row ' . ($i + 1) . ': ' . $err;
+                $errors[] = lang('Messages.users.importRow', [$i + 1, $err]);
                 continue;
             }
 
@@ -242,10 +242,10 @@ class UsersAdmin extends Controller
             $created++;
         }
 
-        $message = "Imported {$created} user(s).";
+        $message = lang('Messages.users.imported', [$created]);
 
         if ($errors !== []) {
-            $message .= ' Errors: ' . implode('; ', $errors);
+            $message .= ' ' . lang('Messages.users.importErrors', [implode('; ', $errors)]);
         }
 
         return $this->response->setJSON(['ok' => $errors === [], 'message' => $message]);
@@ -257,13 +257,13 @@ class UsersAdmin extends Controller
         $user = $this->users->findById($id);
 
         if ($user === null || ! $user->inGroup('superadmin')) {
-            return $this->response->setStatusCode(404)->setJSON(['error' => 'Not a superadmin.']);
+            return $this->response->setStatusCode(404)->setJSON(['error' => lang('Messages.users.notSuperadmin')]);
         }
 
         $totp = new TwoFactor();
 
         if (! $totp->hasSecret($user)) {
-            return $this->response->setStatusCode(404)->setJSON(['error' => 'Not set up yet — the QR code appears the first time this user logs in.']);
+            return $this->response->setStatusCode(404)->setJSON(['error' => lang('Messages.users.notSetUp')]);
         }
 
         $secret = $totp->ensureSecret($user);
@@ -331,7 +331,7 @@ class UsersAdmin extends Controller
 
         $emailer = service('email');
         $emailer->setTo($email);
-        $emailer->setSubject(Branding::siteName() . ': set up your authenticator');
+        $emailer->setSubject(lang('Messages.users.totpSubject', [Branding::siteName()]));
         $emailer->setMessage(view('AdGo\Sync\Views\Email\totp_2fa_setup_email', [
             'user'   => $user,
             'secret' => $secret,
@@ -393,15 +393,15 @@ class UsersAdmin extends Controller
         $fail  = static fn (string $message): array => [$empty, $message];
 
         if ($username === '' || mb_strlen($username) > 30) {
-            return $fail('The username must be 1-30 characters.');
+            return $fail(lang('Messages.users.usernameLength'));
         }
 
         if (filter_var($email, FILTER_VALIDATE_EMAIL) === false || mb_strlen($email) > 254) {
-            return $fail('Invalid e-mail.');
+            return $fail(lang('Messages.users.invalidEmail'));
         }
 
         if ($isNew && $password === '') {
-            return $fail('A password is required.');
+            return $fail(lang('Messages.users.passwordNeeded'));
         }
 
         if ($password !== '') {
@@ -415,16 +415,16 @@ class UsersAdmin extends Controller
         }
 
         if ($groups === []) {
-            return $fail('Select at least one group.');
+            return $fail(lang('Messages.users.noGroup'));
         }
 
         if ($username !== $currentUsername && $this->users->where('username', $username)->first() !== null) {
-            return $fail('That username is already taken.');
+            return $fail(lang('Messages.users.usernameTaken'));
         }
 
         if ($email !== $currentEmail
             && $this->kernel->db->table('auth_identities')->where(['type' => 'email_password', 'secret' => $email])->countAllResults() > 0) {
-            return $fail('That e-mail is already taken.');
+            return $fail(lang('Messages.users.emailTaken'));
         }
 
         return $ok(['username' => $username, 'email' => $email, 'password' => $password, 'active' => $active, 'groups' => $groups]);
@@ -467,11 +467,11 @@ class UsersAdmin extends Controller
     private function deleteUser(User $user): ?string
     {
         if ((int) $user->id === (int) auth()->id()) {
-            return 'You cannot delete your own account.';
+            return lang('Messages.users.ownAccount');
         }
 
         if ($user->inGroup('superadmin') && $this->countSuperadmins() <= 1) {
-            return 'Cannot delete the last superadmin.';
+            return lang('Messages.users.lastSuperadmin');
         }
 
         $db = $this->kernel->db;

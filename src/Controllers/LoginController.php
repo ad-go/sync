@@ -77,7 +77,7 @@ class LoginController extends ShieldLoginController
                             return redirect()->route('auth-action-show')->withCookies();
                         }
 
-                        return redirect()->route('login')->withInput()->with('error', 'Invalid 2FA code.');
+                        return redirect()->route('login')->withInput()->with('error', lang('Messages.login.invalid2fa'));
                     }
 
                     if (! $totp->isConfirmed($user)) {

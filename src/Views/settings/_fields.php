@@ -53,7 +53,7 @@ $iconFor = static function (string $key, string $type): string {
     $size  = 'width:' . min($chars, 40) . 'ch;max-width:100%';
 ?>
   <div class="fg <?= $span ?><?= $key === 'sync.files.dir' ? ' with-browse' : '' ?>">
-    <label title="<?= esc($key) ?>"><i class="bi <?= $icon ?>"></i> <?= esc($f['label']) ?></label>
+    <label title="<?= esc($key) ?>"><i class="bi <?= $icon ?>"></i> <?= esc(EnvSettings::text($f['label'])) ?></label>
     <?php if ($f['type'] === 'bool'): ?>
       <select name="<?= $id ?>" style="width:12ch">
         <option value="true"  <?= $f['value'] === 'true'  ? 'selected' : '' ?>>true</option>
@@ -62,12 +62,12 @@ $iconFor = static function (string $key, string $type): string {
     <?php elseif ($f['type'] === 'choice'): ?>
       <select name="<?= $id ?>" style="width:<?= max(16, min(24, (int) max(array_map('strlen', $f['options'] ?: [''])))+ 4) ?>ch;max-width:100%">
         <?php foreach ($f['options'] as $o): ?>
-        <option value="<?= esc($o) ?>" <?= $f['value'] === $o ? 'selected' : '' ?>><?= ($o === '' ? '(none)' : esc($o)) ?></option>
+        <option value="<?= esc($o) ?>" <?= $f['value'] === $o ? 'selected' : '' ?>><?= ($o === '' ? lang('Settings.field.none') : esc($o)) ?></option>
         <?php endforeach ?>
       </select>
     <?php elseif ($f['type'] === 'secret'): ?>
       <input type="password" name="<?= $id ?>" style="<?= $size ?>" maxlength="<?= $chars ?>"
-             placeholder="<?= $f['set'] ? 'set — leave blank to keep' : 'not set' ?>"
+             placeholder="<?= esc($f['set'] ? lang('Settings.field.secret_set') : lang('Settings.field.not_set')) ?>"
              autocomplete="off">
     <?php elseif ($f['type'] === 'int'): ?>
       <input type="number" name="<?= $id ?>" style="width:<?= $chars + 4 ?>ch;max-width:100%"
@@ -78,23 +78,23 @@ $iconFor = static function (string $key, string $type): string {
              <?= in_array($f['type'], ['url', 'baseurl'], true) ? 'inputmode="url"' : '' ?>>
     <?php endif ?>
     <?php if ($key === 'sync.files.dir'): ?>
-      <button type="button" class="btn-sm btn-outline gen-btn" id="browseDir" title="Pick a folder inside the synchronised directory" aria-label="Pick a folder"><i class="bi bi-folder2-open"></i></button>
+      <button type="button" class="btn-sm btn-outline gen-btn" id="browseDir" title="<?= esc(lang('Settings.folder.pick_hint')) ?>" aria-label="<?= esc(lang('Settings.folder.pick_aria')) ?>"><i class="bi bi-folder2-open"></i></button>
       <div id="dirModal" class="dir-modal" hidden>
         <div class="dir-modal-box" role="dialog" aria-modal="true" aria-labelledby="dirModalTitle">
           <div class="dir-modal-head">
-            <strong id="dirModalTitle"><i class="bi bi-folder2-open"></i> Pick the synchronised folder</strong>
-            <button type="button" class="gen-btn btn-outline" id="dirClose" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <strong id="dirModalTitle"><i class="bi bi-folder2-open"></i> <?= lang('Settings.folder.pick_title') ?></strong>
+            <button type="button" class="gen-btn btn-outline" id="dirClose" aria-label="<?= esc(lang('Settings.folder.close')) ?>"><i class="bi bi-x-lg"></i></button>
           </div>
           <div id="dirTree"></div>
           <div class="dir-modal-foot">
-            <span class="hint" id="dirPicked">Select a folder in the tree.</span>
-            <button type="button" class="btn-sm btn-outline" id="dirCancel">Cancel</button>
-            <button type="button" class="btn-sm" id="dirUse" disabled>Use this folder</button>
+            <span class="hint" id="dirPicked"><?= lang('Settings.folder.select') ?></span>
+            <button type="button" class="btn-sm btn-outline" id="dirCancel"><?= lang('Settings.folder.cancel') ?></button>
+            <button type="button" class="btn-sm" id="dirUse" disabled><?= lang('Settings.folder.use') ?></button>
           </div>
         </div>
       </div>
     <?php endif ?>
-    <?php if ($f['hint'] !== ''): ?><span class="hint"><?= esc($f['hint']) ?></span><?php endif ?>
+    <?php if ($f['hint'] !== ''): ?><span class="hint"><?= esc(EnvSettings::text($f['hint'])) ?></span><?php endif ?>
   </div>
 <?php endforeach ?>
 </div>

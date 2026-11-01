@@ -21,23 +21,23 @@ ob_start();
 
 <details class="status-panel" style="margin-bottom:18px">
 <summary style="cursor:pointer;font-weight:600;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);list-style:none;display:flex;align-items:center;gap:8px">
-  <span>Node status</span>
-  <span class="tag" style="font-weight:400"><?= esc($node) ?><?= $passive ? ' · passive' : '' ?></span>
-  <?php if ($authLock !== null): ?><span class="tag danger" style="font-weight:400">auth lock held</span><?php endif ?>
+  <span><?= lang('Conflicts.node_status') ?></span>
+  <span class="tag" style="font-weight:400"><?= esc($node) ?><?= $passive ? lang('Conflicts.passive') : '' ?></span>
+  <?php if ($authLock !== null): ?><span class="tag danger" style="font-weight:400"><?= lang('Conflicts.auth_lock_held') ?></span><?php endif ?>
 </summary>
 <div style="background:var(--card);border:1px solid var(--line);border-top:0;border-radius:0 0 var(--r) var(--r);padding:14px">
   <table style="margin-bottom:12px">
-  <tr><th>Peer</th><td><?= esc($peerNode) ?> — <code><?= esc($peerUrl) ?></code></td></tr>
-  <tr><th>Journal cursor</th><td><?= (int) $cursor ?></td></tr>
-  <tr><th>Journal entries</th><td><?= (int) $journal ?></td></tr>
-  <tr><th>Auth lock</th><td><?php if ($authLock === null): ?>free<?php else: ?>held by <b><?= esc($authLock['holder']) ?></b> (<?= esc($authLock['mode']) ?><?= $authLock['by'] !== '' ? ', ' . esc($authLock['by']) : '' ?>), expires in <?= (int) $authLock['expires_in'] ?>s<?php endif ?></td></tr>
-  <tr><th>Cron lock</th><td><?= $cronLock === null ? 'free' : 'held by ' . esc($cronLock['holder']) . ', expires in ' . (int) $cronLock['expires_in'] . 's' ?></td></tr>
+  <tr><th><?= lang('Conflicts.peer') ?></th><td><?= esc($peerNode) ?> — <code><?= esc($peerUrl) ?></code></td></tr>
+  <tr><th><?= lang('Conflicts.journal_cursor') ?></th><td><?= (int) $cursor ?></td></tr>
+  <tr><th><?= lang('Conflicts.journal_entries') ?></th><td><?= (int) $journal ?></td></tr>
+  <tr><th><?= lang('Conflicts.auth_lock') ?></th><td><?php if ($authLock === null): ?><?= lang('Conflicts.free') ?><?php else: ?><?= lang('Conflicts.held_by', ['<b>' . esc($authLock['holder']) . '</b>']) ?> (<?= esc($authLock['mode']) ?><?= $authLock['by'] !== '' ? ', ' . esc($authLock['by']) : '' ?>), <?= lang('Conflicts.expires_in', [(int) $authLock['expires_in']]) ?><?php endif ?></td></tr>
+  <tr><th><?= lang('Conflicts.cron_lock') ?></th><td><?= $cronLock === null ? lang('Conflicts.free') : lang('Conflicts.cron_held', [esc($cronLock['holder']), (int) $cronLock['expires_in']]) ?></td></tr>
   </table>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <form method="post" action="<?= site_url($base . '/sync-now') ?>"><?= csrf_field() ?><button class="btn">Sync now</button></form>
+    <form method="post" action="<?= site_url($base . '/sync-now') ?>"><?= csrf_field() ?><button class="btn"><?= lang('Conflicts.sync_now') ?></button></form>
     <form method="post" action="<?= site_url($base . '/lock') ?>"><?= csrf_field() ?>
-      <button name="action" value="take" class="btn">Take lock</button>
-      <button name="action" value="release" class="btn s">Release lock</button>
+      <button name="action" value="take" class="btn"><?= lang('Conflicts.take_lock') ?></button>
+      <button name="action" value="release" class="btn s"><?= lang('Conflicts.release_lock') ?></button>
     </form>
   </div>
 </div>

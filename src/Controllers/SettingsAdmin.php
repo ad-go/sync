@@ -83,7 +83,7 @@ class SettingsAdmin extends Controller
 
         if ($base === false || $dir === false || ! is_dir($dir)
             || ($dir !== $base && ! str_starts_with($dir, $base . DIRECTORY_SEPARATOR))) {
-            return $this->response->setStatusCode(404)->setJSON(['error' => 'Not a folder inside the synchronised directory.']);
+            return $this->response->setStatusCode(404)->setJSON(['error' => lang('Messages.settings.folderOutside')]);
         }
 
         $items = [];
@@ -119,7 +119,7 @@ class SettingsAdmin extends Controller
         $host = trim((string) ($env['sync.mail.host'] ?? ''));
 
         if ($to === '' || $host === '') {
-            return $this->err('Save the alert e-mail and the SMTP host first.');
+            return $this->err(lang('Messages.settings.mailNoTarget'));
         }
 
         $user = (string) ($env['sync.mail.user'] ?? '');
@@ -152,13 +152,13 @@ class SettingsAdmin extends Controller
                 ->setMessage('This is a test e-mail from the Sync settings page of node ' . config('Sync')->node . '.');
 
             if (! $mail->send(false)) {
-                return $this->err('The e-mail was not sent: ' . trim(strip_tags($mail->printDebugger(['headers']))));
+                return $this->err(lang('Messages.settings.mailNotSent', [trim(strip_tags($mail->printDebugger(['headers'])))]));
             }
         } catch (Throwable $e) {
-            return $this->err('The e-mail was not sent: ' . $e->getMessage());
+            return $this->err(lang('Messages.settings.mailNotSent', [$e->getMessage()]));
         }
 
-        return $this->ok('Test e-mail sent to ' . $to . '.');
+        return $this->ok(lang('Messages.settings.mailSent', [$to]));
     }
 
     /** Toggle licensed DTE mode (Sync.pay setting). */
@@ -183,14 +183,14 @@ class SettingsAdmin extends Controller
         if ($this->request->isAJAX()) {
             return $this->response->setJSON([
                 'ok'        => $error === null,
-                'message'   => $error ?? 'Saved',
+                'message'   => $error ?? lang('Messages.settings.saved'),
                 'token'     => csrf_hash(),
                 'tokenName' => csrf_token(),
                 'logo'      => Branding::logoUrl(),
             ]);
         }
 
-        return $error !== null ? $this->err($error) : $this->ok('Branding saved.');
+        return $error !== null ? $this->err($error) : $this->ok(lang('Messages.settings.brandingSaved'));
     }
 
     /** Writes the branding settings and the logo. Returns the first error message, or null when all was saved. */
@@ -199,7 +199,7 @@ class SettingsAdmin extends Controller
         $name = trim((string) $this->request->getPost('siteName'));
 
         if ($name === '' || mb_strlen($name) > 80) {
-            return 'The site name must be 1-80 characters.';
+            return lang('Messages.settings.siteNameLength');
         }
 
         setting('Sync.siteName', $name);
@@ -207,7 +207,7 @@ class SettingsAdmin extends Controller
         $color = trim((string) $this->request->getPost('accentColor'));
 
         if ($color !== '' && preg_match('/^#[0-9a-fA-F]{6}$/', $color) !== 1) {
-            return 'The accent colour must be a #rrggbb value.';
+            return lang('Messages.settings.accentColor');
         }
 
         setting('Sync.accentColor', $color);
@@ -227,13 +227,13 @@ class SettingsAdmin extends Controller
             $maxMb = config('Sync')->maxImageMb;
 
             if ($logo->getSize() > $maxMb * 1024 * 1024) {
-                return "The logo must be at most {$maxMb} MiB.";
+                return lang('Messages.settings.logoTooBig', [$maxMb]);
             }
 
             $ext = strtolower($logo->getClientExtension());
 
             if (! in_array($ext, ['png', 'jpg', 'jpeg', 'svg', 'webp'], true)) {
-                return 'The logo must be png, jpg, svg or webp.';
+                return lang('Messages.settings.logoType');
             }
 
             $old = (string) setting('Sync.logo');
@@ -260,7 +260,7 @@ class SettingsAdmin extends Controller
 
         setting('Sync.logo', '');
 
-        return $this->ok('Logo removed.');
+        return $this->ok(lang('Messages.settings.logoRemoved'));
     }
 
     /** Node identity: rename this node / the peer, or rotate the shared secret — written to `.env` only. */
@@ -272,12 +272,12 @@ class SettingsAdmin extends Controller
 
         foreach (['node' => $node, 'peerNode' => $peerNode] as $label => $v) {
             if ($v !== '' && preg_match(NodeIdentity::NODE_PATTERN, $v) !== 1) {
-                return $this->err("Invalid {$label}: lowercase letters, digits, - and _ only.");
+                return $this->err(lang('Messages.settings.identityInvalid', [$label]));
             }
         }
 
         if ($secret !== '' && preg_match(NodeIdentity::SECRET_PATTERN, $secret) !== 1) {
-            return $this->err('Invalid secret: 32-128 letters/digits.');
+            return $this->err(lang('Messages.settings.secretInvalid'));
         }
 
         $changes = [];
@@ -299,7 +299,7 @@ class SettingsAdmin extends Controller
         }
 
         if ($changes === []) {
-            return $this->ok('Nothing to change.');
+            return $this->ok(lang('Messages.settings.nothingToChange'));
         }
 
         try {
@@ -312,7 +312,7 @@ class SettingsAdmin extends Controller
             return $this->err($e->getMessage());
         }
 
-        return $this->ok('Identity saved. Apply the matching change on the peer node too.');
+        return $this->ok(lang('Messages.settings.identitySaved'));
     }
 
     /**
@@ -359,7 +359,7 @@ class SettingsAdmin extends Controller
         }
 
         if ($changes === []) {
-            return [true, 'Nothing to change.'];
+            return [true, lang('Messages.settings.nothingToChange')];
         }
 
         $dbChanged = (bool) array_filter(array_keys($changes), static fn ($k) => str_starts_with($k, 'database.default.'));
@@ -375,7 +375,7 @@ class SettingsAdmin extends Controller
 
         EnvFile::default()->apply($changes);
 
-        return [true, 'Settings saved.'];
+        return [true, lang('Messages.settings.settingsSaved')];
     }
 
     public function telegramTest(): RedirectResponse
@@ -383,15 +383,15 @@ class SettingsAdmin extends Controller
         $n = Kernel::instance()->telegram();
 
         if (! $n->enabled()) {
-            return $this->err('Telegram not configured — set the bot token and chat id first.');
+            return $this->err(lang('Messages.settings.telegramNotConfigured'));
         }
 
         $node = config('Sync')->node;
         $ok   = $n->send("*ad-go/sync* test alert from `{$node}` ✓");
 
         return $ok
-            ? $this->ok('Test message sent.')
-            : $this->err('Send failed — check the token and chat id in the server log.');
+            ? $this->ok(lang('Messages.settings.telegramSent'))
+            : $this->err(lang('Messages.settings.telegramFailed'));
     }
 
 }

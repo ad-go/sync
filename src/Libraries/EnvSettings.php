@@ -14,49 +14,49 @@ namespace AdGo\Sync\Libraries;
 class EnvSettings
 {
     /** @var array<string, array<string, mixed>> */
-    public const FIELDS = [
+        public const FIELDS = [
         // --- application
-        'app.baseURL' => ['group' => 'Application', 'label' => 'Site address', 'type' => 'baseurl', 'required' => true,
-            'hint' => 'https://…/ with the trailing slash. A wrong address breaks redirects and links.'],
-        'app.forceGlobalSecureRequests' => ['group' => 'Application', 'label' => 'Force HTTPS', 'type' => 'bool', 'required' => true,
-            'hint' => 'Redirect every request to https.'],
-        'app.tickToken' => ['group' => 'Application', 'label' => 'Scheduler URL token', 'type' => 'secret', 'min' => 16, 'max' => 64, 'generate' => true,
-            'hint' => 'Part of /sync-tick/<token>, called by the external cron. After a change the cron URL must be updated too.'],
+        'app.baseURL' => ['group' => 'Application', 'label' => 'Env.label.app_baseURL', 'type' => 'baseurl', 'required' => true,
+            'hint' => 'Env.hint.app_baseURL'],
+        'app.forceGlobalSecureRequests' => ['group' => 'Application', 'label' => 'Env.label.app_forceGlobalSecureRequests', 'type' => 'bool', 'required' => true,
+            'hint' => 'Env.hint.app_forceGlobalSecureRequests'],
+        'app.tickToken' => ['group' => 'Application', 'label' => 'Env.label.app_tickToken', 'type' => 'secret', 'min' => 16, 'max' => 64, 'generate' => true,
+            'hint' => 'Env.hint.app_tickToken'],
         // --- sync
-        'sync.peerUrl' => ['group' => 'Synchronisation', 'label' => 'Other node (URL)', 'type' => 'url', 'required' => true,
-            'hint' => 'Address of the other site, without trailing slash. A wrong value stops the synchronisation.'],
-        'sync.files.dir' => ['group' => 'Synchronisation', 'label' => 'Synchronised files directory', 'type' => 'path',
-            'hint' => 'Absolute path, writable by the web server (default: writable/share). Pictures and other synchronised files live here.'],
-        'sync.leaseTtl' => ['group' => 'Synchronisation', 'label' => 'Edit lease (seconds)', 'type' => 'int', 'min' => 30, 'max' => 3600, 'default' => 300, 'hint' => 'Idle time after which an edit lock on users is freed.'],
-        'sync.lockTtl' => ['group' => 'Synchronisation', 'label' => 'Manual lock (seconds)', 'type' => 'int', 'min' => 30, 'max' => 3600, 'default' => 120, 'hint' => 'Heartbeat timeout of the auth / cron locks.'],
-        'sync.pullBatch' => ['group' => 'Synchronisation', 'label' => 'Changes per request', 'type' => 'int', 'min' => 10, 'max' => 1000, 'default' => 200, 'hint' => 'Journal entries fetched from the other node at once.'],
-        'sync.replayWindow' => ['group' => 'Synchronisation', 'label' => 'Clock tolerance (seconds)', 'type' => 'int', 'min' => 30, 'max' => 3600, 'default' => 300, 'hint' => 'Largest clock difference between the nodes accepted for signed requests.'],
-        'sync.keepJournalDays' => ['group' => 'Synchronisation', 'label' => 'Keep journal (days)', 'type' => 'int', 'min' => 1, 'max' => 3650, 'default' => 30, 'hint' => 'sync:prune removes older entries the other node has applied.'],
-        'sync.keepConflictDays' => ['group' => 'Synchronisation', 'label' => 'Keep decided conflicts (days)', 'type' => 'int', 'min' => 1, 'max' => 3650, 'default' => 90, 'hint' => ''],
+        'sync.peerUrl' => ['group' => 'Synchronisation', 'label' => 'Env.label.sync_peerUrl', 'type' => 'url', 'required' => true,
+            'hint' => 'Env.hint.sync_peerUrl'],
+        'sync.files.dir' => ['group' => 'Synchronisation', 'label' => 'Env.label.sync_files_dir', 'type' => 'path',
+            'hint' => 'Env.hint.sync_files_dir'],
+        'sync.leaseTtl' => ['group' => 'Synchronisation', 'label' => 'Env.label.sync_leaseTtl', 'type' => 'int', 'min' => 30, 'max' => 3600, 'default' => 300, 'hint' => 'Env.hint.sync_leaseTtl'],
+        'sync.lockTtl' => ['group' => 'Synchronisation', 'label' => 'Env.label.sync_lockTtl', 'type' => 'int', 'min' => 30, 'max' => 3600, 'default' => 120, 'hint' => 'Env.hint.sync_lockTtl'],
+        'sync.pullBatch' => ['group' => 'Synchronisation', 'label' => 'Env.label.sync_pullBatch', 'type' => 'int', 'min' => 10, 'max' => 1000, 'default' => 200, 'hint' => 'Env.hint.sync_pullBatch'],
+        'sync.replayWindow' => ['group' => 'Synchronisation', 'label' => 'Env.label.sync_replayWindow', 'type' => 'int', 'min' => 30, 'max' => 3600, 'default' => 300, 'hint' => 'Env.hint.sync_replayWindow'],
+        'sync.keepJournalDays' => ['group' => 'Synchronisation', 'label' => 'Env.label.sync_keepJournalDays', 'type' => 'int', 'min' => 1, 'max' => 3650, 'default' => 30, 'hint' => 'Env.hint.sync_keepJournalDays'],
+        'sync.keepConflictDays' => ['group' => 'Synchronisation', 'label' => 'Env.label.sync_keepConflictDays', 'type' => 'int', 'min' => 1, 'max' => 3650, 'default' => 90, 'hint' => ''],
         // --- database (a change is tried against the database BEFORE it is written, see DbCheck)
-        'database.default.DBDriver' => ['group' => 'Database', 'label' => 'Driver', 'type' => 'choice', 'options' => ['MySQLi', 'Postgre', 'SQLite3'], 'required' => true,
-            'hint' => 'MySQLi for MySQL / MariaDB.'],
-        'database.default.hostname' => ['group' => 'Database', 'label' => 'Host', 'type' => 'host',
-            'hint' => 'localhost (unix socket), an IP address or a host name. Not used by SQLite3.'],
-        'database.default.port' => ['group' => 'Database', 'label' => 'Port', 'type' => 'int', 'min' => 1, 'max' => 65535, 'hint' => '3306 for MySQL, 5432 for PostgreSQL. Not used while the host is localhost (unix socket).'],
-        'database.default.database' => ['group' => 'Database', 'label' => 'Database name', 'type' => 'text', 'pattern' => '~^[A-Za-z0-9_$./:\\\\-]{1,200}$~', 'required' => true,
-            'hint' => 'For SQLite3 the file name.'],
-        'database.default.username' => ['group' => 'Database', 'label' => 'User', 'type' => 'text', 'pattern' => '~^[A-Za-z0-9_.@$-]{1,64}$~', 'hint' => ''],
-        'database.default.password' => ['group' => 'Database', 'label' => 'Password', 'type' => 'secret', 'free' => true,
-            'hint' => 'Cannot contain quotes, backslash, # or ${ (they cannot be stored in .env safely).'],
+        'database.default.DBDriver' => ['group' => 'Database', 'label' => 'Env.label.database_default_DBDriver', 'type' => 'choice', 'options' => ['MySQLi', 'Postgre', 'SQLite3'], 'required' => true,
+            'hint' => 'Env.hint.database_default_DBDriver'],
+        'database.default.hostname' => ['group' => 'Database', 'label' => 'Env.label.database_default_hostname', 'type' => 'host',
+            'hint' => 'Env.hint.database_default_hostname'],
+        'database.default.port' => ['group' => 'Database', 'label' => 'Env.label.database_default_port', 'type' => 'int', 'min' => 1, 'max' => 65535, 'hint' => 'Env.hint.database_default_port'],
+        'database.default.database' => ['group' => 'Database', 'label' => 'Env.label.database_default_database', 'type' => 'text', 'pattern' => '~^[A-Za-z0-9_$./:\\\\-]{1,200}$~', 'required' => true,
+            'hint' => 'Env.hint.database_default_database'],
+        'database.default.username' => ['group' => 'Database', 'label' => 'Env.label.database_default_username', 'type' => 'text', 'pattern' => '~^[A-Za-z0-9_.@$-]{1,64}$~', 'hint' => ''],
+        'database.default.password' => ['group' => 'Database', 'label' => 'Env.label.database_default_password', 'type' => 'secret', 'free' => true,
+            'hint' => 'Env.hint.database_default_password'],
         // --- telegram
-        'sync.telegram.token' => ['group' => 'Telegram alerts', 'label' => 'Bot token', 'type' => 'secret', 'pattern' => '/^\d{6,12}:[A-Za-z0-9_-]{30,50}$/', 'hint' => 'Empty = alerts off.'],
-        'sync.telegram.chat_id' => ['group' => 'Telegram alerts', 'label' => 'Chat id', 'type' => 'text', 'pattern' => '/^-?\d{1,20}$/', 'hint' => 'Numeric chat or group id.'],
-        'sync.telegram.webhook_secret' => ['group' => 'Telegram alerts', 'label' => 'Webhook secret', 'type' => 'secret', 'pattern' => '/^[A-Za-z0-9_-]{8,128}$/', 'hint' => 'Checked on the bot webhook.'],
-        'sync.telegram.admin_url' => ['group' => 'Telegram alerts', 'label' => 'Admin link in alerts', 'type' => 'url', 'hint' => 'URL of the conflict admin, e.g. https://…/admin/conflicts'],
+        'sync.telegram.token' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'secret', 'pattern' => '/^\d{6,12}:[A-Za-z0-9_-]{30,50}$/', 'hint' => 'Env.hint.sync_telegram_token'],
+        'sync.telegram.chat_id' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'text', 'pattern' => '/^-?\d{1,20}$/', 'hint' => 'Env.hint.sync_telegram_token'],
+        'sync.telegram.webhook_secret' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'secret', 'pattern' => '/^[A-Za-z0-9_-]{8,128}$/', 'hint' => 'Env.hint.sync_telegram_token'],
+        'sync.telegram.admin_url' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'url', 'hint' => 'Env.hint.sync_telegram_token'],
         // --- e-mail alerts (sync.mail.*); independent of CI4's own Config\Email
-        'sync.mail.to'     => ['group' => 'Telegram alerts', 'label' => 'Alert e-mail (to)', 'type' => 'text', 'pattern' => '/^[^@\s]+@[^@\s]+$/', 'hint' => 'Recipient for e-mail copies of alerts. Empty = e-mail off.'],
-        'sync.mail.from'   => ['group' => 'Telegram alerts', 'label' => 'From address', 'type' => 'text', 'pattern' => '/^[^@\s]+@[^@\s]+$/', 'hint' => 'Defaults to the SMTP user if left empty.'],
-        'sync.mail.host'   => ['group' => 'Telegram alerts', 'label' => 'SMTP host', 'type' => 'host', 'hint' => ''],
-        'sync.mail.port'   => ['group' => 'Telegram alerts', 'label' => 'SMTP port', 'type' => 'int', 'min' => 1, 'max' => 65535, 'default' => 587, 'hint' => '587 = STARTTLS · 465 = SSL'],
-        'sync.mail.crypto' => ['group' => 'Telegram alerts', 'label' => 'Encryption', 'type' => 'choice', 'options' => ['tls', 'ssl', ''], 'hint' => 'tls = STARTTLS (port 587) · ssl = implicit (port 465)'],
-        'sync.mail.user'   => ['group' => 'Telegram alerts', 'label' => 'SMTP user', 'type' => 'text', 'hint' => ''],
-        'sync.mail.pass'   => ['group' => 'Telegram alerts', 'label' => 'SMTP password', 'type' => 'secret', 'hint' => ''],
+        'sync.mail.to'     => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'text', 'pattern' => '/^[^@\s]+@[^@\s]+$/', 'hint' => 'Env.hint.sync_telegram_token'],
+        'sync.mail.from'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'text', 'pattern' => '/^[^@\s]+@[^@\s]+$/', 'hint' => 'Env.hint.sync_telegram_token'],
+        'sync.mail.host'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'host', 'hint' => ''],
+        'sync.mail.port'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'int', 'min' => 1, 'max' => 65535, 'default' => 587, 'hint' => 'Env.hint.sync_telegram_token'],
+        'sync.mail.crypto' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_crypto', 'type' => 'choice', 'options' => ['tls', 'ssl', ''], 'hint' => 'Env.hint.sync_mail_crypto'],
+        'sync.mail.user'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_crypto', 'type' => 'text', 'hint' => ''],
+        'sync.mail.pass'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_crypto', 'type' => 'secret', 'hint' => ''],
     ];
 
     /**
@@ -79,9 +79,16 @@ class EnvSettings
         };
     }
 
+        /** A translated text of a field (its label or hint is a lang() key in FIELDS). */
+    public static function text(string $key): string
+    {
+        return $key === '' ? '' : \AdGo\Sync\Libraries\Lang::text($key);
+    }
+
     public static function check(string $key, string $raw, array $f): array
     {
-        $v = trim($raw);
+        $v     = trim($raw);
+        $label = self::text($f['label']);
 
         if ($v === '') {
             /* Allow empty string when it is a valid choice (e.g. crypto = '' means no encryption). */
@@ -89,18 +96,18 @@ class EnvSettings
                 return ['', null];
             }
 
-            return ! empty($f['required']) ? [null, "{$f['label']} cannot be empty."] : [null, null];
+            return ! empty($f['required']) ? [null, \AdGo\Sync\Libraries\Lang::text('Env.err.empty', [$label])] : [null, null];
         }
 
         switch ($f['type']) {
             case 'bool':
                 $b = strtolower($v);
 
-                return in_array($b, ['true', 'false'], true) ? [$b, null] : [null, "{$f['label']} must be true or false."];
+                return in_array($b, ['true', 'false'], true) ? [$b, null] : [null, \AdGo\Sync\Libraries\Lang::text('Env.err.bool', [$label])];
 
             case 'int':
                 return ctype_digit($v) && (int) $v >= $f['min'] && (int) $v <= $f['max'] ? [(string) (int) $v, null]
-                    : [null, "{$f['label']} must be a number between {$f['min']} and {$f['max']}."];
+                    : [null, \AdGo\Sync\Libraries\Lang::text('Env.err.range', [$label, (string) $f['min'], (string) $f['max']])];
 
             case 'baseurl':
             case 'url':
@@ -110,7 +117,7 @@ class EnvSettings
                     && ($p['scheme'] === 'https' || in_array($p['host'], ['localhost', '127.0.0.1'], true));
 
                 if (! $ok) {
-                    return [null, "{$f['label']} must be an https:// address."];
+                    return [null, \AdGo\Sync\Libraries\Lang::text('Env.err.https', [$label])];
                 }
 
                 if ($f['type'] === 'baseurl') {
@@ -121,39 +128,39 @@ class EnvSettings
 
             case 'path':
                 if (preg_match('~^(/|[A-Za-z]:[\\\\/])~', $v) !== 1 || str_contains($v, '..') || preg_match('~^[A-Za-z0-9_./:\\\\ -]+$~', $v) !== 1) {
-                    return [null, "{$f['label']} must be an absolute path without .. or special characters."];
+                    return [null, \AdGo\Sync\Libraries\Lang::text('Env.err.path', [$label])];
                 }
 
                 // Windows separators are stored as '/': a backslash cannot be written to .env, and Windows accepts '/'.
                 $v = rtrim(str_replace('\\', '/', $v), '/');
 
                 if (! is_dir($v) && ! @mkdir($v, 0775, true) && ! is_dir($v)) {
-                    return [null, "{$f['label']}: the directory does not exist and cannot be created."];
+                    return [null, \AdGo\Sync\Libraries\Lang::text('Env.err.mkdir', [$label])];
                 }
 
-                return is_writable($v) ? [$v, null] : [null, "{$f['label']}: the directory is not writable by the web server."];
+                return is_writable($v) ? [$v, null] : [null, \AdGo\Sync\Libraries\Lang::text('Env.err.writable', [$label])];
 
             case 'choice':
-                return in_array($v, $f['options'], true) ? [$v, null] : [null, "{$f['label']} must be one of: " . implode(', ', $f['options']) . '.'];
+                return in_array($v, $f['options'], true) ? [$v, null] : [null, \AdGo\Sync\Libraries\Lang::text('Env.err.choice', [$label, implode(', ', $f['options'])])];
 
             case 'host':
                 $ok = $v === 'localhost' || filter_var($v, FILTER_VALIDATE_IP) !== false
                     || preg_match('/^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$/', $v) === 1;
 
-                return $ok ? [$v, null] : [null, "{$f['label']} must be localhost, an IP address or a host name."];
+                return $ok ? [$v, null] : [null, \AdGo\Sync\Libraries\Lang::text('Env.err.host', [$label])];
 
             case 'secret':
             case 'text':
                 if (! empty($f['free'])) {
-                    return strlen($v) <= 128 && preg_match('/[\x00-\x1f\x7f]/', $v) !== 1 ? [$v, null] : [null, "{$f['label']} is too long or has control characters."];
+                    return strlen($v) <= 128 && preg_match('/[\x00-\x1f\x7f]/', $v) !== 1 ? [$v, null] : [null, \AdGo\Sync\Libraries\Lang::text('Env.err.long', [$label])];
                 }
 
                 if (isset($f['pattern'])) {
-                    return preg_match($f['pattern'], $v) === 1 ? [$v, null] : [null, "{$f['label']} does not look right."];
+                    return preg_match($f['pattern'], $v) === 1 ? [$v, null] : [null, \AdGo\Sync\Libraries\Lang::text('Env.err.pattern', [$label])];
                 }
 
                 if (isset($f['min']) && (strlen($v) < $f['min'] || strlen($v) > $f['max'] || preg_match('/^[A-Za-z0-9]+$/', $v) !== 1)) {
-                    return [null, "{$f['label']} must have {$f['min']}-{$f['max']} letters and digits."];
+                    return [null, \AdGo\Sync\Libraries\Lang::text('Env.err.letters', [$label, (string) $f['min'], (string) $f['max']])];
                 }
 
                 return [$v, null];

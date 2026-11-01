@@ -68,4 +68,55 @@ final class Lang
 
         return $line;
     }
+
+    /** @var array<string, array<string, mixed>> */
+    private static array $files = [];
+
+    /**
+     * Any package text by its full key, "File.some.key" (File = Sync, Messages, Env, Settings, ...).
+     * Inside a CodeIgniter application it is lang() in the current locale; outside it the English file is read.
+     *
+     * @param array<int, scalar|null> $args
+     */
+    public static function text(string $full, array $args = []): string
+    {
+        $args = array_map(static fn ($a): string => (string) $a, array_values($args));
+
+        try {
+            if (function_exists('lang') && class_exists(\Config\Services::class)) {
+                $line = lang($full, $args);
+
+                if (is_string($line) && $line !== $full) {
+                    return $line;
+                }
+            }
+        } catch (Throwable) {
+            // no application booted (or a broken language setup): English below
+        }
+
+        [$file, $key] = array_pad(explode('.', $full, 2), 2, '');
+        if (! isset(self::$files[$file])) {
+            $path = __DIR__ . '/../Language/en/' . $file . '.php';
+            self::$files[$file] = is_file($path) ? require $path : [];
+        }
+
+        $line = self::$files[$file];
+        foreach (explode('.', $key) as $part) {
+            if (! is_array($line) || ! array_key_exists($part, $line)) {
+                return $full;
+            }
+            $line = $line[$part];
+        }
+
+        if (! is_string($line)) {
+            return $full;
+        }
+
+        $map = [];
+        foreach ($args as $i => $value) {
+            $map['{' . $i . '}'] = $value;
+        }
+
+        return strtr($line, $map);
+    }
 }

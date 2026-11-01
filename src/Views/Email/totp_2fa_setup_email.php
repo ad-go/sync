@@ -8,24 +8,22 @@ use AdGo\Sync\Libraries\Branding;
 <!doctype html>
 <html>
 <body style="font-family:system-ui,sans-serif;color:#1c1f26">
-<p>Hello <?= esc($user->username) ?>,</p>
-<p>Your account (<?= esc($user->email) ?>) was added to the <b>superadmin</b> group on <?= esc(Branding::siteName()) ?>,
-which requires a second factor at login.</p>
+<p><?= lang('Mail.greeting', [esc($user->username)]) ?></p>
+<p><?= lang('Mail.added', [esc($user->email), esc(Branding::siteName())]) ?></p>
 
-<p>Scan this code with Google Authenticator, Authy, or any other TOTP app:</p>
+<p><?= lang('Mail.scan') ?></p>
 <div style="max-width:220px"><?= $qr ?></div>
 
-<p>Can't scan it? Enter this key manually:<br>
+<p><?= lang('Mail.cant_scan') ?><br>
 <code style="word-break:break-all"><?= esc($secret) ?></code></p>
 
-<p><b>Recovery codes</b> — save these somewhere safe. Each works once, if you ever lose access to your
-authenticator app:</p>
+<p><?= lang('Mail.codes') ?></p>
 <table cellpadding="4" style="font-family:ui-monospace,Consolas,monospace;font-size:13px">
 <?php foreach (array_chunk($codes, 2) as $pair): ?>
 <tr><td><?= esc($pair[0]) ?></td><td><?= esc($pair[1] ?? '') ?></td></tr>
 <?php endforeach ?>
 </table>
 
-<p><small>An admin can see this QR code and these recovery codes again later from the Users page ("View 2FA").</small></p>
+<p><small><?= lang('Mail.admin_note', [lang('Users.twofa.tooltip')]) ?></small></p>
 </body>
 </html>
