@@ -677,8 +677,19 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
       }
             setState(j.ok ? <?= json_encode(lang('Settings.js.saved')) ?> : j.message, !j.ok);
       window.syncToast(j.message, j.ok);
+      // The languages change the navbar: once they are saved, reload so it is rebuilt (the tab stays, it is in the hash).
+      var now = localeKey();
+      var changed = now !== lastLocales;
+      lastLocales = now;
+      if (j.ok && changed) { setTimeout(function () { location.reload(); }, 900); }
         }).catch(function () { setState(<?= json_encode(lang('Settings.js.net_error')) ?>, true); });
   }
+
+  function localeKey() {
+    return Array.prototype.filter.call(brandForm.querySelectorAll('input[name="locales[]"]'), function (c) { return c.checked; })
+      .map(function (c) { return c.value; }).join(',');
+  }
+  var lastLocales = localeKey();
 
   function queueSave() {
     clearTimeout(saveTimer);
