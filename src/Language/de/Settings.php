@@ -13,6 +13,10 @@ return [
         'telegram' => 'Telegram',
     ],
     'brand' => [
+        'dte_key'       => 'DTE-Lizenzschlüssel',
+        'dte_key_set'   => 'gesetzt — leer lassen, um ihn zu behalten',
+        'dte_key_empty' => 'nicht gesetzt',
+        'dte_key_hint'  => 'Der DataTables-Editor-Schlüssel (die Datei key.js). Den Schlüssel einfügen; er wird beim Verlassen des Feldes gespeichert.',
         'languages'      => 'Sprachen',
         'languages_hint' => 'Besucher können zwischen allen angehakten Sprachen wechseln. Mindestens eine bleibt angehakt.',
         'logo_title'   => 'Bild hier anklicken oder ablegen',

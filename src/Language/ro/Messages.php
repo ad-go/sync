@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 return [
     'settings' => [
+        'dteKeyInvalid' => 'Cheia DTE are un format neașteptat.',
         'localesNone' => 'Bifează cel puțin o limbă.',
         'brandingSaved'         => 'Brandingul a fost salvat.',
         'logoRemoved'           => 'Logo-ul a fost șters.',

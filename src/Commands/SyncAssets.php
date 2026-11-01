@@ -20,7 +20,7 @@ class SyncAssets extends BaseCommand
     protected $usage       = 'sync:assets [--dte FOLDER]';
     protected $arguments   = [];
     protected $options     = [
-        '--dte' => 'Folder with your licensed DataTables Editor bundle: datatables.min.js, datatables.min.css and key.bak (or key.js)',
+        '--dte' => 'Folder with your licensed DataTables Editor bundle: datatables.min.js, datatables.min.css and key.js (key.bak is accepted too)',
     ];
 
     public function run(array $params)

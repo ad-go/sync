@@ -32,8 +32,8 @@ final class AssetsTest extends TestCase
 
         $result = Assets::copyEditor($from, $this->dir . '/dest');
 
-        $this->assertSame(['datatables.min.js' => 'copied', 'datatables.min.css' => 'copied', 'key.bak' => 'copied'], $result);
-        $this->assertSame('key', file_get_contents($this->dir . '/dest/key.bak'));
+        $this->assertSame(['datatables.min.js' => 'copied', 'datatables.min.css' => 'copied', 'key.js' => 'copied'], $result);
+        $this->assertSame('key', file_get_contents($this->dir . '/dest/key.js'));
     }
 
     public function testMissingEditorFilesAreReportedAndNothingIsInventedForThem(): void
@@ -43,7 +43,7 @@ final class AssetsTest extends TestCase
 
         $result = Assets::copyEditor($from, $this->dir . '/dest');
 
-        $this->assertSame(['datatables.min.js' => 'missing', 'datatables.min.css' => 'missing', 'key.bak' => 'missing'], $result);
+        $this->assertSame(['datatables.min.js' => 'missing', 'datatables.min.css' => 'missing', 'key.js' => 'missing'], $result);
         $this->assertFileDoesNotExist($this->dir . '/dest/datatables.min.js');
     }
 

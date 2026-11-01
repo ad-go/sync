@@ -187,7 +187,7 @@ div.dt-paging .page-item.disabled .page-link{opacity:.45;pointer-events:none}
 <script src="<?= esc(\AdGo\Sync\Libraries\Assets::url('assets/vendor/jquery-3.7.1.min.js')) ?>"></script>
 <script src="<?= esc(\AdGo\Sync\Libraries\Assets::url('assets/vendor/bootstrap-5.3.8/bootstrap.bundle.min.js')) ?>"></script>
 <script src="<?= esc($dteUrl) ?>datatables.min.js"></script>
-<script src="<?= esc($dteUrl) ?>key.bak"></script>
+<script src="<?= esc($dteUrl) ?>key.js"></script>
 <script>
 (function () {
   'use strict';

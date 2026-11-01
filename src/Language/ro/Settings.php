@@ -13,6 +13,10 @@ return [
         'telegram' => 'Telegram',
     ],
     'brand' => [
+        'dte_key'       => 'Cheia de licență DTE',
+        'dte_key_set'   => 'setată — lasă gol ca s-o păstrezi',
+        'dte_key_empty' => 'nesetată',
+        'dte_key_hint'  => 'Cheia DataTables Editor (fișierul key.js). Lipește cheia; se salvează când părăsești câmpul.',
         'languages'      => 'Limbi',
         'languages_hint' => 'Vizitatorii pot trece la orice limbă bifată. Cel puțin una rămâne bifată.',
         'logo_title'   => 'Click sau trage o imagine aici',

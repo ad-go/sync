@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 return [
     'settings' => [
+        'dteKeyInvalid' => 'Der DTE-Schlüssel hat ein unerwartetes Format.',
         'localesNone' => 'Wähle mindestens eine Sprache aus.',
         'brandingSaved'         => 'Branding gespeichert.',
         'logoRemoved'           => 'Logo entfernt.',

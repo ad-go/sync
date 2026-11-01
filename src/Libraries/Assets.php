@@ -136,7 +136,7 @@ final class Assets
     }
 
     /** Files of the licensed DataTables Editor bundle the Users page needs, in Config\Sync::$dteAssetsUrl. */
-    public const DTE_FILES = ['datatables.min.js', 'datatables.min.css', 'key.bak'];
+    public const DTE_FILES = ['datatables.min.js', 'datatables.min.css', 'key.js'];
 
     /** URL the pages should use for a public asset: the local copy when it was downloaded, otherwise the CDN. */
     public static function url(string $path): string
@@ -203,9 +203,9 @@ final class Assets
         foreach (self::DTE_FILES as $file) {
             $src = rtrim($from, '/\\') . DIRECTORY_SEPARATOR . $file;
 
-            // key.js is accepted for the key file, which some bundles ship under that name.
-            if (! is_file($src) && $file === 'key.bak' && is_file(dirname($src) . DIRECTORY_SEPARATOR . 'key.js')) {
-                $src = dirname($src) . DIRECTORY_SEPARATOR . 'key.js';
+            // The key file is key.js; older bundles ship it as key.bak, which is accepted too.
+            if (! is_file($src) && $file === 'key.js' && is_file(dirname($src) . DIRECTORY_SEPARATOR . 'key.bak')) {
+                $src = dirname($src) . DIRECTORY_SEPARATOR . 'key.bak';
             }
 
             if (! is_file($src)) {

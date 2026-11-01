@@ -13,6 +13,10 @@ return [
         'telegram' => 'Telegram',
     ],
     'brand' => [
+        'dte_key'       => 'DTE licence key',
+        'dte_key_set'   => 'set — leave blank to keep',
+        'dte_key_empty' => 'not set',
+        'dte_key_hint'  => 'The DataTables Editor key (the key.js file). Paste the key; it is saved when you leave the field.',
         'languages'      => 'Languages',
         'languages_hint' => 'Visitors can switch to any ticked language. At least one stays ticked.',
         'logo_title'   => 'Click or drop an image here',

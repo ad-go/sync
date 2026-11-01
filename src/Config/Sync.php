@@ -73,7 +73,7 @@ class Sync extends BaseConfig
 
     /**
      * URL (relative to base_url()) of the DataTables + Editor combined asset directory.
-     * Must contain: datatables.min.js, datatables.min.css, key.bak.
+     * Must contain: datatables.min.js, datatables.min.css, key.js (key.bak is accepted too).
      * In the composed full-app build this is `assets/vendor/datatables`; override per host.
      */
     public string $dteAssetsUrl = 'assets/datatables';

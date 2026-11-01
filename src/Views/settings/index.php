@@ -293,6 +293,19 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
               <span class="hint"><?= lang('Settings.brand.languages_hint') ?></span>
             </div>
           </div>
+          <?php
+            /* the DataTables Editor key: the file the Users page loads; its value is never shown back */
+            $dteKeyFile = FCPATH . trim((string) $cfg->dteAssetsUrl, '/') . '/key.js';
+            $dteKeySet  = is_file($dteKeyFile) && str_contains((string) file_get_contents($dteKeyFile), 'DataTable.key(');
+          ?>
+          <div class="brand-row">
+            <div class="fg">
+              <label><i class="bi bi-key"></i> <?= lang('Settings.brand.dte_key') ?></label>
+              <input type="password" name="dteKey" autocomplete="off" spellcheck="false" maxlength="220" style="width:36ch;max-width:100%"
+                     placeholder="<?= esc($dteKeySet ? lang('Settings.brand.dte_key_set') : lang('Settings.brand.dte_key_empty')) ?>">
+              <span class="hint"><?= lang('Settings.brand.dte_key_hint') ?></span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="form-footer">
@@ -723,7 +736,8 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
   });
 
   brandForm.addEventListener('input', function (e) {
-    if (e.target.name !== 'logo') { queueSave(); }
+    // the key is saved when its field is left (change), not on every keystroke
+    if (e.target.name !== 'logo' && e.target.name !== 'dteKey') { queueSave(); }
   });
   brandForm.addEventListener('change', function (e) {
     if (e.target.name === 'logo') { return; }

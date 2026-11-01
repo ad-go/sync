@@ -230,6 +230,27 @@ class SettingsAdmin extends Controller
 
         setting('Sync.locales', implode(',', $ticked));
 
+        /* the DataTables Editor licence key: written to the key file the Users page loads (key.js). Blank keeps it. */
+        $dteKey = trim((string) $this->request->getPost('dteKey'));
+
+        if ($dteKey !== '') {
+            if (preg_match("/DataTable\\.key\\(\\s*'([^']+)'\\s*\\)/", $dteKey, $m) === 1) {
+                $dteKey = $m[1];
+            }
+
+            if (preg_match('/^[^\'\s"<>\\\\]{8,200}$/', $dteKey) !== 1) {
+                return lang('Messages.settings.dteKeyInvalid');
+            }
+
+            $dir = FCPATH . trim((string) config('Sync')->dteAssetsUrl, '/');
+
+            if (! is_dir($dir)) {
+                mkdir($dir, 0775, true);
+            }
+
+            file_put_contents($dir . '/key.js', "DataTable.key('" . $dteKey . "');\n");
+        }
+
         $logo = $this->request->getFile('logo');
 
         if ($logo !== null && $logo->isValid() && ! $logo->hasMoved()) {
