@@ -1,0 +1,201 @@
+<?php
+
+declare(strict_types=1);
+
+namespace AdGo\Sync\Controllers;
+
+use CodeIgniter\Controller;
+use CodeIgniter\HTTP\RedirectResponse;
+use AdGo\Sync\Libraries\Kernel;
+use AdGo\Sync\Libraries\Lang;
+use AdGo\Sync\Libraries\Support;
+use Throwable;
+
+/**
+ * Admin UI for quarantined conflicts and node status. Routes sit behind
+ * Shield's `session` and `permission` filters (see Config/Routes.php).
+ */
+class ConflictAdmin extends Controller
+{
+    use AdminChrome;
+
+    protected string $configKey = 'conflictsPath';
+
+    protected function tab(): string
+    {
+        return 'conflicts';
+    }
+
+    private Kernel $kernel;
+
+    public function __construct()
+    {
+        $this->kernel = Kernel::instance();
+    }
+
+    /** The conflict pages live in Settings now: the list is the Conflicts tab. */
+    public function index(): RedirectResponse
+    {
+        return redirect()->to($this->settingsUrl('conflicts'));
+    }
+
+    /**
+     * The Conflicts tab of Settings: the list, with the detail of $openId above it when a conflict is open.
+     * Rendered by SettingsAdmin, never served on its own.
+     */
+    public function panel(?int $openId = null): string
+    {
+        $detail = $openId !== null ? $this->detailHtml($openId) : '';
+
+        return $detail . $this->listHtml();
+    }
+
+    private function listHtml(): string
+    {
+        helper('form');
+        $k  = $this->kernel;
+        $db = $k->db;
+
+        return view((string) config('Sync')->conflictsIndexView, [
+            'reviewUrl' => site_url(trim((string) config('Sync')->settingsPath, '/')) . '?conflict=',
+            'node'      => $k->opt->node,
+            'peerNode'  => $k->opt->peerNode,
+            'peerUrl'   => $k->opt->peerUrl,
+            'passive'   => $k->opt->passive,
+            'cursor'    => $k->meta->cursor($k->opt->peerNode),
+            'journal'   => (int) $db->table('sync_changes')->countAllResults(),
+            'authLock'  => $k->locks()->describe('auth'),
+            'cronLock'  => $k->locks()->describe('cron'),
+            'pending'   => $db->table('sync_conflicts')->where('status', 'pending')->orderBy('detected_at', 'DESC')->get()->getResultArray(),
+            'recent'    => $db->table('sync_conflicts')->where('status !=', 'pending')->orderBy('detected_at', 'DESC')->limit(50)->get()->getResultArray(),
+            'lockHeld'  => $k->locks()->holder('auth'),
+            'base'      => $this->base(),
+        ]);
+    }
+
+    public function syncNow(): RedirectResponse
+    {
+        $result = self::runSync();
+
+        return $this->flash(str_starts_with($result, 'ok') ? 'message' : 'error', $result);
+    }
+
+    public static function runSync(): string
+    {
+        $kernel = Kernel::instance();
+        $result = null;
+
+        $ran = Support::exclusive('pull', static function () use ($kernel, &$result): void {
+            try {
+                $kernel->scanner()->scan();
+                $r      = $kernel->puller()->run();
+                $result = 'ok: pulled ' . $r['pulled'] . ' change(s)';
+            } catch (Throwable $e) {
+                $result = 'error: ' . $e->getMessage();
+            }
+        });
+
+        return $ran ? $result : 'error: another sync is already running';
+    }
+
+    public function lock(): RedirectResponse
+    {
+        $action = (string) $this->request->getPost('action');
+
+        if ($action === 'take') {
+            $r = $this->kernel->locks()->acquire('auth', true);
+        } elseif ($action === 'release') {
+            $this->kernel->locks()->release('auth');
+            $r = ['ok' => true];
+        } else {
+            $r = ['ok' => false, 'reason' => 'unknown action'];
+        }
+
+        return $this->flash($r['ok'] ? 'message' : 'error', $r['ok'] ? 'Done.' : ('Could not change the lock: ' . ($r['reason'] ?? '?')));
+    }
+
+    /** Old detail URL: opens the conflict inside the Settings tab. */
+    public function show(int $id): RedirectResponse
+    {
+        return redirect()->to(site_url(trim((string) config('Sync')->settingsPath, '/')) . '?conflict=' . $id . '#conflicts');
+    }
+
+    /** The detail of one conflict, rendered inside the Conflicts tab; '' when it does not exist. */
+    private function detailHtml(int $id): string
+    {
+        helper('form');
+        $c = $this->conflict($id);
+
+        if ($c === null) {
+            return '';
+        }
+
+        $local  = Support::unpack($c['local_blob']);
+        $remote = Support::unpack($c['remote_blob']);
+        $base   = $c['base_blob'] === null ? null : Support::unpack($c['base_blob']);
+        $fields = array_values(array_unique(array_merge(array_keys($local ?? []), array_keys($remote ?? []))));
+        sort($fields);
+
+        return view((string) config('Sync')->conflictsShowView, [
+            'c'         => $c,
+            'local'     => $local,
+            'remote'    => $remote,
+            'base'      => $base,
+            'fields'    => $fields,
+            'divergent' => $c['fields'] === '*' ? $fields : array_filter(explode(',', (string) $c['fields'])),
+            'action'    => site_url($this->base() . '/' . $id . '/resolve'),
+            'back'      => $this->settingsUrl('conflicts'),
+        ]);
+    }
+
+    public function resolve(int $id): RedirectResponse
+    {
+        $c = $this->conflict($id);
+
+        if ($c === null) {
+            return $this->err(Lang::line('flash.unknownConflict'));
+        }
+
+        $action = (string) $this->request->getPost('action');
+        $merged = null;
+        $choice = $action;
+
+        if ($action === 'merge') {
+            $local  = Support::unpack($c['local_blob']) ?? [];
+            $remote = Support::unpack($c['remote_blob']) ?? [];
+            $pick   = (array) $this->request->getPost('pick');
+            $custom = (array) $this->request->getPost('custom');
+            $merged = [];
+
+            foreach (array_unique(array_merge(array_keys($local), array_keys($remote))) as $f) {
+                $merged[$f] = match ($pick[$f] ?? 'local') {
+                    'remote' => $remote[$f] ?? null,
+                    'custom' => ($custom[$f] ?? '') === '' ? null : $custom[$f],
+                    default  => $local[$f] ?? null,
+                };
+            }
+        } elseif ($action === 'keep_local') {
+            $choice = $c['local_node'];
+        } elseif ($action === 'keep_remote') {
+            $choice = $c['remote_node'];
+        }
+
+        helper('auth');
+        $user = auth()->loggedIn() ? (string) (auth()->user()->username ?? auth()->id()) : 'admin';
+        $res  = $this->kernel->resolver()->resolve($id, $choice, $merged, $user);
+
+        if (! $res['ok']) {
+            return redirect()->back()->with('error', $res['error'] ?? Lang::line('flash.couldNotResolve'));
+        }
+
+        $msg = Lang::line('flash.resolved', [$id]) . (($res['propagated'] ?? true) ? '' : ' ' . Lang::line('flash.notPropagated'));
+
+        return $this->ok($msg);
+    }
+
+    /** @return array<string, mixed>|null */
+    private function conflict(int $id): ?array
+    {
+        return $this->kernel->db->table('sync_conflicts')->where('id', $id)->get()->getRowArray();
+    }
+}

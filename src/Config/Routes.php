@@ -1,0 +1,132 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Auto-discovered by CodeIgniter ("route discovery"). $routes is provided by the framework.
+ *
+ * @var \CodeIgniter\Router\RouteCollection $routes
+ */
+
+use AdGo\Sync\Config\Sync;
+
+/** @var Sync $syncCfg */
+$syncCfg = config('Sync');
+$prefix  = trim($syncCfg->routePrefix, '/');
+$ns      = 'AdGo\Sync\Controllers';
+
+// Static assets fallback: serves DTE bundle files when the PHP built-in dev server cannot handle static files directly.
+// In production Apache/Nginx serves these before the request reaches PHP, so this route is never hit.
+$routes->get('(:segment)/datatables/(:any)', static function (string $dir, string $file): \CodeIgniter\HTTP\ResponseInterface {
+    $cfg   = config('Sync');
+    $base  = trim((string) $cfg->dteAssetsUrl, '/');
+    $parts = explode('/', $base);
+    $res   = service('response');
+
+    if ($parts[0] !== $dir) {
+        return $res->setStatusCode(404);
+    }
+
+    $name = basename($file);
+    $path = FCPATH . $base . '/' . $name;
+
+    if (! is_file($path) || ! preg_match('/\.(js|css|woff2?)$/i', $name)) {
+        return $res->setStatusCode(404);
+    }
+
+    $ext   = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+    $types = ['js' => 'application/javascript', 'css' => 'text/css', 'woff' => 'font/woff', 'woff2' => 'font/woff2'];
+    return $res
+        ->setContentType($types[$ext] ?? 'application/octet-stream')
+        ->setHeader('Cache-Control', 'public, max-age=86400')
+        ->setBody((string) file_get_contents($path));
+});
+
+// Language switch: GET lang/{code}. A host application may define the same route; both do the same thing.
+$routes->get('lang/(:segment)', '\AdGo\Sync\Controllers\LangController::switch/$1');
+
+// Language flags shipped in the package (src/Assets/flags, see its NOTICE.md). Served by the route so a host needs no copy.
+$routes->get('flags/(:segment)', static function (string $cc): \CodeIgniter\HTTP\ResponseInterface {
+    $cc   = preg_replace('/[^a-z]/', '', strtolower(pathinfo($cc, PATHINFO_FILENAME)));
+    $file = dirname(__DIR__) . '/Assets/flags/' . $cc . '.svg';
+    $res  = service('response');
+    if ($cc === '' || ! is_file($file)) {
+        return $res->setStatusCode(404);
+    }
+    return $res
+        ->setContentType('image/svg+xml')
+        ->setHeader('Cache-Control', 'public, max-age=86400')
+        ->setBody((string) file_get_contents($file));
+});
+
+// Peer-to-peer API: HMAC-signed POSTs only.
+$routes->group($prefix, ['namespace' => $ns, 'filter' => 'syncHmac'], static function ($routes): void {
+    $routes->post('ping', 'SyncController::ping');
+    $routes->post('probe', 'SyncController::probe');
+    $routes->post('pull', 'SyncController::pull');
+    $routes->post('push', 'SyncController::push');
+    $routes->post('conflict/resolve', 'SyncController::resolve');
+    $routes->post('auth-lock/status', 'SyncController::lockStatus');
+    $routes->post('auth-lock/acquire', 'SyncController::lockAcquire');
+    $routes->post('auth-lock/heartbeat', 'SyncController::lockHeartbeat');
+    $routes->post('auth-lock/release', 'SyncController::lockRelease');
+    $routes->post('auth-lock/sync', 'SyncController::lockSync');
+    $routes->post('files/manifest', 'SyncController::filesManifest');
+    $routes->post('files/get', 'SyncController::filesGet');
+    $routes->post('files/put', 'SyncController::filesPut');
+    $routes->post('bootstrap/page', 'SyncController::bootstrapPage');
+    $routes->post('telegram/decide', 'SyncController::telegramDecide');
+});
+
+// Telegram webhook (authenticated by the webhook secret token + chat id, not by HMAC).
+$routes->post($prefix . '/telegram', 'SyncController::telegram', ['namespace' => $ns]);
+
+// Dashboard admin page (Shield session + adminPermission).
+$routes->get(trim($syncCfg->dashboardPath, '/'), 'DashboardAdmin::index', [
+    'namespace' => $ns,
+    'filter'    => ['session', 'permission:' . $syncCfg->adminPermission],
+]);
+
+// Conflict admin UI (Shield session + permission); includes status panel + sync/lock actions.
+$routes->group(trim($syncCfg->conflictsPath, '/'), [
+    'namespace' => $ns,
+    'filter'    => ['session', 'permission:' . $syncCfg->adminPermission],
+], static function ($routes): void {
+    $routes->get('/', 'ConflictAdmin::index');
+    $routes->get('(:num)', 'ConflictAdmin::show/$1');
+    $routes->post('(:num)/resolve', 'ConflictAdmin::resolve/$1');
+    $routes->post('sync-now', 'ConflictAdmin::syncNow');
+    $routes->post('lock', 'ConflictAdmin::lock');
+});
+
+// Settings admin page (Shield session + the tighter superPermission).
+$routes->group(trim($syncCfg->settingsPath, '/'), [
+    'namespace' => $ns,
+    'filter'    => ['session', 'permission:' . $syncCfg->superPermission],
+], static function ($routes): void {
+    $routes->get('/', 'SettingsAdmin::index');
+    $routes->get('dirs', 'SettingsAdmin::dirs');
+    $routes->post('branding', 'SettingsAdmin::saveBranding');
+    $routes->post('logo/remove', 'SettingsAdmin::removeLogo');
+    $routes->post('identity', 'SettingsAdmin::identity');
+    $routes->post('env', 'SettingsAdmin::saveEnv');
+    $routes->post('telegram/test', 'SettingsAdmin::telegramTest');
+    $routes->post('email/test', 'SettingsAdmin::emailTest');
+    $routes->post('dte', 'SettingsAdmin::dteToggle');
+});
+
+// Users admin pages (Shield session + the tighter superPermission).
+$routes->group(trim($syncCfg->usersPath, '/'), [
+    'namespace' => $ns,
+    'filter'    => ['session', 'permission:' . $syncCfg->superPermission],
+], static function ($routes): void {
+    $routes->get('/', 'UsersAdmin::index');
+    $routes->post('/', 'UsersAdmin::create');
+    $routes->post('(:num)/delete', 'UsersAdmin::delete/$1');
+    $routes->get('(:num)/2fa', 'UsersAdmin::twofa/$1');
+    $routes->get('ajax', 'UsersAdmin::ajax');
+    $routes->post('ajax', 'UsersAdmin::ajax');
+    $routes->get('import/template', 'UsersAdmin::importTemplate');
+    $routes->get('export', 'UsersAdmin::export');
+    $routes->post('import', 'UsersAdmin::import');
+});
