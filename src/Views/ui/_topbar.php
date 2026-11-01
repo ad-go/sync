@@ -56,6 +56,8 @@ $dteUrl     = site_url(rtrim($syncCfg->settingsPath, '/') . '/dte');
   <style>
     .tb-lang-btn{list-style:none;cursor:pointer;display:inline-flex;align-items:center;padding:4px 8px;border-radius:6px;font-size:16px;color:var(--acc)}
     .tb-lang-btn::-webkit-details-marker{display:none}
+    /* the language icon in rainbow colours: the gradient is painted through the glyph */
+    .tb-lang-btn i{background:linear-gradient(90deg,#e53935,#fb8c00,#fdd835,#43a047,#1e88e5,#8e24aa);-webkit-background-clip:text;background-clip:text;color:transparent}
     .tb-lang-item{display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap}
     .tb-lang-item[aria-current="true"]{font-weight:700;color:var(--acc)}
   </style>
