@@ -192,7 +192,7 @@ final class Assets
 
     /**
      * Copies the licensed DataTables Editor files from $from (a folder holding datatables.min.js, datatables.min.css
-     * and key.bak or key.js) into $dest.
+     * and key.js) into $dest.
      *
      * @return array<string, string> file => 'copied' | 'missing'
      */
@@ -202,11 +202,6 @@ final class Assets
 
         foreach (self::DTE_FILES as $file) {
             $src = rtrim($from, '/\\') . DIRECTORY_SEPARATOR . $file;
-
-            // The key file is key.js; older bundles ship it as key.bak, which is accepted too.
-            if (! is_file($src) && $file === 'key.js' && is_file(dirname($src) . DIRECTORY_SEPARATOR . 'key.bak')) {
-                $src = dirname($src) . DIRECTORY_SEPARATOR . 'key.bak';
-            }
 
             if (! is_file($src)) {
                 $result[$file] = 'missing';

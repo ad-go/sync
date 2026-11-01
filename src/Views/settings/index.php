@@ -153,7 +153,7 @@ button.stab.active > i.bi{color:var(--mute)}
 .color-row{display:flex;gap:7px;align-items:center}
 .color-swatch{flex-shrink:0;width:34px;height:34px;border-radius:7px;border:1px solid var(--line);overflow:hidden;cursor:pointer;position:relative}
 .color-swatch input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;padding:0;cursor:pointer;opacity:1}
-.color-row input.hex{flex:1}
+.color-row input.hex{flex:0 0 auto}
 
 /* ── Logo ─────────────────────────────────────────────────────────────── */
 .logo-preview{max-height:40px;display:block;margin-bottom:6px;border-radius:4px}
@@ -234,7 +234,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
           <div class="fgrid3 brand-row">
             <div class="fg">
               <label><i class="bi bi-type"></i> <?= lang('Settings.brand.site_name') ?></label>
-              <input type="text" name="siteName" value="<?= esc($siteName) ?>" maxlength="80" required style="width:100%">
+              <input type="text" name="siteName" value="<?= esc($siteName) ?>" maxlength="80" required style="width:24ch;max-width:100%">
             </div>
             <div class="fg">
               <label><i class="bi bi-droplet-half"></i> <?= lang('Settings.brand.accent') ?></label>
@@ -301,7 +301,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
           <div class="brand-row">
             <div class="fg">
               <label><i class="bi bi-key"></i> <?= lang('Settings.brand.dte_key') ?></label>
-              <input type="password" name="dteKey" autocomplete="off" spellcheck="false" maxlength="220" style="width:36ch;max-width:100%"
+              <input type="password" name="dteKey" autocomplete="off" spellcheck="false" maxlength="220" style="width:64ch;max-width:100%"
                      placeholder="<?= esc($dteKeySet ? lang('Settings.brand.dte_key_set') : lang('Settings.brand.dte_key_empty')) ?>">
               <span class="hint"><?= lang('Settings.brand.dte_key_hint') ?></span>
             </div>
