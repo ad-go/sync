@@ -9,19 +9,16 @@ use AdGo\Sync\Libraries\Branding;
 $user = auth()->user();
 
 $flag = static function (string $code): string {
-    $cc = [
-        'en' => 'gb', 'ro' => 'ro', 'de' => 'de', 'fr' => 'fr', 'es' => 'es', 'it' => 'it',
-        'pt' => 'pt', 'nl' => 'nl', 'pl' => 'pl', 'ru' => 'ru', 'tr' => 'tr', 'ar' => 'sa',
-        'zh' => 'cn', 'ja' => 'jp',
-    ][$code] ?? null;
+    $cc = \AdGo\Sync\Libraries\Branding::flagCode($code);
     if ($cc === null) {
         return '';
     }
     return '<img class="tb-flag" src="' . esc(site_url("flags/{$cc}.svg")) . '" alt="" width="22" height="16">';
 };
 
-$locale = service('request')->getLocale();
-$langs  = array_diff(config('App')->supportedLocales, [$locale]);
+$locale  = service('request')->getLocale();
+$locales = \AdGo\Sync\Libraries\Branding::locales();
+$langs   = array_diff($locales, [$locale]);
 try {
     $logoutUrl = url_to('logout');
 } catch (\Throwable) {
@@ -47,11 +44,27 @@ $dteUrl     = site_url(rtrim($syncCfg->settingsPath, '/') . '/dte');
     <?php endif ?>
   </a>
   <span class="tb-sp"></span>
-  <?php /* One flag per language the page is NOT in; a click switches to it. */ ?>
+  <?php if (count($locales) > 2): /* three or more languages: one language icon that opens a list of flags and names */ ?>
+  <details class="tb-dd tb-lang-dd">
+    <summary class="tb-lang-btn" title="<?= esc(lang('Ui.language_label')) ?>" aria-label="<?= esc(lang('Ui.language_label')) ?>"><i class="bi bi-translate"></i></summary>
+    <div class="tb-ddmenu">
+      <?php foreach ($locales as $code): ?>
+      <a href="<?= site_url('lang/' . $code) ?>"<?= $code === $locale ? ' aria-current="true"' : '' ?> class="tb-lang-item"><?= $flag($code) ?> <span><?= esc(\AdGo\Sync\Libraries\Branding::localeName($code)) ?></span></a>
+      <?php endforeach ?>
+    </div>
+  </details>
+  <style>
+    .tb-lang-btn{list-style:none;cursor:pointer;display:inline-flex;align-items:center;padding:4px 8px;border-radius:6px;font-size:16px;color:var(--acc)}
+    .tb-lang-btn::-webkit-details-marker{display:none}
+    .tb-lang-item{display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap}
+    .tb-lang-item[aria-current="true"]{font-weight:700;color:var(--acc)}
+  </style>
+  <?php else: /* one or two languages: a flag per language the page is NOT in; a click switches to it */ ?>
   <?php foreach ($langs as $code): ?>
   <a class="tb-lang" href="<?= site_url('lang/' . $code) ?>" title="<?= esc(strtoupper($code)) ?>"
      style="display:inline-flex;align-items:center;padding:4px 4px;border-radius:6px;line-height:0;text-decoration:none"><?= $flag($code) ?: esc(strtoupper($code)) ?></a>
   <?php endforeach ?>
+  <?php endif ?>
   <form method="post" action="<?= esc($dteUrl) ?>" style="display:inline;margin:0" title="<?= esc($dtePay ? lang('Ui.dte_on_title') : lang('Ui.dte_off_title')) ?>">
     <?= csrf_field() ?>
     <button type="submit" style="background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;font-size:15px;color:<?= $dtePay ? 'var(--ok-fg)' : 'var(--mute)' ?>;transition:color .15s" title="<?= esc($dtePay ? lang('Ui.dte_on') : lang('Ui.dte_off')) ?>"><i class="bi bi-patch-<?= $dtePay ? 'check-fill' : 'question' ?>"></i></button>

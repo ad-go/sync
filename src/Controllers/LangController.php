@@ -16,7 +16,7 @@ class LangController extends Controller
 {
     public function switch(string $code): RedirectResponse
     {
-        if (in_array($code, config('App')->supportedLocales, true)) {
+        if (in_array($code, \AdGo\Sync\Libraries\Branding::locales(), true)) {
             session()->set(Locale::SESSION, $code);
             $this->response->setCookie(Locale::COOKIE, $code, 86400 * 365, '', '/', '', false, true, 'Lax');
         }

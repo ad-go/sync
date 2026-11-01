@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 /** English texts of the shared admin chrome (Views/ui/_topbar.php). */
 return [
+    'language_label' => 'Language',
     'menu_label'     => 'Menu',
     'dte_on_title'   => 'DTE licensed — click to disable',
     'dte_off_title'  => 'DTE unlicensed — click to enable',

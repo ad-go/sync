@@ -13,6 +13,8 @@ return [
         'telegram' => 'Telegram',
     ],
     'brand' => [
+        'languages'      => 'Limbi',
+        'languages_hint' => 'Vizitatorii pot trece la orice limbă bifată. Cel puțin una rămâne bifată.',
         'logo_title'   => 'Click sau trage o imagine aici',
         'logo_empty'   => 'Logo: click sau trage o imagine',
         'logo_replace' => 'Logo: click sau trage pentru a înlocui',

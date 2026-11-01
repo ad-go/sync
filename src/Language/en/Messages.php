@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 return [
     'settings' => [
+        'localesNone' => 'Tick at least one language.',
         'brandingSaved'         => 'Branding saved.',
         'logoRemoved'           => 'Logo removed.',
         'settingsSaved'         => 'Settings saved.',

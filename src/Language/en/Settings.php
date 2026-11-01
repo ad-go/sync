@@ -13,6 +13,8 @@ return [
         'telegram' => 'Telegram',
     ],
     'brand' => [
+        'languages'      => 'Languages',
+        'languages_hint' => 'Visitors can switch to any ticked language. At least one stays ticked.',
         'logo_title'   => 'Click or drop an image here',
         'logo_empty'   => 'Logo: click or drop an image',
         'logo_replace' => 'Logo: click or drop to replace',

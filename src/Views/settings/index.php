@@ -117,6 +117,10 @@ button.stab.active > i.bi{color:var(--mute)}
 @media(max-width:900px){.three-up>.fg{grid-column:auto}}
 .fg label i{color:var(--acc);margin-right:2px}
 
+/* ── Branding: languages, one tick each with its flag ───────────────── */
+.lang-checks{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+.lang-check{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;white-space:nowrap}
+.lang-check img{border-radius:2px;flex-shrink:0}
 /* ── Branding: logo drop zone beside the fields ──────────────────────── */
 .brand-grid{display:grid;grid-template-columns:minmax(180px,230px) minmax(0,1fr);gap:12px;align-items:stretch}
 .brand-fields{display:flex;flex-direction:column;gap:10px;min-width:0}
@@ -270,6 +274,23 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
                 <option value="username" <?= $loginField === 'username' ? 'selected' : '' ?>><?= lang('Settings.brand.login_username') ?></option>
                 <option value="both"     <?= $loginField === 'both'     ? 'selected' : '' ?>><?= lang('Settings.brand.login_both') ?></option>
               </select>
+            </div>
+          </div>
+          <?php $enabledLocales = \AdGo\Sync\Libraries\Branding::locales(); /* the languages the site offers: one tick each */ ?>
+          <div class="brand-row">
+            <div class="fg">
+              <label><i class="bi bi-translate"></i> <?= lang('Settings.brand.languages') ?></label>
+              <div class="lang-checks">
+                <?php foreach (\AdGo\Sync\Libraries\Branding::availableLocales() as $code):
+                    $cc = \AdGo\Sync\Libraries\Branding::flagCode($code); ?>
+                <label class="lang-check">
+                  <input type="checkbox" name="locales[]" value="<?= esc($code) ?>"<?= in_array($code, $enabledLocales, true) ? ' checked' : '' ?>>
+                  <?php if ($cc !== null): ?><img src="<?= esc(site_url('flags/' . $cc . '.svg')) ?>" alt="" width="22" height="16"><?php endif ?>
+                  <span><?= esc(\AdGo\Sync\Libraries\Branding::localeName($code)) ?></span>
+                </label>
+                <?php endforeach ?>
+              </div>
+              <span class="hint"><?= lang('Settings.brand.languages_hint') ?></span>
             </div>
           </div>
         </div>
@@ -682,6 +703,13 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
       if (n >= 12 && n <= 20) { root.style.setProperty('--font-size', n + 'px'); }
     });
   }
+
+  // At least one language stays ticked: unticking the last one puts its tick back.
+  brandForm.addEventListener('change', function (e) {
+    if (e.target.name !== 'locales[]' || e.target.checked) { return; }
+    var any = Array.prototype.some.call(brandForm.querySelectorAll('input[name="locales[]"]'), function (c) { return c.checked; });
+    if (!any) { e.target.checked = true; }
+  });
 
   brandForm.addEventListener('input', function (e) {
     if (e.target.name !== 'logo') { queueSave(); }

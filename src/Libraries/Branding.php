@@ -80,4 +80,48 @@ final class Branding
         return sprintf('#%02x%02x%02x', (int) ($r + (255 - $r) * $amount), (int) ($g + (255 - $g) * $amount), (int) ($b + (255 - $b) * $amount));
     }
 
+    /** Language codes the package ships (one folder each under src/Language), in a stable order. */
+    public static function availableLocales(): array
+    {
+        $dirs = glob(dirname(__DIR__) . '/Language/*', GLOB_ONLYDIR) ?: [];
+        $codes = array_map('basename', $dirs);
+        sort($codes);
+
+        return $codes;
+    }
+
+    /**
+     * The languages offered on the site: the ones the admin ticked in Settings → Branding (setting Sync.locales,
+     * a comma list). With nothing stored, every available language is offered.
+     *
+     * @return list<string>
+     */
+    public static function locales(): array
+    {
+        $available = self::availableLocales();
+        $stored    = array_filter(array_map('trim', explode(',', (string) setting('Sync.locales'))));
+        $enabled   = array_values(array_intersect($available, $stored));
+
+        return $enabled !== [] ? $enabled : $available;
+    }
+
+    /** The flag (ISO country code for flags/<cc>.svg) of a language code, or null when there is none. */
+    public static function flagCode(string $code): ?string
+    {
+        return [
+            'en' => 'gb', 'ro' => 'ro', 'de' => 'de', 'fr' => 'fr', 'es' => 'es', 'it' => 'it',
+            'pt' => 'pt', 'nl' => 'nl', 'pl' => 'pl', 'ru' => 'ru', 'tr' => 'tr', 'ar' => 'sa',
+            'zh' => 'cn', 'ja' => 'jp',
+        ][$code] ?? null;
+    }
+
+    /** A language's own name, shown the same way in every language (its endonym). */
+    public static function localeName(string $code): string
+    {
+        return [
+            'en' => 'English', 'de' => 'Deutsch', 'ro' => 'Română', 'fr' => 'Français', 'es' => 'Español',
+            'it' => 'Italiano', 'pt' => 'Português', 'nl' => 'Nederlands', 'pl' => 'Polski', 'ru' => 'Русский',
+            'tr' => 'Türkçe', 'ar' => 'العربية', 'zh' => '中文', 'ja' => '日本語',
+        ][$code] ?? strtoupper($code);
+    }
 }

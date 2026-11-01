@@ -13,6 +13,8 @@ return [
         'telegram' => 'Telegram',
     ],
     'brand' => [
+        'languages'      => 'Sprachen',
+        'languages_hint' => 'Besucher können zwischen allen angehakten Sprachen wechseln. Mindestens eine bleibt angehakt.',
         'logo_title'   => 'Bild hier anklicken oder ablegen',
         'logo_empty'   => 'Logo: Bild anklicken oder ablegen',
         'logo_replace' => 'Logo: anklicken oder ablegen zum Ersetzen',

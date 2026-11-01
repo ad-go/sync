@@ -36,7 +36,7 @@ class Locale implements FilterInterface
 
     public static function pick(IncomingRequest $request): string
     {
-        $supported = config('App')->supportedLocales;
+        $supported = \AdGo\Sync\Libraries\Branding::locales();
         $wanted    = (string) (session()->get(self::SESSION) ?? $request->getCookie(self::COOKIE) ?? '');
 
         if (in_array($wanted, $supported, true)) {
@@ -51,6 +51,6 @@ class Locale implements FilterInterface
             }
         }
 
-        return config('App')->defaultLocale;
+        return in_array(config('App')->defaultLocale, $supported, true) ? config('App')->defaultLocale : $supported[0];
     }
 }

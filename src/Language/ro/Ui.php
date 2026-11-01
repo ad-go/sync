@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 /** Romanian texts of the shared admin chrome (Views/ui/_topbar.php). */
 return [
+    'language_label' => 'Limbă',
     'menu_label'     => 'Meniu',
     'dte_on_title'   => 'DTE licențiat — apasă pentru dezactivare',
     'dte_off_title'  => 'DTE nelicențiat — apasă pentru activare',

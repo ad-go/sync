@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 return [
     'settings' => [
+        'localesNone' => 'Bifează cel puțin o limbă.',
         'brandingSaved'         => 'Brandingul a fost salvat.',
         'logoRemoved'           => 'Logo-ul a fost șters.',
         'settingsSaved'         => 'Setările au fost salvate.',

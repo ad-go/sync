@@ -221,6 +221,15 @@ class SettingsAdmin extends Controller
         $lf = (string) $this->request->getPost('loginField');
         setting('Sync.loginField', in_array($lf, ['email', 'username', 'both'], true) ? $lf : 'email');
 
+        /* the languages offered on the site: the ticked ones, at least one of the languages the package ships */
+        $ticked = array_values(array_intersect(Branding::availableLocales(), (array) $this->request->getPost('locales')));
+
+        if ($ticked === []) {
+            return lang('Messages.settings.localesNone');
+        }
+
+        setting('Sync.locales', implode(',', $ticked));
+
         $logo = $this->request->getFile('logo');
 
         if ($logo !== null && $logo->isValid() && ! $logo->hasMoved()) {
