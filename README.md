@@ -1,8 +1,8 @@
 # ad-go/sync
 
 Active-active synchronisation of CodeIgniter 4 applications over HTTPS: two or more nodes keep their
-databases and a shared directory identical, including nodes behind NAT. No JSON on the wire, no schema
-changes to existing tables, no SSH or root needed.
+databases and a shared directory identical, including nodes behind NAT. No schema changes to existing
+tables, no SSH or root needed.
 
 * **Database sync.** A change journal and a per-row registry (uuid, revision counters, last agreed state)
   drive a three-way reconciliation: fast-forward, field-level merge, last-writer-wins for tolerant tables,
@@ -17,11 +17,12 @@ changes to existing tables, no SSH or root needed.
   [Tasks](https://github.com/codeigniter4/tasks), [Queue](https://github.com/codeigniter4/queue),
   CodeIgniter's Email, Migrations, Language and Services.
 
-Messages (alerts, conflict UI) are available in English and German (`src/Language`); an application can add
-or override a language.
+Multi-language is built in: the admin UI and every alert (Telegram, e-mail) are fully localised
+(`src/Language`), shipped in English, German and Romanian; see [Language](docs/INTEGRATION.md#language)
+for how a host application adds or overrides a locale.
 
 Requires PHP 8.2+ and CodeIgniter 4.7. Tested with Shield 1.4, Tasks 1.0, Queue 1.0.
-Portable across MySQL/MariaDB, PostgreSQL and SQLite (query builder and Forge only).
+Portable across MySQL/MariaDB, PostgreSQL and SQLite — see [Tests](#tests).
 
 ## Quick start
 
@@ -101,17 +102,20 @@ Exempt the API from CSRF (`'csrf' => ['except' => ['sync-api/*']]`) and serve it
 
 ## Admin UI
 
-The package ships a complete administration interface (no extra install step):
+The package ships a complete administration interface (no extra install step, no separate package):
 
 | URL (relative to `$syncCfg->*Path`) | Page |
 |---|---|
-| `admin/dashboard` | Landing page after login |
-| `admin/conflicts` | Conflict list and resolution form; also the node status (journal cursor, cron/auth lock state, manual sync trigger) |
+| `admin/dashboard` | Landing page after login: journal totals (pending local / applied remote), conflict counts, file-sync size, each peer's cursor, and the last 20 changes |
+| `admin/conflicts` | Conflict list and side-by-side resolution form; also the node status panel (journal cursor, cron/auth-lock state) and a manual sync trigger |
 | `admin/settings` | Site name, logo, accent colour, font; `.env` editor (sync keys, NTP); node identity |
-| `admin/users` | Shield users: create, edit, promote to superadmin, view/regenerate TOTP codes |
+| `admin/users` | Shield users: create, edit, promote to superadmin, view/regenerate TOTP codes, CSV import/export |
 
-Paths are configured in `Config\Sync` (`conflictsPath`, `statusPath`, `settingsPath`, `usersPath`).
-Access requires `Config\Sync::$superPermission` (default `admin.access`); Settings and Users require it always.
+Paths are configured in `Config\Sync` (`dashboardPath`, `conflictsPath`, `statusPath`, `settingsPath`,
+`usersPath`); `statusPath` defaults to `conflictsPath` (the two are one page). Access is gated by two
+separate permission keys: `Config\Sync::$adminPermission` (default `admin.access`) guards the dashboard
+and conflicts pages, while `Config\Sync::$superPermission` (defaults to the same value, but can be set
+narrower, e.g. superadmin-only) always guards settings and users.
 
 ### Page chrome (template)
 
@@ -160,6 +164,10 @@ composer test
 
 The suite runs against in-memory SQLite. The real HTTPS round trip, the Telegram and SMTP calls and the
 admin views are exercised by hand.
+
+Every sync code path — schema, journal, reconciliation, file transfer — goes through CodeIgniter's query
+builder and Forge, never driver-specific raw SQL. That is what lets the same, SQLite-tested code run
+unmodified on MySQL/MariaDB and PostgreSQL in production.
 
 ## Limits
 

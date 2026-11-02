@@ -10,7 +10,7 @@ The package follows the framework's own extension points, so installing it needs
 | Services | `Config\Services::sync()`: `service('sync')` returns the shared `Kernel` |
 | Migrations | Namespace migrations: `php spark migrate -n 'AdGo\Sync'` |
 | Commands | `BaseCommand` subclasses, grouped under `Sync` |
-| Language | `Language/<locale>/Sync.php`, read with `lang('Sync.<key>')` |
+| Language | `Language/<locale>/*.php` (11 namespaces), read with `lang('<Namespace>.<key>')`; `en`, `de`, `ro` shipped |
 | Config | `config('Sync')`, publishable and overridable from `.env` |
 
 ## Shield
@@ -81,8 +81,10 @@ call `service('sync')->scanner()->scan()` to publish it at once.
 
 ## Language
 
-Messages come from `Language/en/Sync.php` and `Language/de/Sync.php`. Copy a file to
-`app/Language/<locale>/Sync.php` to override or add a language. Alerts use the locale current when the
+Multi-language is built in: every admin page and every alert draws from `Language/<locale>/*.php`
+(`Conflicts`, `Env`, `Login`, `Mail`, `Messages`, `Reach`, `Settings`, `Sync`, `Totp`, `Ui`, `Users`),
+shipped for `en`, `de` and `ro`. Copy a file to `app/Language/<locale>/<Namespace>.php` to override a
+string, or add every namespace under a new locale to support it. Alerts use the locale current when the
 message is built: the request's locale on the web, `Config\App::$defaultLocale` in CLI, workers and tasks.
 Give all nodes the same default locale, since they post to one chat.
 
