@@ -124,6 +124,9 @@ button.stab.active > i.bi{color:var(--mute)}
 /* ── Branding: logo drop zone beside the fields ──────────────────────── */
 .brand-grid{display:grid;grid-template-columns:minmax(180px,230px) minmax(0,1fr);gap:12px;align-items:stretch}
 .brand-fields{display:flex;flex-direction:column;gap:10px;min-width:0}
+/* branding rows: each field as wide as its content, the next one right after it */
+.brand-fields .brand-row{display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px;justify-content:flex-start}
+.brand-fields .brand-row > .fg{flex:0 0 auto;min-width:0}
 @media(max-width:900px){.brand-grid{grid-template-columns:1fr}}
 .logo-drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:160px;padding:14px;border:1.5px dashed var(--line);border-radius:var(--r);background:var(--tint);cursor:pointer;text-align:center;overflow:hidden;transition:border-color .15s,background .15s}
 .logo-drop:hover,.logo-drop.dragging{border-color:var(--acc);background:var(--card)}
