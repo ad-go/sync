@@ -154,7 +154,7 @@ class Reachability
                         $peers[$i]['via']       = $via;
                         $peers[$i]['observed']  = self::RELAY;
                         $peers[$i]['verdict']   = self::WARN;
-                        $peers[$i]['notes'][]   = "{$r['peer']} is not reachable directly, but relay {$via} reaches it ({$p['rtt_ms']} ms from {$via}); changes still travel through {$via}";
+                        $peers[$i]['notes'][]   = Lang::text('Reach.relayVia', [$r['peer'], $via, $p['rtt_ms'], $via, $via]);
                     }
                 }
             }
@@ -180,7 +180,7 @@ class Reachability
                     $seen      = isset($p['seen']) ? (int) $p['seen'] : null;
                     $relayed[] = [
                         'node' => $name, 'via' => $relayName, 'mode' => self::PUNCH, 'ok' => $seen !== null && $seen <= self::SILENT_S, 'rtt_ms' => 0, 'skew_s' => 0.0, 'seen' => $seen,
-                        'error' => $seen === null ? 'never made contact with the relay' : ($seen > self::SILENT_S ? "silent for {$seen} s" : ''),
+                        'error' => $seen === null ? Lang::text('Reach.neverContact') : ($seen > self::SILENT_S ? Lang::text('Reach.silentFor', [$seen]) : ''),
                     ];
 
                     continue;
@@ -226,14 +226,14 @@ class Reachability
 
         if ($m === null) {
             return ['offset_s' => null, 'age_s' => null, 'correct' => $o->clockCorrect, 'warn' => true,
-                'note' => 'no recent NTP measurement' . ($o->clockCorrect ? ': the correction is off until `sync:ntp` succeeds' : '') . ' (run `php spark sync:ntp`, or check that UDP port 123 is open)'];
+                'note' => Lang::text('Reach.ntpNone') . ($o->clockCorrect ? Lang::text('Reach.ntpCorrectOff') : '') . Lang::text('Reach.ntpHint')];
         }
 
         $limit = $o->clockWarn > 0.0 ? $o->clockWarn : $o->clockMax;
         $off   = abs($m['offset_s']) > $limit && $limit > 0.0;
 
         return ['offset_s' => $m['offset_s'], 'age_s' => $m['age_s'], 'correct' => $o->clockCorrect, 'warn' => $off,
-            'note' => $off ? sprintf('this clock is %+.1f s off the real time%s', -$m['offset_s'], $o->clockCorrect ? ' (its stamps are corrected, fix the clock anyway)' : '; fix the time synchronisation') : 'clock agrees with NTP'];
+            'note' => $off ? Lang::text('Reach.clockOff', [sprintf('%+.1f', -$m['offset_s']), $o->clockCorrect ? Lang::text('Reach.clockCorrected') : Lang::text('Reach.fixSync')]) : Lang::text('Reach.clockAgrees')];
     }
 
     /**
@@ -267,22 +267,22 @@ class Reachability
 
             if ($report['lastSeen'] === null || $report['lastSeen'] > self::SILENT_S) {
                 $warn    = true;
-                $notes[] = "no contact from {$peer} in the last " . intdiv(self::SILENT_S, 60) . ' minutes';
+                $notes[] = Lang::text('Reach.noContact', [$peer, intdiv(self::SILENT_S, 60)]);
             }
         } elseif ($url === '') {
             $fail    = true;
-            $notes[] = "no URL configured for peer {$peer}";
+            $notes[] = Lang::text('Reach.noUrl', [$peer]);
         } else {
             $out                = $this->ping($peer);
             $report['outbound'] = $out;
 
             if (! $out['ok']) {
                 $fail    = true;
-                $notes[] = "cannot reach {$peer} at {$url}: " . $out['error'];
+                $notes[] = Lang::text('Reach.cannotReach', [$peer, $url, $out['error']]);
             } else {
                 if ($out['node'] !== $peer) {
                     $fail    = true;
-                    $notes[] = "the node at {$url} answered as '{$out['node']}', expected '{$peer}' (wrong URL or wrong node name)";
+                    $notes[] = Lang::text('Reach.answeredAs', [$url, $out['node'], $peer]);
                 }
 
                 $skew = abs((float) $out['skew_s']);
@@ -290,23 +290,23 @@ class Reachability
 
                 if ($skew > $o->replayWindow) {
                     $fail    = true;
-                    $notes[] = sprintf('clock differs by %.1f s, more than the replay window (%d s): the peers will reject each other', $skew, $o->replayWindow);
+                    $notes[] = Lang::text('Reach.clockReplay', [sprintf('%.1f', $skew), $o->replayWindow]);
                 } elseif ($o->clockMax > 0.0 && $eff > $o->clockMax) {
                     $warn    = true;
-                    $notes[] = sprintf('clock differs by %.1f s (clockMax %.1f s): "newest wins" is suspended for this peer, conflicts are escalated; fix the time synchronisation', $eff, $o->clockMax);
+                    $notes[] = Lang::text('Reach.clockMax', [sprintf('%.1f', $eff), sprintf('%.1f', $o->clockMax)]);
                 } elseif ($eff > ($o->clockWarn > 0.0 ? min($o->clockWarn, $o->replayWindow / 2) : $o->replayWindow / 2)) {
                     $warn    = true;
-                    $notes[] = sprintf('clock differs by %.1f s (warning at %.1f s): "newest wins" may pick the older edit; fix the time synchronisation', $eff, $o->clockWarn > 0.0 ? min($o->clockWarn, $o->replayWindow / 2) : $o->replayWindow / 2);
+                    $notes[] = Lang::text('Reach.clockWarn', [sprintf('%.1f', $eff), sprintf('%.1f', $o->clockWarn > 0.0 ? min($o->clockWarn, $o->replayWindow / 2) : $o->replayWindow / 2)]);
                 }
 
                 if ($out['rtt_ms'] > self::SLOW_MS) {
                     $warn    = true;
-                    $notes[] = sprintf('slow link: %d ms round trip', $out['rtt_ms']);
+                    $notes[] = Lang::text('Reach.slowLink', [(int) $out['rtt_ms']]);
                 }
 
                 if (str_starts_with(strtolower($url), 'http://') && $report['peerClass'] === self::INTERNET) {
                     $warn    = true;
-                    $notes[] = 'the peer is on the internet over plain http: requests are signed but not encrypted';
+                    $notes[] = Lang::text('Reach.plainHttp');
                 }
             }
         }
@@ -319,8 +319,7 @@ class Reachability
 
             if (! $in['ok']) {
                 $fail    = true;
-                $notes[] = "{$peer} cannot reach this node: " . $in['error']
-                    . '. Either open the port / fix the URL it has for this node, or declare the node passive (sync.passive = true, and mark it passive on the peer)';
+                $notes[] = Lang::text('Reach.peerCannotReach', [$peer, $in['error']]);
             }
         }
 
@@ -334,19 +333,19 @@ class Reachability
         };
 
         if ($report['observed'] === self::PUNCH && ! $o->passive && $report['inbound'] !== null) {
-            $notes[] = 'observed: outbound only (punch / NAT) although the node is declared dial-in';
+            $notes[] = Lang::text('Reach.observedOutbound');
         }
 
         if ($o->passive && $report['outbound'] !== null && $report['outbound']['ok'] && $egress !== '') {
-            $notes[] = "outbound works through NAT; the peer sees this node as {$egress} (" . $this->classifyHost($egress) . ')';
+            $notes[] = Lang::text('Reach.natEgress', [$egress, Lang::text('Reach.mode.' . $this->classifyHost($egress))]);
         }
 
         if (! $o->passive && $self === '') {
-            $notes[] = 'sync.selfUrl is not set: the mode is classified from the address the peer sees';
+            $notes[] = Lang::text('Reach.selfUrl');
         }
 
         if (! empty($report['outbound']['relay'])) {
-            $notes[] = "{$peer} is a relay: it forwards what it applies to its other peers";
+            $notes[] = Lang::text('Reach.isRelay', [$peer]);
         }
 
         $report['notes']   = $notes;
@@ -409,7 +408,7 @@ class Reachability
         try {
             $r = ($this->call)($relay, 'probe', ['peer' => $target]);
         } catch (Throwable $e) {
-            return ['ok' => false, 'rtt_ms' => 0, 'skew_s' => 0.0, 'error' => "relay {$relay}: " . $e->getMessage()];
+            return ['ok' => false, 'rtt_ms' => 0, 'skew_s' => 0.0, 'error' => Lang::text('Reach.relayError', [$relay, $e->getMessage()])];
         }
 
         return ['ok' => ! empty($r['ok']), 'rtt_ms' => (int) ($r['rtt_ms'] ?? 0), 'skew_s' => (float) ($r['skew_s'] ?? 0.0), 'error' => (string) ($r['error'] ?? '')];
@@ -477,15 +476,15 @@ class Reachability
         $who = $target !== '' ? $target : $caller;
 
         if ($target !== '' && ($target === $caller || ! $this->opt->isPeer($target))) {
-            return ['ok' => false, 'rtt_ms' => 0, 'error' => $target === $caller ? 'a node cannot be probed through itself' : "{$this->opt->node} has no peer '{$target}'"];
+            return ['ok' => false, 'rtt_ms' => 0, 'error' => $target === $caller ? Lang::text('Reach.selfProbe') : Lang::text('Reach.noPeer', [$this->opt->node, $target])];
         }
 
         if ($this->opt->isPassivePeer($who)) {
-            return ['ok' => false, 'rtt_ms' => 0, 'error' => "{$who} is configured as passive on {$this->opt->node}: it can only dial in"];
+            return ['ok' => false, 'rtt_ms' => 0, 'error' => Lang::text('Reach.passive', [$who, $this->opt->node])];
         }
 
         if ($this->opt->urlOf($who) === '') {
-            return ['ok' => false, 'rtt_ms' => 0, 'error' => "{$this->opt->node} has no URL for {$who}"];
+            return ['ok' => false, 'rtt_ms' => 0, 'error' => Lang::text('Reach.noUrlFor', [$this->opt->node, $who])];
         }
 
         $t0 = microtime(true);
@@ -500,7 +499,7 @@ class Reachability
         $rtt = (int) round(($t1 - $t0) * 1000);
 
         if ((string) ($r['node'] ?? '') !== $who) {
-            return ['ok' => false, 'rtt_ms' => $rtt, 'error' => "{$this->opt->urlOf($who)} answered as '" . ($r['node'] ?? '?') . "', not '{$who}'"];
+            return ['ok' => false, 'rtt_ms' => $rtt, 'error' => Lang::text('Reach.answeredNot', [$this->opt->urlOf($who), $r['node'] ?? '?', $who])];
         }
 
         return ['ok' => true, 'rtt_ms' => $rtt, 'skew_s' => (float) ($r['time'] ?? $t1) - ($t0 + $t1) / 2, 'error' => ''];
