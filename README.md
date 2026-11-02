@@ -17,8 +17,8 @@ tables, no SSH or root needed.
   CodeIgniter's Email, Migrations, Language and Services.
 
 Multi-language is built in: the admin UI and every alert (Telegram, e-mail) are fully localised
-(`src/Language`), shipped in English, German and Romanian; see [Language](docs/INTEGRATION.md#language)
-for how a host application adds or overrides a locale.
+(`src/Language`); see [Language](docs/INTEGRATION.md#language) for how a host application adds or
+overrides a locale.
 
 Requires PHP 8.2+ and CodeIgniter 4.7. Tested with Shield 1.4, Tasks 1.0, Queue 1.0.
 Portable across MySQL/MariaDB, PostgreSQL and SQLite — see [Tests](#tests).
