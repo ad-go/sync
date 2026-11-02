@@ -46,17 +46,17 @@ class EnvSettings
             'hint' => 'Env.hint.database_default_password'],
         // --- telegram
         'sync.telegram.token' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'secret', 'pattern' => '/^\d{6,12}:[A-Za-z0-9_-]{30,50}$/', 'hint' => 'Env.hint.sync_telegram_token'],
-        'sync.telegram.chat_id' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'text', 'pattern' => '/^-?\d{1,20}$/', 'hint' => 'Env.hint.sync_telegram_token'],
-        'sync.telegram.webhook_secret' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'secret', 'pattern' => '/^[A-Za-z0-9_-]{8,128}$/', 'hint' => 'Env.hint.sync_telegram_token'],
-        'sync.telegram.admin_url' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'url', 'hint' => 'Env.hint.sync_telegram_token'],
+        'sync.telegram.chat_id' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_chat_id', 'type' => 'text', 'pattern' => '/^-?\d{1,20}$/', 'hint' => 'Env.hint.sync_telegram_chat_id'],
+        'sync.telegram.webhook_secret' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_webhook_secret', 'type' => 'secret', 'pattern' => '/^[A-Za-z0-9_-]{8,128}$/', 'hint' => 'Env.hint.sync_telegram_webhook_secret'],
+        'sync.telegram.admin_url' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_admin_url', 'type' => 'url', 'hint' => 'Env.hint.sync_telegram_admin_url'],
         // --- e-mail alerts (sync.mail.*); independent of CI4's own Config\Email
-        'sync.mail.to'     => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'text', 'pattern' => '/^[^@\s]+@[^@\s]+$/', 'hint' => 'Env.hint.sync_telegram_token'],
-        'sync.mail.from'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'text', 'pattern' => '/^[^@\s]+@[^@\s]+$/', 'hint' => 'Env.hint.sync_telegram_token'],
-        'sync.mail.host'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'host', 'hint' => ''],
-        'sync.mail.port'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_telegram_token', 'type' => 'int', 'min' => 1, 'max' => 65535, 'default' => 587, 'hint' => 'Env.hint.sync_telegram_token'],
+        'sync.mail.to'     => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_to', 'type' => 'text', 'pattern' => '/^[^@\s]+@[^@\s]+$/', 'hint' => 'Env.hint.sync_mail_to'],
+        'sync.mail.from'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_from', 'type' => 'text', 'pattern' => '/^[^@\s]+@[^@\s]+$/', 'hint' => 'Env.hint.sync_mail_from'],
+        'sync.mail.host'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_host', 'type' => 'host', 'hint' => ''],
+        'sync.mail.port'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_port', 'type' => 'int', 'min' => 1, 'max' => 65535, 'default' => 587, 'hint' => 'Env.hint.sync_mail_port'],
         'sync.mail.crypto' => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_crypto', 'type' => 'choice', 'options' => ['tls', 'ssl', ''], 'hint' => 'Env.hint.sync_mail_crypto'],
-        'sync.mail.user'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_crypto', 'type' => 'text', 'hint' => ''],
-        'sync.mail.pass'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_crypto', 'type' => 'secret', 'hint' => ''],
+        'sync.mail.user'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_user', 'type' => 'text', 'hint' => ''],
+        'sync.mail.pass'   => ['group' => 'Telegram alerts', 'label' => 'Env.label.sync_mail_pass', 'type' => 'secret', 'hint' => ''],
     ];
 
     /**
