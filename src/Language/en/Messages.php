@@ -47,6 +47,7 @@ return [
         'emailTaken'     => 'That e-mail is already taken.',
         'ownAccount'     => 'You cannot delete your own account.',
         'lastSuperadmin' => 'Cannot delete the last superadmin.',
+        'superadminProtected' => 'You cannot change, delete or view the 2FA codes of a superadmin account.',
         'importRow'      => 'Row {0}: {1}',
         'imported'       => 'Imported {0} user(s).',
         'importErrors'   => 'Errors: {0}',

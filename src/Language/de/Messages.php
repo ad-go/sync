@@ -47,6 +47,7 @@ return [
         'emailTaken'     => 'Diese E-Mail ist bereits vergeben.',
         'ownAccount'     => 'Das eigene Konto kann nicht gelöscht werden.',
         'lastSuperadmin' => 'Der letzte Superadmin kann nicht gelöscht werden.',
+        'superadminProtected' => 'Sie können die 2FA-Codes eines Superadmin-Kontos nicht ändern, löschen oder ansehen.',
         'importRow'      => 'Zeile {0}: {1}',
         'imported'       => '{0} Benutzer importiert.',
         'importErrors'   => 'Fehler: {0}',

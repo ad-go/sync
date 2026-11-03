@@ -275,10 +275,18 @@ class Sync extends BaseConfig
 
     public string $usersEditView = 'AdGo\Sync\Views\users\edit';
 
-    /** Roles (Shield groups) allowed to use the conflicts/settings/users admin UI. */
+    /**
+     * Roles (Shield groups) allowed into the admin UI: dashboard, conflicts, and the Settings page itself. On
+     * Settings, this tier can only use the Users and Application tabs — Branding, Node, Synchronisation,
+     * Database and Telegram alerts render read-only (and their save routes are refused) without $superPermission.
+     * On the Users tab this tier can manage every group except superadmin: granting, revoking, editing or
+     * deleting a superadmin account needs $superPermission too.
+     */
     public string $adminPermission = 'admin.access';
 
-    /** Roles (Shield groups) allowed to use the settings and users admin pages (a tighter subset of adminPermission, e.g. superadmin only). */
+    /** Roles (Shield groups) allowed to edit Branding/Node/Synchronisation/Database/Telegram alerts on the Settings
+     * page, and to manage superadmin accounts on the Users tab (a tighter subset of adminPermission, e.g.
+     * superadmin only). */
     public string $superPermission = 'admin.access';
 
     /**

@@ -47,6 +47,7 @@ return [
         'emailTaken'     => 'Acest e-mail este deja folosit.',
         'ownAccount'     => 'Nu îți poți șterge propriul cont.',
         'lastSuperadmin' => 'Nu se poate șterge ultimul superadministrator.',
+        'superadminProtected' => 'Nu poți modifica, șterge sau vedea codurile 2FA ale unui superadministrator.',
         'importRow'      => 'Rândul {0}: {1}',
         'imported'       => 'Au fost importați {0} utilizator(i).',
         'importErrors'   => 'Erori: {0}',

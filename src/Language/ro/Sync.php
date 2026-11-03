@@ -29,6 +29,7 @@ return [
             'conflicts'       => 'Conflicte',
             'application'     => 'Aplicație',
         ],
+        'readOnly' => 'Doar vizualizare — este nevoie de superadministrator pentru a modifica această secțiune.',
     ],
 
     // Dashboard admin page (Views/dashboard/index.php)

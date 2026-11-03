@@ -70,6 +70,10 @@ button.stab.active{color:var(--acc);background:var(--card);border-color:var(--li
 button.stab > i.bi{color:var(--acc)}
 button.stab.active > i.bi{color:var(--mute)}
 .spanel{display:none}.spanel.active{display:block}
+fieldset.ro-fieldset{border:0;margin:0;padding:0;min-width:0}
+fieldset.ro-fieldset:disabled{opacity:.6}
+.ro-banner{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--mute);background:var(--tint);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:14px}
+.ro-banner i{color:var(--acc)}
 
 /* ── Cards side by side (Telegram + e-mail); one column on narrow screens ──── */
 .scards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
@@ -218,10 +222,14 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
 
 <!-- ── Branding (saved as you change it) ─────────────────────────────── -->
 <div id="t-branding" class="spanel active">
+  <?php if ($readOnly): ?>
+  <div class="ro-banner"><i class="bi bi-lock"></i> <?= lang('Sync.settings.readOnly') ?></div>
+  <?php endif ?>
   <div class="scard">
     <div class="scard-title"><i class="bi bi-palette"></i> <?= lang('Sync.settings.tab.branding') ?></div>
     <form id="brandForm" method="post" action="<?= site_url($base . '/branding') ?>" enctype="multipart/form-data" class="brand-form">
       <?= csrf_field() ?>
+      <fieldset class="ro-fieldset"<?= $readOnly ? ' disabled' : '' ?>>
       <div class="brand-grid">
         <label class="logo-drop<?= $logo !== '' ? ' has-logo' : '' ?>" id="logoDrop" title="<?= esc(lang('Settings.brand.logo_title')) ?>">
           <img id="logoPreview" alt="" src="<?= esc($logo) ?>"<?= $logo === '' ? ' hidden' : '' ?>>
@@ -317,6 +325,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
         <button type="submit" form="rmLogoForm" class="btn-sm btn-outline"><i class="bi bi-x-lg"></i> <?= lang('Settings.brand.remove_logo') ?></button>
         <?php endif ?>
       </div>
+      </fieldset>
     </form>
     <?php if ($logo !== ''): ?>
     <form id="rmLogoForm" method="post" action="<?= site_url($base . '/logo/remove') ?>" style="display:none"><?= csrf_field() ?></form>
@@ -326,6 +335,9 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
 
 <!-- ── Node ──────────────────────────────────────────────────────────── -->
 <div id="t-node" class="spanel">
+  <?php if ($readOnly): ?>
+  <div class="ro-banner"><i class="bi bi-lock"></i> <?= lang('Sync.settings.readOnly') ?></div>
+  <?php endif ?>
   <div class="scard">
     <div class="scard-title"><?= lang('Sync.settings.tab.node') ?></div>
     <div class="fgrid4" style="margin-bottom:12px">
@@ -341,6 +353,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
     </div>
     <form method="post" action="<?= site_url($base . '/identity') ?>">
       <?= csrf_field() ?>
+      <fieldset class="ro-fieldset"<?= $readOnly ? ' disabled' : '' ?>>
       <div class="fgrid3">
         <div class="fg w2">
           <div class="font-pair">
@@ -368,6 +381,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
       <div class="form-footer">
         <button class="btn-sm"><i class="bi bi-check-lg"></i> <?= lang('Settings.btn.save') ?></button>
       </div>
+      </fieldset>
     </form>
   </div>
 </div>
@@ -383,12 +397,16 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
         : [$label($groupName) => $items];
 ?>
 <div id="<?= esc($tabId($groupName)) ?>" class="spanel">
+<?php if ($readOnly): ?>
+<div class="ro-banner"><i class="bi bi-lock"></i> <?= lang('Sync.settings.readOnly') ?></div>
+<?php endif ?>
 <div class="<?= $groupName === 'Telegram alerts' ? 'scards' : '' ?>">
 <?php foreach ($cards as $cardTitle => $cardItems): ?>
   <div class="scard">
     <div class="scard-title"><?= $cardTitle === 'E-mail' ? lang('Settings.card.email') : ($cardTitle === 'Telegram' ? lang('Settings.card.telegram') : esc($cardTitle)) ?></div>
     <form method="post" action="<?= site_url($base . '/env') ?>">
       <?= csrf_field() ?>
+      <fieldset class="ro-fieldset"<?= $readOnly ? ' disabled' : '' ?>>
       <?php if ($groupName === 'Synchronisation'): /* directory and other node in a row, then the six numeric settings in a 3-column grid */ $headKeys = ['sync.files.dir', 'sync.peerUrl']; ?>
       <?= view('AdGo\Sync\Views\settings\_fields', ['items' => array_intersect_key($cardItems, array_flip($headKeys)), 'fspan' => $fspan, 'gridClass' => 'fgrid4']) ?>
       <?= view('AdGo\Sync\Views\settings\_fields', ['items' => array_diff_key($cardItems, array_flip($headKeys)), 'fspan' => $fspan, 'gridClass' => 'fgrid4 three-up']) ?>
@@ -439,6 +457,7 @@ button.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:tra
         <?php endif ?>
       </div>
       <?php endif ?>
+      </fieldset>
     </form>
   </div>
 <?php endforeach ?>

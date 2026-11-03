@@ -29,6 +29,7 @@ return [
             'conflicts'       => 'Conflicts',
             'application'     => 'Application',
         ],
+        'readOnly' => 'View only — superadmin is required to change this section.',
     ],
 
     // Dashboard admin page (Views/dashboard/index.php)

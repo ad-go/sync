@@ -21,7 +21,9 @@ use Throwable;
 /**
  * Settings page: site branding (name/logo/accent colour/font, via `codeigniter4/settings`) and the node identity
  * (`.env`: node/peer names, shared secret, database access and the other whitelisted `.env` variables, via
- * EnvFile/EnvSettings/DbCheck). Behind `Config\Sync::$superPermission` (route filter).
+ * EnvFile/EnvSettings/DbCheck). Viewing the page is behind `Config\Sync::$adminPermission` (route filter); the
+ * Branding/Node/env-group tabs render read-only here (see $readOnly below) and their save routes are behind
+ * the tighter `Config\Sync::$superPermission`, so an adminPermission-only visitor can look but not save them.
  *
  * Renaming a node or rotating the shared secret only takes effect locally: the matching change must be made on
  * the peer by hand (same secret, matching peerNode name) — the package does not try to coordinate this over the
@@ -50,7 +52,13 @@ class SettingsAdmin extends Controller
         // Users and Conflicts are tabs of this page: their markup is rendered here, not served on their own.
         $openConflict = (int) $this->request->getGet('conflict');
 
+        // Branding/Node/env-group tabs save through routes gated by superPermission (see Config/Routes.php): a
+        // visitor who only has adminPermission can reach this page but not those routes, so the view renders
+        // them read-only instead of letting a save fail silently.
+        $readOnly = ! (auth()->user() !== null && auth()->user()->can($cfg->superPermission));
+
         return view((string) $cfg->settingsIndexView, [
+            'readOnly'       => $readOnly,
             'usersPanel'     => (new UsersAdmin())->panel(),
             'filesRoot'      => rtrim(ROOTPATH, "/\\"),
             'dirsUrl'        => site_url($this->base() . '/dirs'),

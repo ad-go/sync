@@ -19,7 +19,10 @@ use CodeIgniter\Shield\Models\UserModel;
  * Users admin: list, create, edit, delete Shield users and their group membership, CSV import, plus the
  * "View 2FA" modal for superadmins (QR code + recovery codes, re-viewable any time via TwoFactor).
  * Every write path (form, DTE AJAX, CSV) goes through checkUser() and store(), so the rules and the superadmin
- * TOTP provisioning are the same wherever a user comes from. Behind `Config\Sync::$superPermission` (route filter).
+ * TOTP provisioning are the same wherever a user comes from. Behind `Config\Sync::$adminPermission` (route
+ * filter) — but that tier can never grant or revoke the superadmin group, nor edit, delete or view the 2FA
+ * secrets of an existing superadmin account: those need `Config\Sync::$superPermission` too (isSuper() below),
+ * checked here rather than by the route, since it depends on the target user, not just the actor.
  */
 class UsersAdmin extends Controller
 {
@@ -41,6 +44,19 @@ class UsersAdmin extends Controller
         $this->users  = model(UserModel::class);
     }
 
+    private function isSuper(): bool
+    {
+        return auth()->user() !== null && auth()->user()->can(config('Sync')->superPermission);
+    }
+
+    /** The groups an adminPermission-only actor may offer/assign: every group except superadmin. */
+    private function assignableGroups(): array
+    {
+        $groups = $this->groupNames();
+
+        return $this->isSuper() ? $groups : array_values(array_diff($groups, ['superadmin']));
+    }
+
     /** The Users page lives in Settings now: this URL goes to its tab. */
     public function index(): RedirectResponse
     {
@@ -55,7 +71,7 @@ class UsersAdmin extends Controller
         $cfg = config('Sync');
 
         return view((string) $cfg->usersIndexView, [
-            'groups' => $this->groupNames(),
+            'groups' => $this->assignableGroups(),
             'base'   => $this->base(),
             'dteUrl' => site_url(trim($cfg->dteAssetsUrl, '/') . '/'),
         ]);
@@ -134,6 +150,10 @@ class UsersAdmin extends Controller
 
                 if ($user === null) {
                     return $this->response->setJSON(['error' => lang('Messages.users.unknown')]);
+                }
+
+                if (! $this->isSuper() && $user->inGroup('superadmin')) {
+                    return $this->response->setJSON(['error' => lang('Messages.users.superadminProtected')]);
                 }
             }
 
@@ -254,6 +274,10 @@ class UsersAdmin extends Controller
     /** JSON endpoint for the "View 2FA" modal. */
     public function twofa(int $id): ResponseInterface
     {
+        if (! $this->isSuper()) {
+            return $this->response->setStatusCode(404)->setJSON(['error' => lang('Messages.users.superadminProtected')]);
+        }
+
         $user = $this->users->findById($id);
 
         if ($user === null || ! $user->inGroup('superadmin')) {
@@ -382,7 +406,7 @@ class UsersAdmin extends Controller
         $email    = trim((string) ($raw['email'] ?? ''));
         $password = (string) ($raw['password'] ?? '');
         $active   = (bool) ($raw['active'] ?? true);
-        $groups   = array_values(array_intersect(array_map('trim', (array) ($raw['groups'] ?? [])), $this->groupNames()));
+        $groups   = array_values(array_intersect(array_map('trim', (array) ($raw['groups'] ?? [])), $this->assignableGroups()));
 
         if ($groups === []) {
             $groups = $defaultGroups;
@@ -468,6 +492,10 @@ class UsersAdmin extends Controller
     {
         if ((int) $user->id === (int) auth()->id()) {
             return lang('Messages.users.ownAccount');
+        }
+
+        if (! $this->isSuper() && $user->inGroup('superadmin')) {
+            return lang('Messages.users.superadminProtected');
         }
 
         if ($user->inGroup('superadmin') && $this->countSuperadmins() <= 1) {

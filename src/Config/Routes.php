@@ -99,13 +99,23 @@ $routes->group(trim($syncCfg->conflictsPath, '/'), [
     $routes->post('lock', 'ConflictAdmin::lock');
 });
 
-// Settings admin page (Shield session + the tighter superPermission).
+// Settings admin page: viewing (Shield session + adminPermission) is open to the same tier as the dashboard —
+// the page itself renders Branding/Node/Synchronisation/Database/Telegram alerts read-only for that tier, since
+// saving them needs superPermission (below). Users and Application stay fully usable at adminPermission.
+$routes->group(trim($syncCfg->settingsPath, '/'), [
+    'namespace' => $ns,
+    'filter'    => ['session', 'permission:' . $syncCfg->adminPermission],
+], static function ($routes): void {
+    $routes->get('/', 'SettingsAdmin::index');
+    $routes->get('dirs', 'SettingsAdmin::dirs');
+});
+
+// Settings writes: Branding, Node identity, the .env-backed groups (Synchronisation/Database/Telegram alerts) —
+// the tighter superPermission, matching the read-only tabs above.
 $routes->group(trim($syncCfg->settingsPath, '/'), [
     'namespace' => $ns,
     'filter'    => ['session', 'permission:' . $syncCfg->superPermission],
 ], static function ($routes): void {
-    $routes->get('/', 'SettingsAdmin::index');
-    $routes->get('dirs', 'SettingsAdmin::dirs');
     $routes->post('branding', 'SettingsAdmin::saveBranding');
     $routes->post('logo/remove', 'SettingsAdmin::removeLogo');
     $routes->post('identity', 'SettingsAdmin::identity');
@@ -115,10 +125,11 @@ $routes->group(trim($syncCfg->settingsPath, '/'), [
     $routes->post('dte', 'SettingsAdmin::dteToggle');
 });
 
-// Users admin pages (Shield session + the tighter superPermission).
+// Users admin pages (Shield session + adminPermission). Managing a superadmin account specifically still needs
+// superPermission — enforced in UsersAdmin itself, since it depends on the target user, not the route.
 $routes->group(trim($syncCfg->usersPath, '/'), [
     'namespace' => $ns,
-    'filter'    => ['session', 'permission:' . $syncCfg->superPermission],
+    'filter'    => ['session', 'permission:' . $syncCfg->adminPermission],
 ], static function ($routes): void {
     $routes->get('/', 'UsersAdmin::index');
     $routes->post('/', 'UsersAdmin::create');

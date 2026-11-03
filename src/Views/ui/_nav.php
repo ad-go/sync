@@ -1,17 +1,18 @@
 <?php
 /**
  * Package admin sidebar nav. Active state detected from the current URL, like the ia host app.
- * Settings and Users are only shown to Config\Sync::$superPermission holders.
+ * Settings is shown to Config\Sync::$adminPermission holders too (the page itself renders Branding/Node/
+ * Synchronisation/Database/Telegram alerts read-only, and Users refuses superadmin changes, for that tier).
  */
 $cfg   = config('Sync');
-$super = auth()->user() !== null && auth()->user()->can($cfg->superPermission);
+$admin = auth()->user() !== null && auth()->user()->can($cfg->adminPermission);
 $seg   = parse_url(current_url(), PHP_URL_PATH);
 $on    = static fn (string $path): string =>
     str_contains($seg, '/' . trim($path, '/')) ? 'aria-current="page"' : '';
 ?>
 <nav class="menu">
   <a href="<?= site_url(trim($cfg->dashboardPath, '/')) ?>" <?= $on($cfg->dashboardPath) ?>><i class="bi bi-speedometer2"></i> <?= lang('Sync.nav.dashboard') ?></a>
-<?php if ($super): ?>
+<?php if ($admin): ?>
   <a href="<?= site_url(trim($cfg->settingsPath, '/')) ?>"
      <?= ($on($cfg->settingsPath) ?: $on($cfg->conflictsPath) ?: $on($cfg->usersPath)) ?>><i class="bi bi-gear"></i> <?= lang('Sync.nav.settings') ?></a>
 <?php endif ?>
